@@ -58,27 +58,11 @@ const CSS = `
   --orange:   #f97316;
   --purple:   #a78bfa;
 }
-.light-mode {
-  --bg:       #f8f9ff;
-  --bg2:      #eef0fa;
-  --surface:  rgba(0,0,0,0.03);
-  --surface2: rgba(0,0,0,0.06);
-  --border:   rgba(0,0,0,0.08);
-  --border2:  rgba(0,0,0,0.15);
-  --blue:     #1a4fff;
-  --blue2:    #2563eb;
-  --blue-hi:  #1a4fff;
-  --text:     #0f1733;
-  --text2:    #4a5380;
-  --text3:    #9ba3c8;
-  --white:    #0f1733;
-  --green:    #16a37a;
-  --orange:   #ea6c00;
-  --purple:   #7c5cbf;
-}
-.light-mode body { background:#f8f9ff;color:#0f1733; }
-.light-mode .nav { background:rgba(248,249,255,0.9); }
-.light-mode .hero-bg { filter:brightness(.6) saturate(1.2); }
+
+
+
+
+/* article reader */
 
 html { scroll-behavior: smooth; }
 body { background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-weight:300;letter-spacing:.01em;overflow-x:hidden;cursor:none; }
@@ -125,19 +109,7 @@ body:has(a:hover) #crr,body:has(button:hover) #crr { width:46px;height:46px;bord
 .nav-item.active { color:var(--white); }
 .nav-item.active::after { width:50%; }
 
-.theme-toggle {
-  display:none;width:32px;height:32px;border-radius:8px;background:none;
-  border:1px solid var(--border);cursor:pointer;font-size:.85rem;
-  align-items:center;justify-content:center;transition:all .2s;padding:0;
-}
-.theme-toggle:hover { border-color:var(--border2);background:var(--surface); }
-.nav-links-right { display:flex;align-items:center;gap:.5rem; }
-.theme-toggle-desktop {
-  width:32px;height:32px;border-radius:8px;background:none;
-  border:1px solid var(--border);cursor:none;font-size:.85rem;
-  display:flex;align-items:center;justify-content:center;transition:all .2s;padding:0;
-}
-.theme-toggle-desktop:hover { border-color:var(--border2);background:var(--surface); }
+.nav-right { display:flex;align-items:center;gap:.5rem; }
 .nav-burger {
   display:none;flex-direction:column;gap:5px;justify-content:center;align-items:center;
   width:36px;height:36px;background:none;border:1px solid var(--border);border-radius:8px;
@@ -188,7 +160,7 @@ body:has(a:hover) #crr,body:has(button:hover) #crr { width:46px;height:46px;bord
 .hero-curve-left {
   position:absolute;z-index:1;pointer-events:none;
   left:-5%;bottom:-10%;width:55%;height:85%;
-  background:var(--bg);border-radius:0 60% 0 0;
+  background:#05070e;border-radius:0 60% 0 0;
 }
 .hero-vignette {
   position:absolute;inset:0;z-index:2;pointer-events:none;
@@ -542,7 +514,6 @@ body:has(a:hover) #crr,body:has(button:hover) #crr { width:46px;height:46px;bord
 }
 @media(max-width:600px){
   html,body { overflow-x:hidden;width:100%; }
-  .theme-toggle { display:flex; }
   .app { overflow-x:hidden; }
   #cr,#crr { display:none; }
   body { cursor:auto; }
@@ -621,7 +592,6 @@ export default function App(){
   const [busy,setBusy]     = useState(false);
   const [range,setRange]   = useState("7d");
   const [menuOpen,setMenuOpen] = useState(false);
-  const [darkMode,setDarkMode] = useState(true);
   const convexArticles = useQuery(api.articles.list);
   const sendMessage = useAction(api.chat.chat);
   const ARTICLES = convexArticles ?? [];
@@ -666,14 +636,14 @@ export default function App(){
       <div id="cr" ref={crRef}/><div id="crr" ref={crrRef}/>
       <div className="grain"/>
 
-      <div className={`app${darkMode?"":" light-mode"}`}>
+      <div className="app">
 
         {/* ── NAV ── */}
         <nav className="nav">
           <div className="nav-logo" onClick={()=>{navTo("home");setMenuOpen(false);}}>
             <span><span className="logo-n">Noel</span>Claw</span>
           </div>
-          <div style={{display:"flex",alignItems:"center",gap:".5rem"}}>
+          <div className="nav-right">
             <div className="nav-links">
               {["home","articles","dashboard","analytics","about"].map(p=>(
                 <button key={p} className={`nav-item${page===p&&!art?" active":""}`} onClick={()=>navTo(p)}>
@@ -681,15 +651,7 @@ export default function App(){
                 </button>
               ))}
             </div>
-            <button className="theme-toggle-desktop" onClick={()=>setDarkMode(d=>!d)} title="Toggle theme">
-              {darkMode ? "☀️" : "🌙"}
-            </button>
-          </div>
-          <div style={{display:"flex",alignItems:"center",gap:".5rem"}}>
-            <button className="theme-toggle" onClick={()=>setDarkMode(d=>!d)} title="Toggle theme">
-              {darkMode ? "☀️" : "🌙"}
-            </button>
-            <button className="nav-burger" onClick={()=>setMenuOpen(o=>!o)}>
+<button className="nav-burger" onClick={()=>setMenuOpen(o=>!o)}>
               <span/><span/><span/>
             </button>
           </div>

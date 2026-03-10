@@ -708,13 +708,9 @@ export default function App(){
   const [moltPosting, setMoltPosting] = useState(false);
   const [moltStatus, setMoltStatus] = useState("");
   const [liked, setLiked] = useState(false);
-  const [likeCount, setLikeCount] = useState(24);
-  const [comments, setComments] = useState([
-    {id:1,name:"Alex",initial:"A",text:"This is exactly the kind of thinking we need more of. Great breakdown of the architecture.",time:"2h ago",color:"#3b82f6"},
-    {id:2,name:"Maya",initial:"M",text:"The composable agent idea reminds me of Unix pipes but for AI. Really interesting direction.",time:"5h ago",color:"#a78bfa"},
-  ]);
+  const [likeCount, setLikeCount] = useState(2);
+  const [comments, setComments] = useState([]);
   const [commentVal, setCommentVal] = useState("");
-  const [activeCat, setActiveCat] = useState("All");
 
   const handleMoltPost = async () => {
     if (!art) return;
@@ -898,7 +894,7 @@ export default function App(){
                     <div className="rec-title">More to read</div>
                     <div className="rec-grid">
                       {ARTICLES.filter(a2=>a2.title!==art.title).slice(0,4).map((a2,i)=>(
-                        <div key={i} className="rec-card" onClick={()=>{setArt(a2);setLiked(false);setLikeCount(Math.floor(Math.random()*40+10));window.scrollTo({top:0,behavior:'instant'});}}>
+                        <div key={i} className="rec-card" onClick={()=>{setArt(a2);window.scrollTo({top:0,behavior:'instant'});}}>
                           <div className="rec-tags">{a2.tags?.map(t=><span key={t.k} className={`atag ${t.c}`}>{t.k}</span>)}</div>
                           <div className="rec-card-title">{a2.title}</div>
                           <div className="rec-card-desc">{a2.desc}</div>
@@ -910,27 +906,8 @@ export default function App(){
                 )}
               </div>
 
-              {/* RIGHT: category sidebar */}
+              {/* RIGHT: sidebar */}
               <div className="reader-sidebar">
-                <div className="rsb-card">
-                  <div className="rsb-title">Categories</div>
-                  <div className="cat-list">
-                    {[
-                      {name:"All",color:"#4d85ff"},
-                      {name:"AI",color:"#3b82f6"},
-                      {name:"Crypto",color:"#22d3a5"},
-                      {name:"Finance",color:"#f97316"},
-                      {name:"Business",color:"#a78bfa"},
-                      {name:"Mindset",color:"#f59e0b"},
-                    ].map(cat=>(
-                      <button key={cat.name} className={`cat-btn${activeCat===cat.name?" active":""}`} onClick={()=>setActiveCat(cat.name)}>
-                        <span>{cat.name}</span>
-                        <span className="cat-dot" style={{background:cat.color}}/>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
                 <div className="rsb-card">
                   <div className="rsb-title">About this article</div>
                   <div style={{fontSize:".75rem",color:"var(--text2)",lineHeight:1.7,marginBottom:".8rem"}}>{art.desc}</div>

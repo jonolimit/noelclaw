@@ -83,24 +83,24 @@ body:has(a:hover) #crr,body:has(button:hover) #crr { width:46px;height:46px;bord
 /* ── CA BAR ── */
 .ca-bar {
   width:100%;background:#03050c;border-bottom:1px solid rgba(255,255,255,0.07);
-  padding:.4rem 0;display:flex;align-items:center;
-  font-size:.62rem;font-weight:300;letter-spacing:.08em;color:var(--text2);
+  padding:.45rem 0;display:flex;align-items:center;
+  font-size:.75rem;font-weight:300;letter-spacing:.08em;color:var(--text2);
   position:sticky;top:0;z-index:201;overflow:hidden;
 }
 .ca-bar-inner {
-  display:flex;align-items:center;gap:2rem;
+  display:flex;align-items:center;gap:2.5rem;
   white-space:nowrap;
-  animation:ca-scroll 30s linear infinite;
+  animation:ca-scroll 35s linear infinite;
   will-change:transform;
 }
 .ca-bar:hover .ca-bar-inner { animation-play-state:paused; }
 @keyframes ca-scroll {
-  from { transform:translateX(0); }
-  to { transform:translateX(-50%); }
+  from { transform:translateX(100vw); }
+  to { transform:translateX(-100%); }
 }
-.ca-label { color:var(--blue-hi);font-weight:600;letter-spacing:.14em;text-transform:uppercase;font-size:.6rem; }
+.ca-label { color:var(--blue-hi);font-weight:600;letter-spacing:.14em;text-transform:uppercase;font-size:.72rem; }
 .ca-addr {
-  font-family:'Courier New',monospace;color:var(--text2);font-size:.59rem;
+  font-family:'Courier New',monospace;color:var(--text2);font-size:.68rem;
   cursor:pointer;transition:color .2s;letter-spacing:.03em;
 }
 .ca-addr:hover { color:#fff; }

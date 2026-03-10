@@ -760,6 +760,24 @@ export default function App(){
                 <span className="rmin">{art.read} read</span>
               </div>
               <div className="rbody">{renderBody(art.body)}</div>
+
+              {/* Share bar */}
+              <div style={{background:"var(--card)",border:"1px solid var(--border)",borderRadius:"10px",padding:"1rem 1.2rem",margin:"2rem 0",display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:".8rem"}}>
+                <div style={{fontSize:".78rem",color:"var(--text2)"}}>Share this article</div>
+                <div style={{display:"flex",gap:".5rem",flexWrap:"wrap"}}>
+                  <a href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(art.title+" — "+art.desc+" noelclaw.fun @noelclawfun")}`} target="_blank" rel="noopener noreferrer" style={{
+                    display:"inline-flex",alignItems:"center",gap:".35rem",
+                    background:"#000",border:"1px solid var(--border)",borderRadius:"6px",
+                    padding:".38rem .8rem",fontSize:".72rem",color:"var(--white)",textDecoration:"none",
+                  }}>𝕏 Share on X</a>
+                  <button onClick={()=>{navigator.clipboard.writeText("https://noelclaw.fun");}} style={{
+                    display:"inline-flex",alignItems:"center",gap:".35rem",
+                    background:"none",border:"1px solid var(--border)",borderRadius:"6px",
+                    padding:".38rem .8rem",fontSize:".72rem",color:"var(--text2)",cursor:"pointer",fontFamily:"inherit",
+                  }}>🔗 Copy Link</button>
+                </div>
+              </div>
+
               <div className="rfooter">
                 <span className="rfooter-t">Thanks for reading — NoelClaw</span>
                 <div style={{display:"flex",alignItems:"center",gap:".8rem",flexWrap:"wrap"}}>
@@ -824,6 +842,37 @@ export default function App(){
                   {ARTICLES.slice(0,4).map((a,i)=><ARow key={i} a={a} onClick={()=>{setArt(a);setMoltStatus("");window.scrollTo({top:0,behavior:'instant'});}}/>)}
                 </div>
               </div>
+
+              {/* Newsletter */}
+              <div className="section" style={{paddingTop:0}}>
+                <div style={{background:"var(--card)",border:"1px solid var(--border)",borderRadius:"14px",padding:"2rem 2.5rem",display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:"1.5rem"}}>
+                  <div>
+                    <div style={{fontSize:"1rem",fontWeight:600,color:"var(--white)",marginBottom:".4rem"}}>Stay in the loop</div>
+                    <div style={{fontSize:".78rem",color:"var(--text2)"}}>New articles, architecture decisions, and NoelClaw updates — straight to your inbox.</div>
+                  </div>
+                  <div style={{display:"flex",gap:".5rem",flexWrap:"wrap"}}>
+                    <input
+                      type="email"
+                      placeholder="your@email.com"
+                      style={{
+                        background:"var(--input,#0d1117)",border:"1px solid var(--border)",borderRadius:"6px",
+                        padding:".55rem 1rem",fontSize:".78rem",color:"var(--white)",fontFamily:"inherit",
+                        outline:"none",minWidth:"200px",
+                      }}
+                      onFocus={e=>e.target.style.borderColor="var(--border2)"}
+                      onBlur={e=>e.target.style.borderColor="var(--border)"}
+                    />
+                    <button
+                      onClick={()=>alert("Newsletter coming soon! Follow @noelclawfun on X for now.")}
+                      style={{
+                        background:"var(--white)",color:"var(--bg)",border:"none",borderRadius:"6px",
+                        padding:".55rem 1.2rem",fontSize:".78rem",fontWeight:600,cursor:"pointer",
+                        fontFamily:"inherit",transition:"opacity .2s",
+                      }}>Subscribe</button>
+                  </div>
+                </div>
+              </div>
+
             </div>
           )}
 
@@ -852,6 +901,7 @@ export default function App(){
                 <div className="kpi kgreen"><div className="kpi-lbl">Article Reads<span className="kpi-ico">📖</span></div><div className="kpi-val">2.8K</div><div className="kpi-chg up">↑ +22% <span>vs last week</span></div></div>
                 <div className="kpi korange"><div className="kpi-lbl">Chat Sessions<span className="kpi-ico">💬</span></div><div className="kpi-val">184</div><div className="kpi-chg up">↑ +29% <span>vs last week</span></div></div>
                 <div className="kpi kpurple"><div className="kpi-lbl">X Followers<span className="kpi-ico">✦</span></div><div className="kpi-val">50</div><div className="kpi-chg up">↑ +63 <span>this week</span></div></div>
+                <div className="kpi" style={{background:"var(--card)",border:"1px solid var(--border)"}}><div className="kpi-lbl">$NOELCLAW Holders<span className="kpi-ico">🦞</span></div><div className="kpi-val">{tokenData?.price ? "82" : "—"}</div><div className="kpi-chg up">↑ Base Chain</div></div>
               </div>
 
               {/* $NOELCLAW Price Widget */}
@@ -1067,15 +1117,35 @@ export default function App(){
                     <div className="abt-handle">@noelclawfun · Personal AI OS</div>
                   </div>
                 </div>
+
+                {/* Story */}
+                <div className="stk-hd" style={{marginTop:"2rem"}}>The Story</div>
                 <p className="abt-body">
-                  <strong>NoelClaw</strong> is a personal AI operating system — a space where building, thinking, and documenting happen in public.<br/><br/>
-                  Every architecture decision gets logged. Every experiment gets written about. The AI you can chat with on this site? <strong>Part of what's being built here.</strong><br/><br/>
-                  Follow the journey on <a href="https://x.com/noelclawfun" target="_blank" rel="noopener noreferrer">𝕏 @noelclawfun</a>.
+                  NoelClaw started as a simple question: <strong>what would it look like if your AI tools weren't scattered across 10 different apps?</strong><br/><br/>
+                  The idea was to build one composable system — a personal AI operating system — that could read, write, research, and act on your behalf. Not a chatbot. Not a productivity wrapper. Something closer to an OS layer for thinking.<br/><br/>
+                  Every decision made while building NoelClaw gets documented publicly. The architecture, the failures, the pivots. Because the most valuable thing isn't the final product — it's the reasoning behind every choice.<br/><br/>
+                  This site is that log. The articles are real. The AI you can chat with here is part of what's being built. The token is how we share the upside with the people following along.<br/><br/>
+                  <strong>We're building in public. Come watch — or build with us.</strong>
                 </p>
+
+                {/* Stack */}
                 <div className="stk-hd">Stack</div>
                 <div className="chips">
-                  {["Next.js","TypeScript","Turborepo","Claude API","MDX","Vercel","Tailwind CSS","pnpm","Bun"].map(s=>(
+                  {["React","Vite","TypeScript","Convex","Claude API","Vercel","DexScreener","Moltbook","Base Chain"].map(s=>(
                     <span className="chip" key={s}>{s}</span>
+                  ))}
+                </div>
+
+                {/* Links */}
+                <div className="stk-hd" style={{marginTop:"2rem"}}>Links</div>
+                <div style={{display:"flex",flexWrap:"wrap",gap:".6rem",marginTop:".8rem"}}>
+                  {[
+                    {l:"𝕏 @noelclawfun", u:"https://x.com/noelclawfun"},
+                    {l:"Buy $NOELCLAW", u:"https://flaunch.gg/base/coin/0xa57d8ce207c7daaeeed4e3a491bdf51d89233af3"},
+                    {l:"Mint Tiles", u:"https://takeover.fun/coin/0xa57d8ce207c7daaeeed4e3a491bdf51d89233af3"},
+                    {l:"GitHub", u:"https://flaunch.gg/base/coin/0xa57d8ce207c7daaeeed4e3a491bdf51d89233af3"},
+                  ].map(({l,u})=>(
+                    <a key={l} href={u} target="_blank" rel="noopener noreferrer" className="chip" style={{textDecoration:"none",color:"var(--blue-hi)",borderColor:"var(--border2)"}}>{l} ↗</a>
                   ))}
                 </div>
               </div>

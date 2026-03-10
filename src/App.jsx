@@ -861,7 +861,13 @@ export default function App(){
                     </div>
                   </div>
                   <div style={{display:"flex",alignItems:"center",gap:"1rem",flexWrap:"wrap"}}>
-                    {tokenData && !tokenLoading && typeof tokenData === "object" && (
+                    {tokenData && !tokenLoading && typeof tokenData === "string" && (
+                      <div style={{fontSize:".72rem",color:"#ff4d4d"}}>{tokenData}</div>
+                    )}
+                    {tokenData && !tokenLoading && typeof tokenData === "object" && !tokenData.price && (
+                      <div style={{fontSize:".72rem",color:"var(--text2)",wordBreak:"break-all"}}>{JSON.stringify(tokenData)}</div>
+                    )}
+                    {tokenData && !tokenLoading && typeof tokenData === "object" && tokenData.price && (
                       <>
                         <div style={{textAlign:"right"}}>
                           <div style={{fontSize:"1.1rem",fontWeight:700,color:"var(--white)"}}>${parseFloat(tokenData.price||0).toFixed(8)}</div>

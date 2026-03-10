@@ -144,11 +144,14 @@ body:has(a:hover) #crr,body:has(button:hover) #crr { width:46px;height:46px;bord
 }
 .nav-burger span { width:16px;height:1px;background:var(--text2);display:block;transition:all .2s; }
 .mob-menu {
-  position:fixed;top:54px;left:0;right:0;z-index:199;
+  position:fixed;top:88px;left:0;right:0;z-index:199;
   background:rgba(5,7,14,0.99);backdrop-filter:blur(20px);
   border-bottom:1px solid var(--border);
   display:flex;flex-direction:column;padding:.5rem 0;
   box-shadow:0 8px 32px rgba(0,0,0,0.5);
+}
+.mob-overlay {
+  position:fixed;inset:0;z-index:198;background:rgba(0,0,0,0.5);
 }
 .mob-item {
   padding:.85rem 1.4rem;font-size:.9rem;font-weight:300;color:var(--text2);
@@ -607,6 +610,7 @@ body:has(a:hover) #crr,body:has(button:hover) #crr { width:46px;height:46px;bord
   .abt-section-row { grid-template-columns:1fr !important;gap:1.2rem !important;padding-left:1.5rem !important;padding-right:1.5rem !important; }
   .abt-grid-cell { padding:2.5rem 1.5rem !important;border-right:none !important; }
   .abt-outer-grid { grid-template-columns:1fr !important; }
+  .abt-inline-grid { grid-template-columns:1fr !important; }
 }
 @media(max-width:600px){
   html,body { overflow-x:hidden;width:100%; }
@@ -633,6 +637,8 @@ body:has(a:hover) #crr,body:has(button:hover) #crr { width:46px;height:46px;bord
   .abt-section-row { grid-template-columns:1fr !important;gap:1rem !important;padding-left:1.2rem !important;padding-right:1.2rem !important; }
   .abt-section-label { position:static !important; }
   .abt-grid-cell { padding:2rem 1.2rem !important;border-right:none !important; }
+  .abt-inline-grid { grid-template-columns:1fr !important; }
+  .mob-menu { top:82px; }
   .arow { flex-direction:column;gap:.5rem;padding:1.2rem 1rem; }
   .ameta { flex-direction:row;gap:1rem; }
   .anum { display:none; }
@@ -815,6 +821,8 @@ export default function App(){
           </div>
         </nav>
         {menuOpen&&(
+          <>
+          <div className="mob-overlay" onClick={()=>setMenuOpen(false)}/>
           <div className="mob-menu">
             {["home","articles","dashboard","analytics","about"].map(p=>(
               <button key={p} className={`mob-item${page===p&&!art?" active":""}`} onClick={()=>{navTo(p);setMenuOpen(false);}}>
@@ -822,6 +830,7 @@ export default function App(){
               </button>
             ))}
           </div>
+          </>
         )}
 
         {/* ── MAIN CONTENT ── */}
@@ -1212,7 +1221,7 @@ export default function App(){
           {/* ABOUT */}
           {!art&&page==="about"&&(
             <div className="page">
-              {/* Hero banner */}
+              {/* Hero */}
               <div style={{padding:"4rem 3.5rem 3rem",borderBottom:"1px solid var(--border)"}}>
                 <div style={{display:"flex",alignItems:"center",gap:"1.5rem",marginBottom:"2rem"}}>
                   <div className="abt-wrap">
@@ -1224,57 +1233,64 @@ export default function App(){
                     <div className="abt-handle">@noelclawfun · Personal AI OS</div>
                   </div>
                 </div>
-                <p style={{fontSize:"1.35rem",fontWeight:200,color:"var(--text)",lineHeight:1.55,maxWidth:"600px",letterSpacing:"-.01em"}}>
+                <p style={{fontSize:"1.25rem",fontWeight:200,color:"var(--text)",lineHeight:1.6,maxWidth:"560px",letterSpacing:"-.01em"}}>
                   A personal AI operating system — built in public, one decision at a time.
                 </p>
               </div>
 
-              {/* Content sections */}
-              {/* Sections grid - 2 per row, alternating */}
-              <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",borderBottom:"1px solid var(--border)"}}>
+              {/* About section */}
+              <div className="abt-inline-grid" style={{display:"grid",gridTemplateColumns:"1fr 1fr",borderBottom:"1px solid var(--border)"}}>
                 {[
                   {
                     label:"01 — What is NoelClaw?",
-                    content: <>NoelClaw is a personal AI operating system — built and documented in public. It's a composable system that reads, writes, researches, and acts on your behalf. Think of it as an OS layer for thinking, not another chatbot to open and forget.</>
+                    content:<>NoelClaw is a composable AI system that reads, writes, researches, and acts on your behalf. Not a chatbot. Not a SaaS. Think of it as an OS layer for thinking — built on modern AI infrastructure and documented fully in public.</>
                   },
                   {
-                    label:"02 — What's being built?",
-                    content: <>A set of AI agents each handling a specific domain: research, writing, memory, and more — routed through one unified layer. Right now: a Claude-powered assistant embedded here, a content pipeline, and <strong>$NOELCLAW</strong> live on Base Chain.</>
+                    label:"02 — Why build this?",
+                    content:<>Most AI tools are isolated. Every session starts from zero — no memory, no action, no context. NoelClaw started from one frustration: <strong>why don't your tools talk to each other?</strong> This is the answer.</>
                   },
                   {
-                    label:"03 — Why build this?",
-                    content: <>Most AI tools are isolated. You type a prompt, get an answer, and the loop ends — no memory, no action, no context. NoelClaw started from one frustration: <strong>why don't your tools talk to each other?</strong> This is the answer.</>
+                    label:"03 — Vision & Mission",
+                    content:<><strong>Vision —</strong> Everyone has a personal AI that understands their context and grows with them.<br/><br/><strong>Mission —</strong> Build it in the open. Document every decision. Make the reasoning trail more valuable than the product.</>
                   },
                   {
-                    label:"04 — Vision & Mission",
-                    content: <><strong>Vision —</strong> Every person has a personal AI that understands their context and grows smarter over time.<br/><br/><strong>Mission —</strong> Build it in the open. Document every decision. Make the reasoning trail more valuable than the product itself.</>
-                  },
-                  {
-                    label:"05 — A note to close",
-                    content: <>This is early and intentionally unpolished. NoelClaw exists to show what's possible when you build deliberately and ship honestly. Follow <a href="https://x.com/noelclawfun" target="_blank" rel="noopener noreferrer" style={{color:"var(--blue-hi)",textDecoration:"none"}}>@noelclawfun</a> or grab <a href="https://flaunch.gg/base/coin/0xa57d8ce207c7daaeeed4e3a491bdf51d89233af3" target="_blank" rel="noopener noreferrer" style={{color:"var(--blue-hi)",textDecoration:"none"}}>$NOELCLAW</a> to own a piece of it.</>
-                  },
-                  {
-                    label:"06 — Thank you",
-                    content: <>Genuinely — thank you for reading this far. Whether you found this through X, a friend, or a random search, you're now part of the story. Every reader makes this more real. Keep coming back, ask Noel something, and <strong>see you on the other side of the build. 🦕</strong></>
+                    label:"04 — Thank you 🦕",
+                    content:<>Genuinely — thanks for reading this far. Whether you found this through X, a friend, or a search — you're part of the story now. Follow <a href="https://x.com/noelclawfun" target="_blank" rel="noopener noreferrer" style={{color:"var(--blue-hi)",textDecoration:"none"}}>@noelclawfun</a> or grab <a href="https://flaunch.gg/base/coin/0xa57d8ce207c7daaeeed4e3a491bdf51d89233af3" target="_blank" rel="noopener noreferrer" style={{color:"var(--blue-hi)",textDecoration:"none"}}>$NOELCLAW</a>. See you on the other side.</>
                   },
                 ].map((s,i)=>(
-                  <div key={i} className="abt-grid-cell" style={{
-                    padding:"3rem 3rem",
+                  <div key={i} style={{
+                    padding:"2.5rem 3rem",
                     borderRight: i%2===0 ? "1px solid var(--border)" : "none",
                     borderTop: i>=2 ? "1px solid var(--border)" : "none",
                   }}>
-                    <div style={{fontSize:".58rem",fontWeight:600,color:"var(--text3)",letterSpacing:".2em",textTransform:"uppercase",marginBottom:"1.4rem"}}>{s.label}</div>
-                    <p style={{fontSize:".9rem",color:"var(--text2)",lineHeight:1.95,fontWeight:200}}>{s.content}</p>
+                    <div style={{fontSize:".58rem",fontWeight:600,color:"var(--text3)",letterSpacing:".2em",textTransform:"uppercase",marginBottom:"1.2rem"}}>{s.label}</div>
+                    <p style={{fontSize:".88rem",color:"var(--text2)",lineHeight:1.9,fontWeight:200}}>{s.content}</p>
                   </div>
                 ))}
               </div>
 
-              {/* Stack */}
-              <div style={{padding:"2.5rem 3rem",borderTop:"1px solid var(--border)",display:"flex",alignItems:"center",gap:"2rem",flexWrap:"wrap"}}>
-                <div style={{fontSize:".58rem",fontWeight:600,color:"var(--text3)",letterSpacing:".2em",textTransform:"uppercase",flexShrink:0}}>Stack</div>
-                <div className="chips" style={{flex:1}}>
-                  {["React","Vite","TypeScript","Convex","Claude API","Vercel","DexScreener","Moltbook","Base Chain"].map(s=>(
-                    <span className="chip" key={s}>{s}</span>
+              {/* Stack with logos */}
+              <div style={{padding:"3rem 3.5rem"}}>
+                <div style={{fontSize:".58rem",fontWeight:600,color:"var(--text3)",letterSpacing:".2em",textTransform:"uppercase",marginBottom:"2rem"}}>Built with</div>
+                <div style={{display:"flex",flexWrap:"wrap",gap:"1rem"}}>
+                  {[
+                    {name:"React",    logo:"https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg"},
+                    {name:"Vite",     logo:"https://vitejs.dev/logo.svg"},
+                    {name:"TypeScript",logo:"https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg"},
+                    {name:"Convex",   logo:"https://www.convex.dev/favicon.ico"},
+                    {name:"Claude",   logo:"/logo.png"},
+                    {name:"Vercel",   logo:"https://www.svgrepo.com/show/327408/logo-vercel.svg"},
+                    {name:"Base",     logo:"https://avatars.githubusercontent.com/u/108554348"},
+                  ].map(t=>(
+                    <div key={t.name} style={{display:"flex",alignItems:"center",gap:".55rem",padding:".55rem 1rem",borderRadius:"8px",background:"var(--surface)",border:"1px solid var(--border)",transition:"border-color .2s"}}
+                      onMouseEnter={e=>e.currentTarget.style.borderColor="var(--border2)"}
+                      onMouseLeave={e=>e.currentTarget.style.borderColor="var(--border)"}
+                    >
+                      <img src={t.logo} alt={t.name} style={{width:"18px",height:"18px",objectFit:"contain",borderRadius:"3px",filter:t.name==="Vercel"?"invert(1)":""}}
+                        onError={e=>{e.target.style.display="none";}}
+                      />
+                      <span style={{fontSize:".78rem",color:"var(--text2)",fontWeight:300}}>{t.name}</span>
+                    </div>
                   ))}
                 </div>
               </div>

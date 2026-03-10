@@ -800,7 +800,7 @@ export default function App(){
                 <div className="kpi kblue"><div className="kpi-lbl">Total Visitors<span className="kpi-ico">👁</span></div><div className="kpi-val">4.2K</div><div className="kpi-chg up">↑ +38% <span>vs last week</span></div></div>
                 <div className="kpi kgreen"><div className="kpi-lbl">Article Reads<span className="kpi-ico">📖</span></div><div className="kpi-val">2.8K</div><div className="kpi-chg up">↑ +22% <span>vs last week</span></div></div>
                 <div className="kpi korange"><div className="kpi-lbl">Chat Sessions<span className="kpi-ico">💬</span></div><div className="kpi-val">184</div><div className="kpi-chg up">↑ +29% <span>vs last week</span></div></div>
-                <div className="kpi kpurple"><div className="kpi-lbl">X Followers<span className="kpi-ico">✦</span></div><div className="kpi-val">847</div><div className="kpi-chg up">↑ +63 <span>this week</span></div></div>
+                <div className="kpi kpurple"><div className="kpi-lbl">X Followers<span className="kpi-ico">✦</span></div><div className="kpi-val">50</div><div className="kpi-chg up">↑ +63 <span>this week</span></div></div>
               </div>
               <div className="two-col">
                 <div className="chart-card" style={{margin:0}}>

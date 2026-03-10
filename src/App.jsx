@@ -1234,7 +1234,7 @@ export default function App(){
                   </div>
                 </div>
                 <p style={{fontSize:"1.25rem",fontWeight:200,color:"var(--text)",lineHeight:1.6,maxWidth:"560px",letterSpacing:"-.01em"}}>
-                  A personal AI operating system — built in public, one decision at a time.
+                  A personal AI operating system built in public, one decision at a time.
                 </p>
               </div>
 
@@ -1242,20 +1242,20 @@ export default function App(){
               <div className="abt-inline-grid" style={{display:"grid",gridTemplateColumns:"1fr 1fr",borderBottom:"1px solid var(--border)"}}>
                 {[
                   {
-                    label:"01 — What is NoelClaw?",
-                    content:<>NoelClaw is a composable AI system that reads, writes, researches, and acts on your behalf. Not a chatbot. Not a SaaS. Think of it as an OS layer for thinking — built on modern AI infrastructure and documented fully in public.</>
+                    label:"01. What is NoelClaw?",
+                    content:<>NoelClaw is a composable AI system that reads, writes, researches, and acts on your behalf. Not a chatbot. Not a SaaS. Think of it as an OS layer for thinking built on modern AI infrastructure and documented fully in public.</>
                   },
                   {
-                    label:"02 — Why build this?",
-                    content:<>Most AI tools are isolated. Every session starts from zero — no memory, no action, no context. NoelClaw started from one frustration: <strong>why don't your tools talk to each other?</strong> This is the answer.</>
+                    label:"02. Why build this?",
+                    content:<>Most AI tools are isolated. Every session starts from zero no memory, no action, no context. NoelClaw started from one frustration: <strong>why don't your tools talk to each other?</strong> This is the answer.</>
                   },
                   {
-                    label:"03 — Vision & Mission",
-                    content:<><strong>Vision —</strong> Everyone has a personal AI that understands their context and grows with them.<br/><br/><strong>Mission —</strong> Build it in the open. Document every decision. Make the reasoning trail more valuable than the product.</>
+                    label:"03. Vision & Mission",
+                    content:<><strong>Vision :</strong> Everyone has a personal AI that understands their context and grows with them.<br/><br/><strong>Mission :</strong> Build it in the open. Document every decision. Make the reasoning trail more valuable than the product.</>
                   },
                   {
-                    label:"04 — Thank you 🦕",
-                    content:<>Genuinely — thanks for reading this far. Whether you found this through X, a friend, or a search — you're part of the story now. Follow <a href="https://x.com/noelclawfun" target="_blank" rel="noopener noreferrer" style={{color:"var(--blue-hi)",textDecoration:"none"}}>@noelclawfun</a> or grab <a href="https://flaunch.gg/base/coin/0xa57d8ce207c7daaeeed4e3a491bdf51d89233af3" target="_blank" rel="noopener noreferrer" style={{color:"var(--blue-hi)",textDecoration:"none"}}>$NOELCLAW</a>. See you on the other side.</>
+                    label:"04. Thank you ",
+                    content:<>Genuinely thanks for reading this far. Whether you found this through X, a friend, or a search you're part of the story now. Follow <a href="https://x.com/noelclawfun" target="_blank" rel="noopener noreferrer" style={{color:"var(--blue-hi)",textDecoration:"none"}}>@noelclawfun</a> or grab <a href="https://flaunch.gg/base/coin/0xa57d8ce207c7daaeeed4e3a491bdf51d89233af3" target="_blank" rel="noopener noreferrer" style={{color:"var(--blue-hi)",textDecoration:"none"}}>$NOELCLAW</a>. See you on the other side.</>
                   },
                 ].map((s,i)=>(
                   <div key={i} style={{
@@ -1278,7 +1278,7 @@ export default function App(){
                     {name:"Vite",     logo:"https://vitejs.dev/logo.svg"},
                     {name:"TypeScript",logo:"https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg"},
                     {name:"Convex",   logo:"https://www.convex.dev/favicon.ico"},
-                    {name:"Claude",   logo:"/logo.png"},
+                    {name:"Claude",   logo:"https://cdn.brandfetch.io/idmJWF3N06/theme/dark/symbol.svg?c=1dxbfHSJFAPEwi07FE"},
                     {name:"Vercel",   logo:"https://www.svgrepo.com/show/327408/logo-vercel.svg"},
                     {name:"Base",     logo:"https://avatars.githubusercontent.com/u/108554348"},
                   ].map(t=>(
@@ -1310,7 +1310,7 @@ export default function App(){
                 <img src={LOGO} className="footer-logo-icon" alt=""/>
                 <span><span style={{color:"var(--blue-hi)"}}>Noel</span>Claw</span>
               </div>
-              <p className="footer-desc">Personal AI operating system — blog, architecture decisions, and the journey from zero to a composable agent system.</p>
+              <p className="footer-desc">Personal AI operating system blog, architecture decisions, and the journey from zero to a composable agent system.</p>
               <div className="footer-socials">
                 <a className="footer-social-btn" href="https://x.com/noelclawfun" target="_blank" rel="noopener noreferrer" title="X / Twitter">
                   <img src="/x-logo.jpg" alt="X" style={{width:"14px",height:"14px",objectFit:"contain",filter:"invert(1)",opacity:.8}}/>

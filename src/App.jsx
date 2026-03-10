@@ -667,10 +667,10 @@ export default function App(){
 
         {/* ── NAV ── */}
         <div style={{width:"100%",background:"#03050c",borderBottom:"1px solid rgba(255,255,255,0.07)",padding:".35rem 0",display:"flex",alignItems:"center",overflow:"hidden",position:"sticky",top:0,zIndex:201}}>
-          <div style={{display:"flex",alignItems:"center",gap:"1.8rem",animation:"ca-scroll 28s linear infinite",whiteSpace:"nowrap",willChange:"transform",fontSize:".6rem",letterSpacing:".07em",color:"rgba(180,190,220,0.7)"}}>
+          <div style={{display:"flex",alignItems:"center",gap:"1.8rem",animation:"ca-scroll 28s linear infinite",whiteSpace:"nowrap",willChange:"transform",fontSize:".75rem",letterSpacing:".07em",color:"rgba(180,190,220,0.8)"}}>
             {[0,1].map(i=>(
               <span key={i} style={{display:"flex",alignItems:"center",gap:"1.8rem"}}>
-                <span style={{color:"#4d85ff",fontWeight:600,letterSpacing:".14em"}}>$NOEL</span>
+                <span style={{color:"#4d85ff",fontWeight:600,letterSpacing:".14em"}}>$NOELCLAW</span>
                 <span style={{width:3,height:3,borderRadius:"50%",background:"#4d85ff",display:"inline-block",opacity:.7,flexShrink:0}}/>
                 <span style={{fontFamily:"monospace",cursor:"pointer"}} onClick={()=>navigator.clipboard.writeText("0xa57d8ce207c7daaeeed4e3a491bdf51d89233af3")} title="Copy CA">
                   CA: 0xa57d8ce207c7daaeeed4e3a491bdf51d89233af3
@@ -1005,13 +1005,8 @@ export default function App(){
             <div>
               <div className="footer-col-title">Resources</div>
               <div className="footer-links">
-                {[
-                  {l:"Getting Started",u:"https://github.com/0xzonee/noelclaw"},
-                  {l:"AI Agent Guide",u:"https://github.com/0xzonee/noelclaw"},
-                  {l:"Architecture Docs",u:"https://github.com/0xzonee/noelclaw"},
-                  {l:"Build in Public",u:"https://github.com/0xzonee/noelclaw"},
-                ].map(({l,u})=>(
-                  <a key={l} className="footer-link" href={u} target="_blank" rel="noopener noreferrer">{l}</a>
+                {["Getting Started","AI Agent Guide","Architecture Docs","Build in Public"].map(l=>(
+                  <span key={l} className="footer-link" style={{cursor:"default",opacity:.5}}>{l}</span>
                 ))}
               </div>
             </div>

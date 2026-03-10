@@ -821,7 +821,7 @@ export default function App(){
                   <button className="sec-more" onClick={()=>navTo("articles")}>All articles →</button>
                 </div>
                 <div className="arts">
-                  {ARTICLES.slice(0,4).map((a,i)=><ARow key={i} a={a} onClick={()=>{setArt(a);window.scrollTo({top:0,behavior:'instant'});}}/>)}
+                  {ARTICLES.slice(0,4).map((a,i)=><ARow key={i} a={a} onClick={()=>{setArt(a);setMoltStatus("");window.scrollTo({top:0,behavior:'instant'});}}/>)}
                 </div>
               </div>
             </div>
@@ -836,7 +836,7 @@ export default function App(){
                   ? <div style={{color:"var(--text2)",fontSize:".85rem",padding:"2rem 0",letterSpacing:".08em"}}>Loading articles…</div>
                   : ARTICLES.length===0
                     ? <div style={{color:"var(--text2)",fontSize:".85rem",padding:"2rem 0",letterSpacing:".08em"}}>No articles published yet.</div>
-                    : <div className="arts">{ARTICLES.map((a,i)=><ARow key={i} a={a} onClick={()=>{setArt(a);window.scrollTo({top:0,behavior:'instant'});}}/>)}</div>
+                    : <div className="arts">{ARTICLES.map((a,i)=><ARow key={i} a={a} onClick={()=>{setArt(a);setMoltStatus("");window.scrollTo({top:0,behavior:'instant'});}}/>)}</div>
                 }
               </div>
             </div>

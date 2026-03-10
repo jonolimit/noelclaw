@@ -250,7 +250,7 @@ body:has(a:hover) #crr,body:has(button:hover) #crr { width:46px;height:46px;bord
 .arow:hover .aarr { transform:translateX(5px);color:var(--white); }
 
 /* ── READER ── */
-.reader { padding:3.5rem 3.5rem;max-width:800px; }
+.reader { padding:3.5rem 3.5rem;max-width:860px;margin:0 auto;width:100%; }
 .rback { display:inline-flex;align-items:center;gap:.45rem;font-size:.75rem;color:var(--text2);background:none;border:none;cursor:none;font-family:'DM Sans',sans-serif;margin-bottom:2.5rem;transition:color .2s,gap .2s;padding:0; }
 .rback:hover { color:var(--white);gap:.7rem; }
 .rtags { display:flex;gap:.35rem;margin-bottom:1.2rem; }

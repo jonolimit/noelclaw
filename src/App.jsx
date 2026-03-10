@@ -626,19 +626,7 @@ export default function App(){
   const getTokenPrice = useAction(api.bankr.getTokenPrice);
   const [tokenData, setTokenData] = useState(null);
   const [tokenLoading, setTokenLoading] = useState(false);
-  const [nlEmail, setNlEmail] = useState("");
-  const [nlModal, setNlModal] = useState(false);
-  const [nlCopied, setNlCopied] = useState(false);
 
-  const handleNlSubmit = () => {
-    if (!nlEmail || !nlEmail.includes("@")) return;
-    setNlModal(true);
-  };
-  const handleNlCopy = () => {
-    navigator.clipboard.writeText("https://noelclaw.fun");
-    setNlCopied(true);
-    setTimeout(() => setNlCopied(false), 2000);
-  };
 
   const fetchTokenPrice = async () => {
     setTokenLoading(true);
@@ -856,73 +844,7 @@ export default function App(){
                 </div>
               </div>
 
-              {/* Newsletter */}
-              <div className="section" style={{paddingTop:0}}>
-                <div style={{
-                  background:"linear-gradient(135deg,#0d1524,#0a0f1e)",
-                  border:"1px solid var(--border2)",borderRadius:"16px",
-                  padding:"2.5rem",position:"relative",overflow:"hidden",
-                }}>
-                  <div style={{position:"absolute",top:"-40px",right:"-40px",width:"200px",height:"200px",background:"radial-gradient(circle,rgba(26,79,255,.15),transparent 70%)",pointerEvents:"none"}}/>
-                  <div style={{position:"absolute",bottom:"-40px",left:"20%",width:"160px",height:"160px",background:"radial-gradient(circle,rgba(34,211,165,.08),transparent 70%)",pointerEvents:"none"}}/>
-                  <div style={{position:"relative",zIndex:1,display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:"2rem"}}>
-                    <div style={{maxWidth:"380px"}}>
-                      <div style={{fontSize:".68rem",color:"var(--blue-hi)",letterSpacing:".12em",fontWeight:600,marginBottom:".6rem"}}>NEWSLETTER</div>
-                      <div style={{fontSize:"1.3rem",fontWeight:700,color:"var(--white)",lineHeight:1.3,marginBottom:".6rem"}}>Stay in the loop</div>
-                      <div style={{fontSize:".8rem",color:"var(--text2)",lineHeight:1.6}}>New articles, architecture decisions, and NoelClaw updates — straight to your inbox. No spam.</div>
-                    </div>
-                    <div style={{display:"flex",flexDirection:"column",gap:".5rem",minWidth:"280px"}}>
-                      <input
-                        type="email"
-                        placeholder="your@email.com"
-                        value={nlEmail}
-                        onChange={e=>setNlEmail(e.target.value)}
-                        onKeyDown={e=>e.key==="Enter"&&handleNlSubmit()}
-                        style={{
-                          background:"rgba(255,255,255,.05)",border:"1px solid var(--border2)",borderRadius:"8px",
-                          padding:".65rem 1rem",fontSize:".8rem",color:"var(--white)",fontFamily:"inherit",
-                          outline:"none",width:"100%",boxSizing:"border-box",
-                        }}
-                        onFocus={e=>e.target.style.borderColor="var(--blue-hi)"}
-                        onBlur={e=>e.target.style.borderColor="var(--border2)"}
-                      />
-                      <button onClick={handleNlSubmit} style={{
-                        background:"linear-gradient(135deg,#1a4fff,#2255ff)",color:"#fff",
-                        border:"none",borderRadius:"8px",padding:".65rem 1.2rem",
-                        fontSize:".8rem",fontWeight:600,cursor:"pointer",fontFamily:"inherit",
-                        boxShadow:"0 4px 20px rgba(26,79,255,.3)",transition:"opacity .2s",
-                      }}>Subscribe →</button>
-                    </div>
-                  </div>
-                </div>
-              </div>
 
-              {/* Newsletter Modal */}
-              {nlModal && (
-                <div style={{position:"fixed",inset:0,background:"rgba(0,0,0,.7)",zIndex:1000,display:"flex",alignItems:"center",justifyContent:"center",padding:"1rem"}} onClick={e=>{if(e.target===e.currentTarget)setNlModal(false);}}>
-                  <div style={{background:"linear-gradient(145deg,#0d1524,#0a0f1e)",border:"1px solid var(--border2)",borderRadius:"20px",padding:"2rem",maxWidth:"380px",width:"100%",textAlign:"center",position:"relative",boxShadow:"0 20px 60px rgba(0,0,0,.5)"}}>
-                    <div style={{position:"absolute",top:"-1px",left:"50%",transform:"translateX(-50%)",width:"60%",height:"1px",background:"linear-gradient(90deg,transparent,var(--blue-hi),transparent)"}}/>
-                    <div style={{width:"52px",height:"52px",borderRadius:"14px",background:"linear-gradient(135deg,#1a4fff,#22d3a5)",display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 1.2rem",fontSize:"1.4rem"}}>🦞</div>
-                    <div style={{fontSize:"1.1rem",fontWeight:700,color:"var(--white)",marginBottom:".5rem"}}>You're in!</div>
-                    <div style={{fontSize:".8rem",color:"var(--text2)",lineHeight:1.6,marginBottom:"1.5rem"}}>Welcome to the NoelClaw loop. Share with others who are building with AI.</div>
-                    <div style={{display:"flex",flexDirection:"column",gap:".6rem"}}>
-                      <a href={`https://twitter.com/intent/tweet?text=${encodeURIComponent("Just subscribed to @noelclawfun — a personal AI operating system built in public. Follow the journey: noelclaw.fun")}`} target="_blank" rel="noopener noreferrer" style={{
-                        display:"flex",alignItems:"center",justifyContent:"center",gap:".5rem",
-                        background:"#000",border:"1px solid #333",borderRadius:"10px",
-                        padding:".7rem",fontSize:".8rem",color:"var(--white)",textDecoration:"none",fontWeight:500,
-                      }}>𝕏 Share on X</a>
-                      <button onClick={handleNlCopy} style={{
-                        display:"flex",alignItems:"center",justifyContent:"center",gap:".5rem",
-                        background:"rgba(255,255,255,.05)",border:"1px solid var(--border)",borderRadius:"10px",
-                        padding:".7rem",fontSize:".8rem",color:"var(--text2)",cursor:"pointer",fontFamily:"inherit",fontWeight:500,
-                      }}>{nlCopied ? "✓ Copied!" : "🔗 Copy Link"}</button>
-                      <button onClick={()=>setNlModal(false)} style={{
-                        background:"none",border:"none",fontSize:".72rem",color:"var(--text3)",cursor:"pointer",fontFamily:"inherit",marginTop:".2rem",
-                      }}>Close</button>
-                    </div>
-                  </div>
-                </div>
-              )}
 
             </div>
           )}

@@ -5,7 +5,6 @@ import { v } from "convex/values";
 
 const MOLTBOOK_API = "https://www.moltbook.com/api/v1";
 
-// Post artikel baru ke Moltbook
 export const postArticle = action({
   args: {
     title: v.string(),
@@ -35,14 +34,11 @@ export const postArticle = action({
     const data = await res.json();
 
     // Handle verification challenge if required
-    if (data.post?.verification) {
+    if (data.post?.verification?.verification_code) {
       const challenge = data.post.verification.challenge_text;
       const code = data.post.verification.verification_code;
 
-      // Solve math challenge - extract numbers and operator
-      const cleaned = challenge.replace(/[^a-zA-Z0-9\s]/g, ' ').replace(/\s+/g, ' ').toLowerCase();
-      
-      // Use AI to solve it via Dinoiki
+      // Solve math challenge via Dinoiki
       const solveRes = await fetch("https://ai.dinoiki.com/v1/chat/completions", {
         method: "POST",
         headers: {
@@ -51,11 +47,11 @@ export const postArticle = action({
         },
         body: JSON.stringify({
           model: "gpt-4o-mini",
-          max_tokens: 50,
+          max_tokens: 20,
           messages: [
             {
               role: "system",
-              content: "You are a math solver. Extract the math problem from the text and return ONLY the numeric answer with exactly 2 decimal places (e.g. '15.00'). Nothing else.",
+              content: "Extract the math problem from this obfuscated text and return ONLY the numeric answer with exactly 2 decimal places. Example: '15.00'. Nothing else.",
             },
             { role: "user", content: challenge },
           ],
@@ -63,10 +59,12 @@ export const postArticle = action({
       });
 
       const solveData = await solveRes.json();
-      const answer = solveData.choices[0].message.content.trim();
+      
+      // Safely extract answer
+      const answer = solveData?.choices?.[0]?.message?.content?.trim() ?? "0.00";
 
       // Submit verification
-      await fetch(`${MOLTBOOK_API}/verify`, {
+      const verifyRes = await fetch(`${MOLTBOOK_API}/verify`, {
         method: "POST",
         headers: {
           "Authorization": `Bearer ${apiKey}`,
@@ -74,13 +72,15 @@ export const postArticle = action({
         },
         body: JSON.stringify({ verification_code: code, answer }),
       });
+
+      const verifyData = await verifyRes.json();
+      return { success: true, verified: verifyData.success, post: data.post };
     }
 
     return { success: true, post: data.post };
   },
 });
 
-// Check Moltbook feed/home
 export const checkHome = action({
   args: {},
   handler: async () => {

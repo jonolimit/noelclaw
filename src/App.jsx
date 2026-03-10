@@ -1235,48 +1235,27 @@ export default function App(){
                 {[
                   {
                     label:"01 — What is NoelClaw?",
-                    content: <>
-                      NoelClaw is not a product you download or a SaaS you subscribe to. It's a composable system that reads, writes, researches, and acts on your behalf — built on top of modern AI infrastructure.<br/><br/>
-                      Think of it as an OS layer for thinking. This site is the live log of that build. Every article here is a real decision, a real system, or a real lesson from the process. Nothing is polished for the sake of appearances — it's documented because it's useful.
-                    </>
+                    content: <>NoelClaw is a personal AI operating system — built and documented in public. It's a composable system that reads, writes, researches, and acts on your behalf. Think of it as an OS layer for thinking, not another chatbot to open and forget.</>
                   },
                   {
                     label:"02 — What's being built?",
-                    content: <>
-                      The core of NoelClaw is a set of composable AI agents — each handling a specific domain: research, writing, memory, scheduling, and more. Instead of switching between 10 different apps, NoelClaw routes everything through one unified layer.<br/><br/>
-                      Right now: a Claude-powered chat assistant embedded in this site, a content publishing pipeline, token integration on Base Chain via <strong>$NOELCLAW</strong>, and a growing library of architecture decisions documented publicly. Each piece connects to the next. That's the point.
-                    </>
+                    content: <>A set of AI agents each handling a specific domain: research, writing, memory, and more — routed through one unified layer. Right now: a Claude-powered assistant embedded here, a content pipeline, and <strong>$NOELCLAW</strong> live on Base Chain.</>
                   },
                   {
                     label:"03 — Why build this?",
-                    content: <>
-                      Most AI tools today are isolated. You open a browser, type a prompt, get an answer, and the loop ends. The AI doesn't remember, doesn't act, and doesn't live inside your environment. Every session starts from zero.<br/><br/>
-                      NoelClaw started from a simple frustration: <strong>why don't your tools talk to each other?</strong> The answer wasn't to find a better app — it was to build a system that connects them. Not a chatbot. Not a wrapper. A genuine operating layer that works with you across time, context, and tasks.
-                    </>
+                    content: <>Most AI tools are isolated. You type a prompt, get an answer, and the loop ends — no memory, no action, no context. NoelClaw started from one frustration: <strong>why don't your tools talk to each other?</strong> This is the answer.</>
                   },
                   {
                     label:"04 — Vision & Mission",
-                    content: <>
-                      <strong>Vision —</strong> A world where every person has a personal AI system that understands their context, executes their intentions, and grows smarter over time — without requiring technical expertise to operate.<br/><br/>
-                      <strong>Mission —</strong> Build that system in the open. Document every decision. Share every failure. Make the architecture reproducible so others can learn from it, build on it, or fork it entirely. The most valuable output isn't the final product — it's the reasoning trail left behind. That trail is what this site is.
-                    </>
+                    content: <><strong>Vision —</strong> Every person has a personal AI that understands their context and grows smarter over time.<br/><br/><strong>Mission —</strong> Build it in the open. Document every decision. Make the reasoning trail more valuable than the product itself.</>
                   },
                   {
                     label:"05 — A note to close",
-                    content: <>
-                      This is early. A lot of what's here is still being figured out in real time. But that's the point — NoelClaw exists to show what's possible when you build deliberately, share honestly, and don't wait until things are perfect to ship.<br/><br/>
-                      If any of this resonates, follow along on <a href="https://x.com/noelclawfun" target="_blank" rel="noopener noreferrer" style={{color:"var(--blue-hi)",textDecoration:"none"}}>X @noelclawfun</a>. And if you want to own a piece of the system, <a href="https://flaunch.gg/base/coin/0xa57d8ce207c7daaeeed4e3a491bdf51d89233af3" target="_blank" rel="noopener noreferrer" style={{color:"var(--blue-hi)",textDecoration:"none"}}>$NOELCLAW is live on Base</a>. The token isn't a gimmick — it's how we share the upside with the people who showed up early.<br/><br/>
-                      <strong>We're building in public. Come watch — or build with us.</strong>
-                    </>
+                    content: <>This is early and intentionally unpolished. NoelClaw exists to show what's possible when you build deliberately and ship honestly. Follow <a href="https://x.com/noelclawfun" target="_blank" rel="noopener noreferrer" style={{color:"var(--blue-hi)",textDecoration:"none"}}>@noelclawfun</a> or grab <a href="https://flaunch.gg/base/coin/0xa57d8ce207c7daaeeed4e3a491bdf51d89233af3" target="_blank" rel="noopener noreferrer" style={{color:"var(--blue-hi)",textDecoration:"none"}}>$NOELCLAW</a> to own a piece of it.</>
                   },
                   {
                     label:"06 — Thank you",
-                    content: <>
-                      Genuinely — thank you for reading this far. Most people skim, close the tab, and move on. The fact that you made it here means something.<br/><br/>
-                      Whether you found NoelClaw through X, a friend, or just stumbled in from a search — you're now part of the story. Every reader, every conversation, every token holder makes this more real than it was the day before.<br/><br/>
-                      This project exists because people like you show up. So keep coming back. Share an article if it helped you think. Ask Noel a question in the chat. And if you ever want to talk directly — <a href="https://x.com/noelclawfun" target="_blank" rel="noopener noreferrer" style={{color:"var(--blue-hi)",textDecoration:"none"}}>you know where to find us</a>.<br/><br/>
-                      <strong>See you on the other side of the build. 🦕</strong>
-                    </>
+                    content: <>Genuinely — thank you for reading this far. Whether you found this through X, a friend, or a random search, you're now part of the story. Every reader makes this more real. Keep coming back, ask Noel something, and <strong>see you on the other side of the build. 🦕</strong></>
                   },
                 ].map((s,i)=>(
                   <div key={i} className="abt-grid-cell" style={{

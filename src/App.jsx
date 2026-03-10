@@ -869,19 +869,20 @@ export default function App(){
                     )}
                     {tokenData && !tokenLoading && typeof tokenData === "object" && tokenData.price && (
                       <>
-                        <div style={{textAlign:"right"}}>
-                          <div style={{fontSize:"1.1rem",fontWeight:700,color:"var(--white)"}}>${parseFloat(tokenData.price||0).toFixed(8)}</div>
-                          <div style={{fontSize:".72rem",color:parseFloat(tokenData.priceChange24h||0)>=0?"var(--green)":"#ff4d4d"}}>
-                            {parseFloat(tokenData.priceChange24h||0)>=0?"↑":"↓"} {Math.abs(parseFloat(tokenData.priceChange24h||0)).toFixed(2)}% 24h
+                        <div style={{textAlign:"right",borderRight:"1px solid var(--border)",paddingRight:"1rem"}}>
+                          <div style={{fontSize:".65rem",color:"var(--text3)",marginBottom:".2rem",letterSpacing:".05em"}}>PRICE</div>
+                          <div style={{fontSize:"1.05rem",fontWeight:700,color:"var(--white)",fontFamily:"'DM Mono',monospace"}}>${parseFloat(tokenData.price||0).toFixed(8)}</div>
+                          <div style={{fontSize:".7rem",fontWeight:600,color:parseFloat(tokenData.priceChange24h||0)>=0?"#22d3a5":"#ff4d4d",marginTop:".15rem"}}>
+                            {parseFloat(tokenData.priceChange24h||0)>=0?"▲":"▼"} {Math.abs(parseFloat(tokenData.priceChange24h||0)).toFixed(2)}% <span style={{fontWeight:400,color:"var(--text3)"}}>24h</span>
                           </div>
                         </div>
-                        <div style={{textAlign:"right"}}>
-                          <div style={{fontSize:".68rem",color:"var(--text3)"}}>Vol 24h</div>
-                          <div style={{fontSize:".78rem",color:"var(--text2)"}}>${parseFloat(tokenData.volume24h||0).toLocaleString()}</div>
+                        <div style={{textAlign:"right",borderRight:"1px solid var(--border)",paddingRight:"1rem"}}>
+                          <div style={{fontSize:".65rem",color:"var(--text3)",marginBottom:".2rem",letterSpacing:".05em"}}>VOL 24H</div>
+                          <div style={{fontSize:".85rem",fontWeight:600,color:"var(--white)",fontFamily:"'DM Mono',monospace"}}>${parseFloat(tokenData.volume24h||0).toLocaleString()}</div>
                         </div>
                         <div style={{textAlign:"right"}}>
-                          <div style={{fontSize:".68rem",color:"var(--text3)"}}>Liquidity</div>
-                          <div style={{fontSize:".78rem",color:"var(--text2)"}}>${parseFloat(tokenData.liquidity||0).toLocaleString()}</div>
+                          <div style={{fontSize:".65rem",color:"var(--text3)",marginBottom:".2rem",letterSpacing:".05em"}}>LIQUIDITY</div>
+                          <div style={{fontSize:".85rem",fontWeight:600,color:"var(--white)",fontFamily:"'DM Mono',monospace"}}>${parseFloat(tokenData.liquidity||0).toLocaleString()}</div>
                         </div>
                       </>
                     )}

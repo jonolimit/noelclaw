@@ -630,7 +630,7 @@ export default function App(){
     setTokenLoading(true);
     try {
       const res = await getTokenPrice({});
-      setTokenData(res.result);
+      setTokenData(res);
     } catch(e) {
       setTokenData("Error: " + e.message);
     }

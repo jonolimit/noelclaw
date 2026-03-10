@@ -767,6 +767,12 @@ export default function App(){
   const [tokenData, setTokenData] = useState(null);
   const [tokenLoading, setTokenLoading] = useState(false);
   const [activityFeed, setActivityFeed] = useState(()=>genActivity());
+  const [moltPosting, setMoltPosting] = useState(false);
+  const [moltStatus, setMoltStatus] = useState("");
+  const [liked, setLiked] = useState(false);
+  const [likeCount, setLikeCount] = useState(2);
+  const [comments, setComments] = useState([]);
+  const [commentVal, setCommentVal] = useState("");
 
   // Refresh activity every 18s with a new random entry
   useEffect(()=>{
@@ -793,12 +799,6 @@ export default function App(){
     }
     setTokenLoading(false);
   };
-  const [moltPosting, setMoltPosting] = useState(false);
-  const [moltStatus, setMoltStatus] = useState("");
-  const [liked, setLiked] = useState(false);
-  const [likeCount, setLikeCount] = useState(2);
-  const [comments, setComments] = useState([]);
-  const [commentVal, setCommentVal] = useState("");
 
   const handleMoltPost = async () => {
     if (!art) return;
@@ -1246,15 +1246,19 @@ export default function App(){
                     <div className="panel-hd"><span className="panel-title">Quick Links</span></div>
                     <div style={{display:"flex",flexDirection:"column"}}>
                       {[
-                        {label:"X / Twitter",sub:"@noelclawfun",logo:<svg width="14" height="14" viewBox="0 0 1200 1227" fill="currentColor"><path d="M714.163 519.284L1160.89 0H1055.03L667.137 450.887L357.328 0H0L468.492 681.821L0 1226.37H105.866L515.491 750.218L842.672 1226.37H1200L714.163 519.284ZM569.165 687.828L521.697 619.934L144.011 79.6944H306.615L611.412 515.685L658.88 583.579L1055.08 1150.3H892.476L569.165 687.854V687.828Z"/></svg>,href:"https://x.com/noelclawfun",tag:"Follow"},
-                        {label:"$NOELCLAW",sub:"Base Chain · Flaunch",logo:<img src="/logo.png" style={{width:14,height:14,borderRadius:"50%",objectFit:"cover"}} alt=""/>,href:"https://flaunch.gg/base/coin/0xa57d8ce207c7daaeeed4e3a491bdf51d89233af3",tag:"Buy"},
-                        {label:"DexScreener",sub:"Live chart",logo:<img src="https://dexscreener.com/favicon.ico" style={{width:14,height:14,borderRadius:2,objectFit:"cover"}} alt=""/>,href:"https://dexscreener.com/base/0x9eebf6143b61a651ae4b1c9c57257510d0feb4743550fefbb9470898e5e26ac7",tag:"Chart"},
+                        {label:"X / Twitter",sub:"@noelclawfun",logoType:"x",href:"https://x.com/noelclawfun",tag:"Follow"},
+                        {label:"$NOELCLAW",sub:"Base Chain · Flaunch",logoType:"noelclaw",href:"https://flaunch.gg/base/coin/0xa57d8ce207c7daaeeed4e3a491bdf51d89233af3",tag:"Buy"},
+                        {label:"DexScreener",sub:"Live chart",logoType:"dex",href:"https://dexscreener.com/base/0x9eebf6143b61a651ae4b1c9c57257510d0feb4743550fefbb9470898e5e26ac7",tag:"Chart"},
                       ].map((l,i)=>(
                         <a key={i} href={l.href} target="_blank" rel="noopener noreferrer" style={{display:"flex",alignItems:"center",gap:".75rem",padding:".75rem 1.3rem",borderBottom:i<2?"1px solid var(--border)":"none",textDecoration:"none",transition:"background .18s",cursor:"pointer"}}
                           onMouseEnter={e=>e.currentTarget.style.background="rgba(255,255,255,.025)"}
                           onMouseLeave={e=>e.currentTarget.style.background="transparent"}
                         >
-                          <span style={{fontSize:"1rem",width:20,display:"flex",alignItems:"center",justifyContent:"center",color:"var(--text2)",flexShrink:0}}>{l.logo}</span>
+                          <span style={{width:20,display:"flex",alignItems:"center",justifyContent:"center",color:"var(--text2)",flexShrink:0}}>
+                            {l.logoType==="x" && <svg width="13" height="13" viewBox="0 0 1200 1227" fill="currentColor"><path d="M714.163 519.284L1160.89 0H1055.03L667.137 450.887L357.328 0H0L468.492 681.821L0 1226.37H105.866L515.491 750.218L842.672 1226.37H1200L714.163 519.284ZM569.165 687.828L521.697 619.934L144.011 79.6944H306.615L611.412 515.685L658.88 583.579L1055.08 1150.3H892.476L569.165 687.854V687.828Z"/></svg>}
+                            {l.logoType==="noelclaw" && <img src="/logo.png" style={{width:14,height:14,borderRadius:"50%",objectFit:"cover"}} alt=""/>}
+                            {l.logoType==="dex" && <img src="https://dexscreener.com/favicon.ico" style={{width:14,height:14,borderRadius:2,objectFit:"cover"}} alt=""/>}
+                          </span>
                           <div style={{flex:1,minWidth:0}}>
                             <div style={{fontSize:".72rem",color:"var(--text)",fontWeight:400,marginBottom:".1rem"}}>{l.label}</div>
                             <div style={{fontSize:".6rem",color:"var(--text3)"}}>{l.sub}</div>

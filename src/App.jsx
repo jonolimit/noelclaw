@@ -1268,8 +1268,12 @@ export default function App(){
   const getTokenPrice = useAction(api.bankr.getTokenPrice);
   const getRecentTrades = useAction(api.bankr.getRecentTrades);
   const getTrendingBase = useAction(api.bankr.getTrendingBase);
+  const getSmartMoney   = useAction(api.gmgn.getSmartMoney);
+  const getSniperTokens = useAction(api.gmgn.getSniperTokens);
+  const runAlphaAgent   = useAction(api.alphaagent.runAlphaAgent);
   const getCryptoNews = useAction(api.news.getCryptoNews);
   const getMessariMetrics = useAction(api.news.getMessariMetrics);
+  const getArticleContent = useAction(api.news.getArticleContent);
   const getTrendingAI = useAction(api.coingecko.getTrendingAI);
   const getTokenMarket = useAction(api.coingecko.getTokenMarket);
   const getTokenHolders = useAction(api.moralis.getTokenHolders);
@@ -1296,10 +1300,20 @@ export default function App(){
   // New premium
   const [trendingBase, setTrendingBase] = useState([]);
   const [recentTrades, setRecentTrades] = useState([]);
+  const [smartMoney, setSmartMoney]               = useState([]);
+  const [smartMoneyLoading, setSmartMoneyLoading] = useState(false);
+  const [sniperTokens, setSniperTokens]           = useState([]);
+  const [sniperLoading, setSniperLoading]         = useState(false);
+  const [agentSignals, setAgentSignals]           = useState([]);
+  const [agentLoading, setAgentLoading]           = useState(false);
+  const [agentLastRun, setAgentLastRun]           = useState(null);
   const [tradeStats, setTradeStats] = useState(null);
   const [cryptoNews, setCryptoNews] = useState([]);
   const [risingNews, setRisingNews] = useState([]);
   const [messariGlobal, setMessariGlobal] = useState(null);
+  const [newsArt, setNewsArt] = useState(null);
+  const [newsArtLoading, setNewsArtLoading] = useState(false);
+  const [newsArtContent, setNewsArtContent] = useState(null);
   const [newsLoading, setNewsLoading] = useState(false);
   const [marketBrief, setMarketBrief] = useState(null);
   const [briefLoading, setBriefLoading] = useState(false);
@@ -1348,6 +1362,34 @@ export default function App(){
     setAiTokensLoading(false);
   };
 
+  const fetchSmartMoney = async () => {
+    setSmartMoneyLoading(true);
+    try {
+      const res = await getSmartMoney({});
+      if (res?.wallets) setSmartMoney(res.wallets);
+    } catch(e) { console.error("SmartMoney:", e.message); }
+    setSmartMoneyLoading(false);
+  };
+
+  const fetchSniperTokens = async () => {
+    setSniperLoading(true);
+    try {
+      const res = await getSniperTokens({});
+      if (res?.tokens) setSniperTokens(res.tokens);
+    } catch(e) { console.error("Sniper:", e.message); }
+    setSniperLoading(false);
+  };
+
+  const fetchAgentSignals = async () => {
+    setAgentLoading(true);
+    try {
+      const res = await runAlphaAgent({});
+      if (res?.signals) setAgentSignals(res.signals);
+      if (res?.generatedAt) setAgentLastRun(res.generatedAt);
+    } catch(e) { console.error("AlphaAgent:", e.message); }
+    setAgentLoading(false);
+  };
+
   const fetchRecentTrades = async () => {
     try {
       const res = await getRecentTrades({});
@@ -1368,6 +1410,21 @@ export default function App(){
       if (messariRes?.global) setMessariGlobal(messariRes.global);
     } catch(e) { console.error("News:", e.message); }
     setNewsLoading(false);
+  };
+
+  const openNewsArticle = async (n) => {
+    setNewsArt(n);
+    setNewsArtContent(null);
+    setNewsArtLoading(true);
+    window.scrollTo({ top: 0, behavior: "instant" });
+    try {
+      const res = await getArticleContent({ url: n.url });
+      setNewsArtContent(res);
+    } catch(e) {
+      console.error("Article fetch failed:", e.message);
+      setNewsArtContent({ success: false, body: [], title: n.title, error: e.message });
+    }
+    setNewsArtLoading(false);
   };
 
   const generateMarketBrief = async () => {
@@ -1440,17 +1497,21 @@ Live data:
       fetchHolders();
       fetchRecentTrades();
       fetchNews();
+      fetchSmartMoney();
+      fetchSniperTokens();
     }
   }, [walletTier]);
 
-  // Auto-refresh realtime: trades 15s, price 30s, alpha 60s, news 3min
+  // Auto-refresh: trades 15s, price 30s, alpha 60s, news 3min, smart money 1h, sniper 2h
   useEffect(() => {
     if (walletTier !== "premium") return;
-    const tradesId = setInterval(() => { fetchRecentTrades(); }, 15000);
-    const priceId  = setInterval(() => { fetchTokenPrice();   }, 30000);
-    const alphaId  = setInterval(() => { fetchAlphaFeed();    }, 60000);
-    const newsId   = setInterval(() => { fetchNews();         }, 180000);
-    return () => { clearInterval(tradesId); clearInterval(priceId); clearInterval(alphaId); clearInterval(newsId); };
+    const tradesId     = setInterval(() => { fetchRecentTrades();  }, 15000);
+    const priceId      = setInterval(() => { fetchTokenPrice();    }, 30000);
+    const alphaId      = setInterval(() => { fetchAlphaFeed();     }, 60000);
+    const newsId       = setInterval(() => { fetchNews();          }, 180000);
+    const smartMoneyId = setInterval(() => { fetchSmartMoney();    }, 3600000);
+    const sniperId     = setInterval(() => { fetchSniperTokens();  }, 7200000);
+    return () => { clearInterval(tradesId); clearInterval(priceId); clearInterval(alphaId); clearInterval(newsId); clearInterval(smartMoneyId); clearInterval(sniperId); };
   }, [walletTier]);
 
   const handleGenerateTweet = async () => {
@@ -1517,7 +1578,7 @@ Live data:
 
   useEffect(()=>{endRef.current?.scrollIntoView({behavior:"smooth"});},[msgs,busy]);
 
-  const navTo=p=>{setPage(p);setArt(null);window.scrollTo({top:0,behavior:"instant"});setMenuOpen(false);if(p==="dashboard"){fetchTokenPrice();fetchAlphaFeed();fetchHolders();fetchRecentTrades();fetchNews();}};
+  const navTo=p=>{setPage(p);setArt(null);window.scrollTo({top:0,behavior:"instant"});setMenuOpen(false);if(p==="dashboard"){fetchTokenPrice();fetchAlphaFeed();fetchHolders();fetchRecentTrades();fetchNews();fetchSmartMoney();fetchSniperTokens();}};
   useEffect(()=>{
     const handler=()=>{ if(menuOpen) setMenuOpen(false); };
     window.addEventListener('scroll',handler,{passive:true});
@@ -1810,8 +1871,93 @@ Live data:
             </div>
           )}
 
+          {/* NEWS ARTICLE READER */}
+          {newsArt&&!art&&(
+            <div className="page" style={{maxWidth:"820px",margin:"0 auto",padding:"2rem 3.5rem"}}>
+              <button className="rback" onClick={()=>{setNewsArt(null);setNewsArtContent(null);}} style={{marginBottom:"1.5rem"}}>← Back to Dashboard</button>
+
+              {/* Hero image */}
+              {(newsArtContent?.image||newsArt.avatar)&&(
+                <div style={{width:"100%",height:"320px",borderRadius:"12px",overflow:"hidden",marginBottom:"1.8rem",background:"var(--surface)"}}>
+                  <img src={newsArtContent?.image||newsArt.avatar} alt={newsArt.title} style={{width:"100%",height:"100%",objectFit:"cover"}} onError={e=>{e.target.style.display="none";}}/>
+                </div>
+              )}
+
+              {/* Meta */}
+              <div style={{display:"flex",alignItems:"center",gap:".6rem",marginBottom:"1rem",flexWrap:"wrap"}}>
+                <span style={{fontSize:".52rem",color:"var(--blue-hi)",fontWeight:600,letterSpacing:".1em",textTransform:"uppercase"}}>Cointelegraph</span>
+                <span style={{color:"var(--border)",fontSize:".5rem"}}>·</span>
+                <span style={{fontSize:".52rem",color:"var(--text3)"}}>{new Date(newsArt.publishedAt).toLocaleString("en-US",{weekday:"long",year:"numeric",month:"long",day:"numeric",hour:"2-digit",minute:"2-digit"})}</span>
+                {(newsArt.currencies||[]).map((c,i)=>(
+                  <span key={i} style={{fontSize:".44rem",color:"var(--blue-hi)",background:"rgba(26,79,255,.1)",border:"1px solid rgba(77,133,255,.2)",borderRadius:"3px",padding:".05rem .3rem",fontWeight:600}}>{c}</span>
+                ))}
+                <span style={{fontSize:".5rem",padding:".12rem .4rem",borderRadius:"20px",fontWeight:700,letterSpacing:".06em",
+                  background:newsArt.sentiment==="bullish"?"rgba(34,211,165,.12)":newsArt.sentiment==="bearish"?"rgba(255,107,107,.12)":"rgba(255,255,255,.06)",
+                  color:newsArt.sentiment==="bullish"?"var(--green)":newsArt.sentiment==="bearish"?"#ff6b6b":"var(--text3)",
+                  border:`1px solid ${newsArt.sentiment==="bullish"?"rgba(34,211,165,.25)":newsArt.sentiment==="bearish"?"rgba(255,107,107,.25)":"var(--border)"}`}}>
+                  {newsArt.sentiment==="bullish"?"↑ BULLISH":newsArt.sentiment==="bearish"?"↓ BEARISH":"– NEUTRAL"}
+                </span>
+              </div>
+
+              {/* Title */}
+              <h1 style={{fontFamily:"'Inter',sans-serif",fontSize:"clamp(1.6rem,3.5vw,2.4rem)",fontWeight:200,lineHeight:1.15,color:"var(--white)",letterSpacing:"-.02em",marginBottom:"1.2rem"}}>{newsArt.title}</h1>
+
+              {/* Summary */}
+              {newsArt.summary&&(
+                <p style={{fontSize:"1rem",color:"var(--text2)",lineHeight:1.8,fontWeight:300,borderLeft:"2px solid var(--blue)",paddingLeft:"1.2rem",marginBottom:"2rem",fontStyle:"italic"}}>{newsArt.summary}</p>
+              )}
+
+              {/* Loading */}
+              {newsArtLoading&&(
+                <div style={{display:"flex",flexDirection:"column",gap:"1rem",marginBottom:"2rem"}}>
+                  {[1,.85,.9,.7,.95,.6].map((w,i)=>(
+                    <div key={i} style={{height:"14px",borderRadius:"4px",background:"var(--surface)",width:`${w*100}%`,animation:"pulse 1.5s infinite",animationDelay:`${i*0.1}s`}}/>
+                  ))}
+                  <div style={{marginTop:".5rem",fontSize:".72rem",color:"var(--text3)",display:"flex",alignItems:"center",gap:".5rem"}}>
+                    <span style={{width:"6px",height:"6px",borderRadius:"50%",background:"var(--blue-hi)",display:"inline-block",animation:"pulse 1s infinite"}}/>
+                    Loading full article…
+                  </div>
+                </div>
+              )}
+
+              {/* Article body */}
+              {newsArtContent?.body?.length>0&&(
+                <div style={{marginBottom:"2rem"}}>
+                  {newsArtContent.body.map((para,i)=>(
+                    <p key={i} style={{fontSize:".92rem",color:i===0?"var(--text)":"var(--text2)",lineHeight:1.9,fontWeight:300,marginBottom:"1.2rem",letterSpacing:".01em"}}>{para}</p>
+                  ))}
+                </div>
+              )}
+
+              {/* No content fallback */}
+              {!newsArtLoading&&newsArtContent&&(!newsArtContent.body||newsArtContent.body.length===0)&&(
+                <div style={{padding:"2rem",background:"var(--surface)",border:"1px solid var(--border)",borderRadius:"10px",textAlign:"center",marginBottom:"2rem"}}>
+                  <div style={{fontSize:"1.5rem",marginBottom:".8rem"}}>📄</div>
+                  <div style={{fontSize:".8rem",color:"var(--text2)",marginBottom:"1rem"}}>Could not extract full article content.</div>
+                  <a href={newsArt.url} target="_blank" rel="noopener noreferrer"
+                    style={{display:"inline-flex",alignItems:"center",gap:".4rem",background:"var(--blue)",borderRadius:"6px",padding:".5rem 1.2rem",fontSize:".75rem",color:"var(--white)",textDecoration:"none",fontWeight:500}}>
+                    Read on Cointelegraph →
+                  </a>
+                </div>
+              )}
+
+              {/* Footer */}
+              {newsArtContent&&(
+                <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:"1rem",padding:"1.2rem",background:"var(--surface)",border:"1px solid var(--border)",borderRadius:"10px",marginBottom:"2rem"}}>
+                  <div style={{fontSize:".75rem",color:"var(--text2)"}}>Source: <a href={newsArt.url} target="_blank" rel="noopener noreferrer" style={{color:"var(--blue-hi)",textDecoration:"none"}}>Cointelegraph ↗</a></div>
+                  <div style={{display:"flex",gap:".5rem"}}>
+                    <a href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(newsArt.title+" — noelclaw.fun @noelclawfun")}`} target="_blank" rel="noopener noreferrer"
+                      style={{display:"inline-flex",alignItems:"center",gap:".35rem",background:"#000",border:"1px solid var(--border)",borderRadius:"6px",padding:".38rem .8rem",fontSize:".68rem",color:"var(--white)",textDecoration:"none"}}>𝕏 Share</a>
+                    <button onClick={()=>navigator.clipboard.writeText(newsArt.url)}
+                      style={{background:"none",border:"1px solid var(--border)",borderRadius:"6px",padding:".38rem .8rem",fontSize:".68rem",color:"var(--text2)",cursor:"pointer",fontFamily:"inherit"}}>🔗 Copy</button>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
           {/* HOME */}
-          {!art&&page==="home"&&(
+          {!art&&!newsArt&&page==="home"&&(
             <div className="page">
               {/* HERO — updated with new tagline */}
               <section className="hero">
@@ -1855,17 +2001,14 @@ Live data:
                 <div style={{position:"absolute",top:"-60px",left:"50%",transform:"translateX(-50%)",width:"600px",height:"300px",background:"radial-gradient(ellipse,rgba(26,79,255,0.08) 0%,transparent 70%)",pointerEvents:"none"}}/>
 
                 <div style={{position:"relative",zIndex:1}}>
-                  {walletTier==="premium" ? (
-                    <div>
-                      <div style={{display:"flex",alignItems:"center",gap:".8rem",marginBottom:"1.5rem"}}>
-                        <span style={{fontSize:".58rem",color:"var(--green)",letterSpacing:".18em",textTransform:"uppercase",fontWeight:500}}>✦ Premium Access Unlocked</span>
-                        <span style={{fontSize:".52rem",color:"var(--text3)",letterSpacing:".06em"}}>{walletAddress?.slice(0,6)}…{walletAddress?.slice(-4)}</span>
-                      </div>
+                  {/* ── PUBLIC SECTIONS ───────────────────────────── */}
+                  <div>
 
-                      {/* Row 1: Alpha Feed + Smart Money Wallets */}
-                      <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"1rem",marginBottom:"1rem"}}>
-
-                        {/* Alpha Feed - 10 AI tokens + NOELCLAW */}
+                      {/* Alpha Feed — PUBLIC */}
+                      <div style={{marginBottom:"1rem"}}>
+                        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"1rem"}}>
+                          {/* Alpha Feed panel */}
+  {/* Alpha Feed - 10 AI tokens + NOELCLAW */}
                         <div style={{background:"var(--surface)",border:"1px solid var(--border)",borderRadius:"12px",overflow:"hidden"}}>
                           <div style={{padding:".8rem 1rem",borderBottom:"1px solid var(--border)",background:"rgba(255,255,255,.015)",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
                             <div style={{display:"flex",alignItems:"center",gap:".5rem"}}>
@@ -1942,8 +2085,8 @@ Live data:
                             </div>
                           )}
                         </div>
-
-                        {/* Smart Money Wallets */}
+                          {/* Smart Money — PREMIUM LOCKED */}
+                          {walletTier==="premium" ? (
                         <div style={{background:"var(--surface)",border:"1px solid var(--border)",borderRadius:"12px",overflow:"hidden"}}>
                           <div style={{padding:".8rem 1rem",borderBottom:"1px solid var(--border)",background:"rgba(255,255,255,.015)",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
                             <div style={{display:"flex",alignItems:"center",gap:".5rem"}}>
@@ -2023,9 +2166,19 @@ Live data:
                             });
                           })()}
                         </div>
+                          ) : (
+                            <div style={{background:"var(--surface)",border:"1px solid var(--border)",borderRadius:"12px",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:".6rem",padding:"2.5rem 1rem"}}>
+                              <span style={{fontSize:"1.8rem"}}>🧠</span>
+                              <span style={{fontSize:".7rem",color:"var(--white)",fontWeight:600}}>Smart Money</span>
+                              <span style={{fontSize:".58rem",color:"var(--text3)",textAlign:"center",maxWidth:"200px",lineHeight:1.6}}>Hold 20M $NOELCLAW to unlock real smart money wallet tracking via GMGN</span>
+                              <span style={{fontSize:".5rem",color:"#c084fc",background:"rgba(168,85,247,.1)",border:"1px solid rgba(168,85,247,.3)",borderRadius:"20px",padding:".15rem .55rem",fontWeight:700,letterSpacing:".08em"}}>PREMIUM</span>
+                            </div>
+                          )}
+                        </div>
                       </div>
 
-                      {/* Row 2: Recent Trades - DexScreener style */}
+                      {/* $NOELCLAW Activity — PUBLIC */}
+                      {/* Row 2: $NOELCLAW Activity — PUBLIC */}
                       <div style={{background:"var(--surface)",border:"1px solid var(--border)",borderRadius:"12px",overflow:"hidden",marginBottom:"1rem"}}>
                         {/* Header */}
                         <div style={{padding:".9rem 1.2rem",borderBottom:"1px solid var(--border)",display:"flex",justifyContent:"space-between",alignItems:"center",background:"rgba(255,255,255,.015)"}}>
@@ -2182,7 +2335,8 @@ Live data:
                         )}
                       </div>
 
-                      {/* Row 3: Crypto News — Premium */}
+                      {/* News — PUBLIC */}
+                      {/* Row 3: Crypto News — PUBLIC */}
                       <div style={{background:"var(--surface)",border:"1px solid var(--border)",borderRadius:"12px",overflow:"hidden",marginBottom:"1rem"}}>
 
                         {/* Header */}
@@ -2190,7 +2344,7 @@ Live data:
                           <div style={{display:"flex",alignItems:"center",gap:".6rem"}}>
                             <span style={{fontSize:"1rem",lineHeight:1}}>📰</span>
                             <span style={{fontSize:".72rem",color:"var(--white)",fontWeight:500,letterSpacing:".04em"}}>Crypto News</span>
-                            <span style={{fontSize:".44rem",background:"rgba(255,165,0,.1)",color:"#ffa500",border:"1px solid rgba(255,165,0,.25)",borderRadius:"20px",padding:".1rem .45rem",letterSpacing:".08em",fontWeight:600}}>CRYPTOPANIC</span>
+                            <span style={{fontSize:".44rem",background:cryptoNews[0]?.source==="Cointelegraph"?"rgba(26,79,255,.1)":"rgba(255,165,0,.1)",color:cryptoNews[0]?.source==="Cointelegraph"?"var(--blue-hi)":"#ffa500",border:`1px solid ${cryptoNews[0]?.source==="Cointelegraph"?"rgba(77,133,255,.25)":"rgba(255,165,0,.25)"}`,borderRadius:"20px",padding:".1rem .45rem",letterSpacing:".08em",fontWeight:600}}>{cryptoNews[0]?.source==="Cointelegraph"?"COINTELEGRAPH":"CRYPTOPANIC"}</span>
                             {messariGlobal&&<span style={{fontSize:".44rem",background:"rgba(26,79,255,.1)",color:"var(--blue-hi)",border:"1px solid rgba(77,133,255,.25)",borderRadius:"20px",padding:".1rem .45rem",letterSpacing:".08em",fontWeight:600}}>MESSARI</span>}
                           </div>
                           <button onClick={fetchNews}
@@ -2236,8 +2390,8 @@ Live data:
                               <span style={{fontSize:".48rem",color:"var(--text3)",letterSpacing:".12em",fontWeight:700}}>HOT</span>
                             </div>
                             {cryptoNews.slice(0,6).map((n,i)=>(
-                              <a key={i} href={n.url} target="_blank" rel="noopener noreferrer"
-                                style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",gap:"1rem",padding:".75rem 1.2rem",borderBottom:i<5?"1px solid rgba(255,255,255,.04)":"none",textDecoration:"none",background:"transparent",transition:"background .15s"}}
+                              <div key={i} onClick={()=>openNewsArticle(n)}
+                                style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",gap:"1rem",padding:".75rem 1.2rem",borderBottom:i<5?"1px solid rgba(255,255,255,.04)":"none",textDecoration:"none",background:"transparent",transition:"background .15s",cursor:"pointer"}}
                                 onMouseEnter={e=>e.currentTarget.style.background="rgba(255,255,255,.025)"}
                                 onMouseLeave={e=>e.currentTarget.style.background="transparent"}
                               >
@@ -2266,7 +2420,7 @@ Live data:
                                     </div>
                                   )}
                                 </div>
-                              </a>
+                              </div>
                             ))}
                           </div>
                         )}
@@ -2280,8 +2434,8 @@ Live data:
                             </div>
                             <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:0}}>
                               {risingNews.slice(0,4).map((n,i)=>(
-                                <a key={i} href={n.url} target="_blank" rel="noopener noreferrer"
-                                  style={{display:"block",padding:".7rem 1.2rem",borderBottom:"1px solid rgba(255,255,255,.04)",borderRight:i%2===0?"1px solid rgba(255,255,255,.04)":"none",textDecoration:"none",transition:"background .15s"}}
+                                <div key={i} onClick={()=>openNewsArticle(n)}
+                                  style={{display:"block",padding:".7rem 1.2rem",borderBottom:"1px solid rgba(255,255,255,.04)",borderRight:i%2===0?"1px solid rgba(255,255,255,.04)":"none",textDecoration:"none",transition:"background .15s",cursor:"pointer"}}
                                   onMouseEnter={e=>e.currentTarget.style.background="rgba(255,255,255,.02)"}
                                   onMouseLeave={e=>e.currentTarget.style.background="transparent"}
                                 >
@@ -2294,7 +2448,7 @@ Live data:
                                       {n.sentiment==="bullish"?"↑":"↓"} {n.sentiment?.toUpperCase()||"NEU"}
                                     </span>
                                   </div>
-                                </a>
+                                </div>
                               ))}
                             </div>
                           </div>
@@ -2309,7 +2463,220 @@ Live data:
                         )}
                       </div>
 
-                      {/* Row 4: AI Market Brief */}
+                  </div>
+
+                  {/* ── PREMIUM SECTIONS ─────────────────────────────── */}
+                  {walletTier==="premium" ? (
+                    <div>
+                                            <div style={{display:"flex",alignItems:"center",gap:".8rem",marginBottom:"1.5rem"}}>
+                        <span style={{fontSize:".58rem",color:"var(--green)",letterSpacing:".18em",textTransform:"uppercase",fontWeight:500}}>✦ Premium Access Unlocked</span>
+                        <span style={{fontSize:".52rem",color:"var(--text3)",letterSpacing:".06em"}}>{walletAddress?.slice(0,6)}…{walletAddress?.slice(-4)}</span>
+                      </div>
+
+                      {/* GMGN Sniper — PREMIUM */}
+                      {/* (moved to premium) */}
+                      {walletTier==="premium" && (
+                        <div style={{marginBottom:"1rem"}}>
+                          <div style={{background:"var(--surface)",border:"1px solid rgba(168,85,247,.3)",borderRadius:"12px",overflow:"hidden"}}>
+                            <div style={{padding:".9rem 1.2rem",borderBottom:"1px solid var(--border)",display:"flex",justifyContent:"space-between",alignItems:"center",background:"rgba(168,85,247,.04)"}}>
+                              <div style={{display:"flex",alignItems:"center",gap:".6rem"}}>
+                                <span style={{fontSize:"1rem",lineHeight:1}}>🎯</span>
+                                <span style={{fontSize:".72rem",color:"var(--white)",fontWeight:500,letterSpacing:".04em"}}>GMGN Sniper</span>
+                                <span style={{fontSize:".44rem",background:"rgba(168,85,247,.15)",color:"#c084fc",border:"1px solid rgba(168,85,247,.3)",borderRadius:"20px",padding:".1rem .45rem",fontWeight:600,letterSpacing:".08em"}}>NEW TOKENS · BASE</span>
+                                <span style={{display:"flex",alignItems:"center",gap:".3rem",fontSize:".52rem",color:"var(--green)",letterSpacing:".06em",background:"rgba(34,211,165,.08)",border:"1px solid rgba(34,211,165,.2)",borderRadius:"20px",padding:".1rem .45rem"}}>
+                                  <span style={{width:"5px",height:"5px",borderRadius:"50%",background:"var(--green)",display:"inline-block",animation:"pulse 2s ease-in-out infinite",flexShrink:0}}/>
+                                  LIVE
+                                </span>
+                              </div>
+                              <button onClick={fetchSniperTokens} disabled={sniperLoading}
+                                style={{background:"none",border:"1px solid var(--border)",borderRadius:"5px",padding:".22rem .6rem",color:"var(--text3)",fontSize:".58rem",cursor:sniperLoading?"not-allowed":"pointer",fontFamily:"inherit",letterSpacing:".06em",display:"flex",alignItems:"center",gap:".3rem",transition:"all .18s",opacity:sniperLoading?.5:1}}
+                                onMouseEnter={e=>{if(!sniperLoading){e.currentTarget.style.borderColor="var(--border2)";e.currentTarget.style.color="var(--text)";}}}
+                                onMouseLeave={e=>{e.currentTarget.style.borderColor="var(--border)";e.currentTarget.style.color="var(--text3)";}}>
+                                {sniperLoading?"…":"↻"} {sniperLoading?"Sniping…":"Refresh"}
+                              </button>
+                            </div>
+                            {sniperLoading&&(
+                              <div style={{padding:"1.5rem 1.2rem",display:"flex",alignItems:"center",gap:".6rem"}}>
+                                <span style={{width:"6px",height:"6px",borderRadius:"50%",background:"#c084fc",display:"inline-block",animation:"pulse 1.5s infinite",flexShrink:0}}/>
+                                <span style={{fontSize:".72rem",color:"var(--text3)"}}>Sniping new tokens on Base via GMGN…</span>
+                              </div>
+                            )}
+                            {!sniperLoading&&sniperTokens.length>0&&sniperTokens.map((t,i)=>{
+                              const pct=parseFloat(t.priceChange||0),isUp=pct>=0,mcap=parseFloat(t.marketCap||0),liq=parseFloat(t.liquidity||0),price=parseFloat(t.price||0),swaps=parseInt(t.swaps||0),risk=t.risk||"",riskColor=risk==="low"?"var(--green)":risk==="medium"?"#f59e0b":"#ff6b6b";
+                              const fmtBig=(n)=>n>=1e9?(n/1e9).toFixed(1)+"B":n>=1e6?(n/1e6).toFixed(1)+"M":n>=1e3?(n/1e3).toFixed(0)+"K":n.toFixed(0);
+                              const fmtPrice=(p)=>{if(!p||p===0)return"—";if(p>=1)return"$"+p.toFixed(4);const s=p.toFixed(12);const m=s.match(/^0\.(0+)([1-9]\d*)/);if(m&&m[1].length>=2)return"0.0["+m[1].length+"]"+m[2].slice(0,4);return"$"+p.toFixed(6);};
+                              return(
+                                <div key={i} style={{display:"grid",gridTemplateColumns:"1fr 80px 90px 90px 80px 80px 32px",gap:0,padding:".52rem 1.2rem",borderBottom:i<sniperTokens.length-1?"1px solid rgba(255,255,255,.035)":"none",background:"transparent",transition:"background .15s",alignItems:"center"}}
+                                  onMouseEnter={e=>e.currentTarget.style.background="rgba(168,85,247,.04)"}
+                                  onMouseLeave={e=>e.currentTarget.style.background="transparent"}>
+                                  <div style={{display:"flex",alignItems:"center",gap:".5rem",minWidth:0}}>
+                                    {t.image&&<img src={t.image} alt={t.symbol} style={{width:"20px",height:"20px",borderRadius:"50%",flexShrink:0,objectFit:"cover"}} onError={e=>e.currentTarget.style.display="none"}/>}
+                                    <div style={{minWidth:0}}>
+                                      <div style={{display:"flex",alignItems:"center",gap:".3rem"}}>
+                                        <span style={{fontSize:".65rem",color:"var(--white)",fontWeight:600,fontFamily:"monospace"}}>{t.symbol||"—"}</span>
+                                        {risk&&<span style={{fontSize:".38rem",color:riskColor,background:riskColor+"18",border:`1px solid ${riskColor}33`,borderRadius:"3px",padding:".03rem .22rem",fontWeight:700,textTransform:"uppercase"}}>{risk}</span>}
+                                      </div>
+                                      <span style={{fontSize:".5rem",color:"var(--text3)",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",display:"block",maxWidth:"120px"}}>{t.name||""}</span>
+                                    </div>
+                                  </div>
+                                  <span style={{fontSize:".6rem",color:"var(--text2)",fontFamily:"monospace"}}>{fmtPrice(price)}</span>
+                                  <span style={{fontSize:".62rem",color:"var(--text2)",fontFamily:"monospace"}}>{mcap>0?"$"+fmtBig(mcap):"—"}</span>
+                                  <span style={{fontSize:".62rem",color:"var(--text2)",fontFamily:"monospace"}}>{liq>0?"$"+fmtBig(liq):"—"}</span>
+                                  <span style={{fontSize:".65rem",fontWeight:600,color:isUp?"var(--green)":"#ff6b6b"}}>{isUp?"+":""}{pct.toFixed(1)}%</span>
+                                  <span style={{fontSize:".62rem",color:"var(--text3)",fontFamily:"monospace"}}>{swaps>0?swaps.toLocaleString():"—"}</span>
+                                  <a href={t.url||`https://gmgn.ai/base/token/${t.address}`} target="_blank" rel="noopener noreferrer"
+                                    style={{display:"inline-flex",alignItems:"center",justifyContent:"center",width:"18px",height:"18px",borderRadius:"4px",background:"rgba(255,255,255,.06)",border:"1px solid var(--border)",color:"var(--text3)",fontSize:".6rem",textDecoration:"none",transition:"all .15s"}}
+                                    onMouseEnter={e=>{e.currentTarget.style.background="rgba(168,85,247,.2)";e.currentTarget.style.borderColor="rgba(168,85,247,.4)";e.currentTarget.style.color="#c084fc";}}
+                                    onMouseLeave={e=>{e.currentTarget.style.background="rgba(255,255,255,.06)";e.currentTarget.style.borderColor="var(--border)";e.currentTarget.style.color="var(--text3)";}}>↗</a>
+                                </div>
+                              );
+                            })}
+                            {!sniperLoading&&sniperTokens.length===0&&(
+                              <div style={{padding:"2rem 1.2rem",display:"flex",flexDirection:"column",alignItems:"center",gap:".6rem",opacity:.7}}>
+                                <span style={{fontSize:"1.5rem"}}>🎯</span>
+                                <span style={{fontSize:".72rem",color:"var(--text3)"}}>No sniper data yet</span>
+                                <button onClick={fetchSniperTokens} style={{fontSize:".6rem",color:"#c084fc",background:"none",border:"1px solid rgba(168,85,247,.3)",borderRadius:"5px",padding:".3rem .8rem",cursor:"pointer",fontFamily:"inherit"}}>Snipe now</button>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Row 2.5: AI Alpha Agent — PREMIUM */}
+                      <div style={{background:"var(--surface)",border:"1px solid var(--border)",borderRadius:"12px",overflow:"hidden",marginBottom:"1rem"}}>
+                        {/* Header */}
+                        <div style={{padding:".9rem 1.2rem",borderBottom:"1px solid var(--border)",display:"flex",justifyContent:"space-between",alignItems:"center",background:"linear-gradient(90deg,rgba(168,85,247,.06),rgba(26,79,255,.04))"}}>
+                          <div style={{display:"flex",alignItems:"center",gap:".6rem"}}>
+                            <span style={{fontSize:"1.1rem",lineHeight:1}}>⚡</span>
+                            <span style={{fontSize:".72rem",color:"var(--white)",fontWeight:600,letterSpacing:".04em"}}>AI Alpha Agent</span>
+                            <span style={{fontSize:".44rem",background:"rgba(168,85,247,.15)",color:"#c084fc",border:"1px solid rgba(168,85,247,.3)",borderRadius:"20px",padding:".1rem .45rem",fontWeight:700,letterSpacing:".08em"}}>BASE · POWERED BY CLAUDE</span>
+                          </div>
+                          <div style={{display:"flex",alignItems:"center",gap:".8rem"}}>
+                            {agentLastRun&&<span style={{fontSize:".5rem",color:"var(--text3)"}}>Last run: {new Date(agentLastRun).toLocaleTimeString()}</span>}
+                            <button onClick={fetchAgentSignals} disabled={agentLoading}
+                              style={{background:agentLoading?"rgba(168,85,247,.1)":"linear-gradient(135deg,rgba(168,85,247,.25),rgba(26,79,255,.2))",border:"1px solid rgba(168,85,247,.4)",borderRadius:"6px",padding:".35rem .9rem",color:agentLoading?"#c084fc":"var(--white)",fontSize:".62rem",cursor:agentLoading?"not-allowed":"pointer",fontFamily:"inherit",fontWeight:600,letterSpacing:".04em",display:"flex",alignItems:"center",gap:".4rem",transition:"all .2s"}}
+                              onMouseEnter={e=>{if(!agentLoading){e.currentTarget.style.background="linear-gradient(135deg,rgba(168,85,247,.4),rgba(26,79,255,.35))";e.currentTarget.style.boxShadow="0 0 16px rgba(168,85,247,.3)";}}}
+                              onMouseLeave={e=>{e.currentTarget.style.background="linear-gradient(135deg,rgba(168,85,247,.25),rgba(26,79,255,.2))";e.currentTarget.style.boxShadow="none";}}>
+                              {agentLoading?(
+                                <><span style={{width:"8px",height:"8px",borderRadius:"50%",background:"#c084fc",animation:"pulse 1s infinite",display:"inline-block"}}/>Analyzing…</>
+                              ):(
+                                <>⚡ Run Agent</>
+                              )}
+                            </button>
+                          </div>
+                        </div>
+
+                        {/* Loading state */}
+                        {agentLoading&&(
+                          <div style={{padding:"2.5rem 1.2rem",display:"flex",flexDirection:"column",alignItems:"center",gap:"1rem"}}>
+                            <div style={{display:"flex",gap:".4rem"}}>
+                              {["Fetching GMGN data","Enriching with DexScreener","Claude analyzing","Generating signals"].map((step,i)=>(
+                                <div key={i} style={{display:"flex",alignItems:"center",gap:".3rem",fontSize:".52rem",color:"var(--text3)",background:"var(--surface2)",border:"1px solid var(--border)",borderRadius:"20px",padding:".2rem .5rem"}}>
+                                  <span style={{width:"4px",height:"4px",borderRadius:"50%",background:"#c084fc",animation:`pulse ${1+i*0.3}s infinite`,display:"inline-block"}}/>
+                                  {step}
+                                </div>
+                              ))}
+                            </div>
+                            <span style={{fontSize:".62rem",color:"var(--text3)"}}>Agent is scanning Base ecosystem tokens… (~30-60s)</span>
+                          </div>
+                        )}
+
+                        {/* Empty state */}
+                        {!agentLoading&&agentSignals.length===0&&(
+                          <div style={{padding:"2.5rem 1.2rem",display:"flex",flexDirection:"column",alignItems:"center",gap:".8rem",textAlign:"center"}}>
+                            <span style={{fontSize:"2rem"}}>⚡</span>
+                            <div>
+                              <div style={{fontSize:".75rem",color:"var(--white)",fontWeight:500,marginBottom:".3rem"}}>AI Alpha Agent Ready</div>
+                              <div style={{fontSize:".62rem",color:"var(--text3)",maxWidth:"320px"}}>Scans Base ecosystem tokens, analyzes on-chain data, and generates conviction-based signals with entry/exit targets.</div>
+                            </div>
+                            <button onClick={fetchAgentSignals}
+                              style={{background:"linear-gradient(135deg,rgba(168,85,247,.25),rgba(26,79,255,.2))",border:"1px solid rgba(168,85,247,.4)",borderRadius:"8px",padding:".5rem 1.2rem",color:"var(--white)",fontSize:".65rem",cursor:"pointer",fontFamily:"inherit",fontWeight:600,letterSpacing:".04em"}}>
+                              ⚡ Run Agent Now
+                            </button>
+                          </div>
+                        )}
+
+                        {/* Signal cards */}
+                        {!agentLoading&&agentSignals.length>0&&(
+                          <div style={{padding:"1rem 1.2rem",display:"flex",flexDirection:"column",gap:".75rem"}}>
+                            {agentSignals.map((s,i)=>{
+                              const signalColor = s.signal==="BUY"?"var(--green)":s.signal==="WATCH"?"#f59e0b":"#ff6b6b";
+                              const signalBg    = s.signal==="BUY"?"rgba(34,211,165,.08)":s.signal==="WATCH"?"rgba(245,158,11,.08)":"rgba(255,107,107,.08)";
+                              const riskColor   = s.riskLevel==="safe"?"var(--green)":s.riskLevel==="mid"?"#f59e0b":"#f87171";
+                              const convBar     = Math.round((s.conviction/10)*100);
+                              const pctChange   = parseFloat(s.priceChange24h||0);
+                              return (
+                                <div key={i} style={{background:"var(--bg)",border:`1px solid ${signalColor}22`,borderRadius:"10px",overflow:"hidden"}}>
+                                  {/* Card header */}
+                                  <div style={{padding:".7rem 1rem",display:"flex",justifyContent:"space-between",alignItems:"center",borderBottom:"1px solid rgba(255,255,255,.05)",background:signalBg}}>
+                                    <div style={{display:"flex",alignItems:"center",gap:".6rem"}}>
+                                      <div style={{width:"32px",height:"32px",borderRadius:"8px",background:`${signalColor}22`,border:`1px solid ${signalColor}44`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                                        <span style={{fontSize:".85rem",fontWeight:700,color:signalColor}}>{i+1}</span>
+                                      </div>
+                                      <div>
+                                        <div style={{display:"flex",alignItems:"center",gap:".4rem"}}>
+                                          <span style={{fontSize:".78rem",color:"var(--white)",fontWeight:700,fontFamily:"monospace"}}>${s.symbol}</span>
+                                          <span style={{fontSize:".48rem",color:signalColor,background:signalColor+"18",border:`1px solid ${signalColor}33`,borderRadius:"4px",padding:".1rem .35rem",fontWeight:700,letterSpacing:".08em"}}>{s.signal}</span>
+                                          <span style={{fontSize:".44rem",color:riskColor,background:riskColor+"18",border:`1px solid ${riskColor}33`,borderRadius:"4px",padding:".1rem .3rem",fontWeight:600,textTransform:"uppercase"}}>{s.riskLevel}</span>
+                                        </div>
+                                        <span style={{fontSize:".52rem",color:pctChange>=0?"var(--green)":"#ff6b6b",fontWeight:500}}>{pctChange>=0?"+":""}{pctChange.toFixed(1)}% 24h</span>
+                                      </div>
+                                    </div>
+                                    {/* Conviction meter */}
+                                    <div style={{textAlign:"right"}}>
+                                      <div style={{fontSize:".45rem",color:"var(--text3)",marginBottom:".25rem",letterSpacing:".08em"}}>CONVICTION</div>
+                                      <div style={{display:"flex",alignItems:"center",gap:".4rem"}}>
+                                        <div style={{width:"60px",height:"5px",background:"rgba(255,255,255,.08)",borderRadius:"3px",overflow:"hidden"}}>
+                                          <div style={{width:`${convBar}%`,height:"100%",background:`linear-gradient(90deg,${signalColor},${signalColor}cc)`,borderRadius:"3px",transition:"width .5s"}}/>
+                                        </div>
+                                        <span style={{fontSize:".65rem",color:signalColor,fontWeight:700,fontFamily:"monospace"}}>{s.conviction}/10</span>
+                                      </div>
+                                    </div>
+                                  </div>
+
+                                  {/* Entry / Exit / Evidence */}
+                                  <div style={{padding:".7rem 1rem",display:"grid",gridTemplateColumns:"1fr 1fr",gap:".6rem"}}>
+                                    {/* Entry */}
+                                    <div style={{background:"rgba(34,211,165,.04)",border:"1px solid rgba(34,211,165,.12)",borderRadius:"6px",padding:".5rem .7rem"}}>
+                                      <div style={{fontSize:".42rem",color:"var(--text3)",letterSpacing:".1em",marginBottom:".2rem"}}>ENTRY</div>
+                                      <div style={{fontSize:".68rem",color:"var(--green)",fontWeight:600,fontFamily:"monospace"}}>${typeof s.entryPrice==="number"?s.entryPrice.toFixed(s.entryPrice>1?4:8):s.entryPrice}</div>
+                                      <div style={{fontSize:".5rem",color:"var(--text3)",marginTop:".15rem"}}>{s.entryNote}</div>
+                                    </div>
+                                    {/* Exit */}
+                                    <div style={{background:"rgba(248,113,113,.04)",border:"1px solid rgba(248,113,113,.12)",borderRadius:"6px",padding:".5rem .7rem"}}>
+                                      <div style={{fontSize:".42rem",color:"var(--text3)",letterSpacing:".1em",marginBottom:".2rem"}}>EXIT TARGET</div>
+                                      <div style={{fontSize:".68rem",color:"#f87171",fontWeight:600,fontFamily:"monospace"}}>${typeof s.exitTarget==="number"?s.exitTarget.toFixed(s.exitTarget>1?4:8):s.exitTarget}</div>
+                                      <div style={{fontSize:".5rem",color:"var(--text3)",marginTop:".15rem"}}>{s.exitNote}</div>
+                                    </div>
+                                  </div>
+
+                                  {/* On-chain evidence */}
+                                  <div style={{padding:"0 1rem .5rem"}}>
+                                    <div style={{background:"rgba(26,79,255,.05)",border:"1px solid rgba(77,133,255,.15)",borderRadius:"6px",padding:".5rem .7rem"}}>
+                                      <div style={{fontSize:".42rem",color:"var(--blue-hi)",letterSpacing:".1em",marginBottom:".25rem"}}>🔍 ON-CHAIN EVIDENCE</div>
+                                      <div style={{fontSize:".58rem",color:"var(--text2)",lineHeight:1.5}}>{s.onChainEvidence}</div>
+                                    </div>
+                                  </div>
+
+                                  {/* Reasoning + Link */}
+                                  <div style={{padding:"0 1rem .7rem",display:"flex",justifyContent:"space-between",alignItems:"flex-end",gap:".8rem"}}>
+                                    <div style={{fontSize:".55rem",color:"var(--text3)",lineHeight:1.55,flex:1,fontStyle:"italic"}}>"{s.reasoning}"</div>
+                                    <a href={s.dexUrl||`https://dexscreener.com/base/${s.address}`} target="_blank" rel="noopener noreferrer"
+                                      style={{flexShrink:0,fontSize:".55rem",color:"var(--blue-hi)",background:"rgba(26,79,255,.1)",border:"1px solid rgba(77,133,255,.25)",borderRadius:"5px",padding:".25rem .6rem",textDecoration:"none",fontWeight:500,whiteSpace:"nowrap"}}
+                                      onMouseEnter={e=>e.currentTarget.style.background="rgba(26,79,255,.2)"}
+                                      onMouseLeave={e=>e.currentTarget.style.background="rgba(26,79,255,.1)"}>
+                                      Chart ↗
+                                    </a>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                            <div style={{fontSize:".5rem",color:"var(--text3)",textAlign:"center",padding:".3rem",borderTop:"1px solid var(--border)"}}>⚠️ Not financial advice. DYOR. Degen at your own risk.</div>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Row 4: AI Market Brief — PREMIUM */}
                       <div style={{background:"var(--surface)",border:"1px solid var(--border)",borderRadius:"12px",padding:"1.2rem",marginBottom:".5rem"}}>
                         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:".8rem"}}>
                           <span style={{fontSize:".52rem",color:"var(--blue-hi)",letterSpacing:".14em",fontWeight:700,textTransform:"uppercase"}}>🧠 AI Market Brief</span>
@@ -2330,6 +2697,7 @@ Live data:
                           {typeof marketBrief==="string"?marketBrief:marketBrief?.content?.[0]?.text||JSON.stringify(marketBrief)}
                         </div>}
                       </div>
+                    </div>
                     </div>
                   ) : (
                   <>
@@ -2459,7 +2827,7 @@ Live data:
           )}
 
           {/* ARTICLES PAGE */}
-          {!art&&page==="articles"&&(
+          {!art&&!newsArt&&page==="articles"&&(
             <div className="page">
               <div className="section">
                 <div className="sec-hd"><div className="sec-tag"><span className="sec-ln"/>All Articles</div></div>
@@ -2474,7 +2842,7 @@ Live data:
           )}
 
           {/* DASHBOARD */}
-          {!art&&page==="dashboard"&&(
+          {!art&&!newsArt&&page==="dashboard"&&(
             <div className="dash">
               <div className="pg-hd">
                 <div>
@@ -2651,7 +3019,7 @@ Live data:
           )}
 
           {/* ANALYTICS */}
-          {!art&&page==="analytics"&&(
+          {!art&&!newsArt&&page==="analytics"&&(
             <div className="analytics">
               <div className="an-hd">
                 <div>
@@ -2761,7 +3129,7 @@ Live data:
           )}
 
           {/* ABOUT */}
-          {!art&&page==="about"&&(
+          {!art&&!newsArt&&page==="about"&&(
             <div className="page">
               <div style={{padding:"4rem 3.5rem 3rem",borderBottom:"1px solid var(--border)"}}>
                 <div style={{display:"flex",alignItems:"center",gap:"1.5rem",marginBottom:"2rem"}}>
@@ -2916,7 +3284,8 @@ Live data:
 
         </div>
 
-        {/* FOOTER */}
+        {!newsArt&&(
+        <>{/* FOOTER */}
         <footer className="footer">
           <div className="footer-main">
             <div className="footer-brand">
@@ -2971,6 +3340,8 @@ Live data:
             </div>
           </div>
         </footer>
+        </>
+        )}
 
       </div>
 

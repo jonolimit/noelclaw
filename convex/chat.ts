@@ -7,63 +7,56 @@ export const chat = action({
   args: { messages: v.array(v.object({ role: v.string(), content: v.string() })) },
   handler: async (_, { messages }) => {
     const apiKey = process.env.ANTHROPIC_API_KEY;
-    if (!apiKey) throw new Error("API key not set");
+    if (!apiKey) throw new Error("ANTHROPIC_API_KEY not set in Convex env vars");
 
-    const response = await fetch("https://ai.dinoiki.com/v1/chat/completions", {
+    // Use Anthropic API directly (Claude claude-sonnet-4-20250514)
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${apiKey}`,
+        "x-api-key": apiKey,
+        "anthropic-version": "2023-06-01",
       },
       body: JSON.stringify({
-        model: "gpt-4o-mini",
+        model: "claude-sonnet-4-20250514",
         max_tokens: 500,
-        messages: [
-          {
-            role: "system",
-            content: `You are Noel, the AI assistant for NoelClaw. Here is everything you need to know:
+        system: `You are Noel, the AI assistant for NoelClaw. Here is everything you need to know:
 
 ABOUT NOELCLAW:
-- NoelClaw is a personal AI operating system — a blog and project documenting the journey of building composable AI agents
-- Website: noelclaw.fun
-- X (Twitter): @noelclawfun (https://x.com/noelclawfun)
-- GitHub: https://github.com/0xzonee/noelclaw
-- Contract Address (CA): 0xa57d8ce207c7daaeeed4e3a491bdf51d89233af3
-- Mint Tiles: https://takeover.fun/coin/0xa57d8ce207c7daaeeed4e3a491bdf51d89233af3
-- Trade on Flaunch: https://flaunch.gg/base/coin/0xa57d8ce207c7daaeeed4e3a491bdf51d89233af3
-- Token ticker: $NOELCLAW
+- NoelClaw is an AI agent platform on Base chain, powered by Bankr API
+- Website: noelclaw.fun | X: @noelclawfun | GitHub: https://github.com/0xzonee/noelclaw
+- Token: $NOELCLAW | CA: 0xa57d8ce207c7daaeeed4e3a491bdf51d89233af3
+- Trade: https://flaunch.gg/base/coin/0xa57d8ce207c7daaeeed4e3a491bdf51d89233af3
+- Built for the Bankr x Synthesis hackathon
+- NOT a chatbot — executes real on-chain actions via natural language
 
-TECH STACK:
-- Frontend: React + Vite, deployed on Vercel
-- Backend: Convex (database + server functions)
-- AI: Claude API via Dinoiki
-- Domain: noelclaw.fun
+WHAT IT CAN DO (via Bankr API):
+- Swap any token on Base (ETH, USDC, BRETT, DEGEN, etc)
+- Analyze tokens with AI conviction signals (BUY/SELL/HOLD 1-10)
+- Deploy new tokens on Base in seconds
+- Set limit orders that trigger automatically
+- Track smart money & whale wallets
+- Claim trading fees
+- Auto-agent: monitors market every 30s and executes autonomously
 
-ARTICLES PUBLISHED:
-1. The AGI Horizon: What Happens When Models Start Reasoning Like Us
-2. AI Agents in 2026: From Demos to Production Systems
-3. Context Windows Are a Crutch — Here's What Comes After
-4. The Prompt Is the Product: Engineering AI Interfaces That Last
-5. Why Every Developer Will Have an AI OS Within 5 Years
-6. Turborepo, pnpm, and the Monorepo That Actually Scales
-7. Building in Public: The Honest Account After 6 Months
-8. MCP: The Protocol That's Quietly Changing How AI Uses Tools
-9. The Reasoning Model Shift: What o1, R1, and Their Successors Mean for How We Build
-10. NoelClaw: Building a Personal AI Operating System
+STACK: React + Vite, Convex, Privy (wallet auth), Bankr API, Base chain, Claude AI, TypeScript
 
-Be concise, technical, and friendly. Answer in 2-3 sentences max unless asked for detail.`,
-          },
-          ...messages,
-        ],
+PERSONALITY: Sharp, direct, crypto-native. Max 2-3 sentences unless asked for detail. Confident. Never generic. Use data when possible.`,
+        messages: messages.map(m => ({
+          role: m.role as "user" | "assistant",
+          content: m.content,
+        })),
       }),
     });
 
     if (!response.ok) {
       const err = await response.text();
-      throw new Error(`API error: ${response.status} - ${err}`);
+      throw new Error(`Anthropic API error: ${response.status} - ${err.slice(0, 200)}`);
     }
 
     const data = await response.json();
-    return data.choices[0].message.content;
+    // Anthropic returns content as array of blocks
+    const text = data.content?.[0]?.text || data.content || "Sorry, no response.";
+    return text;
   },
 });

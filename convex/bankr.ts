@@ -1,187 +1,190 @@
 "use node";
 
 import { action } from "./_generated/server";
+import { v } from "convex/values";
 
-const CA   = "0xa57d8ce207c7daaeeed4e3a491bdf51d89233af3";
-const PAIR = "0x9eebf6143b61a651ae4b1c9c57257510d0feb4743550fefbb9470898e5e26ac7";
-const DEX  = "https://api.dexscreener.com";
-const GT   = "https://api.geckoterminal.com/api/v2";
+// ══════════════════════════════════════════════════════
+// Core Bankr API caller
+// ══════════════════════════════════════════════════════
+async function callBankr(
+  prompt: string,
+  threadId?: string,
+  walletAddress?: string
+): Promise<{ response: string; threadId?: string; transactions: any[]; method: string }> {
+  const privateKey    = process.env.BANKR_PRIVATE_KEY;
+  const contextWallet = walletAddress || process.env.BANKR_WALLET_ADDRESS;
 
-// ── Token price & stats from DexScreener ──────────────────────────────────
-export const getTokenPrice = action({
-  args: {},
-  handler: async () => {
-    const res  = await fetch(`${DEX}/tokens/v1/base/${CA}`);
-    const data = await res.json();
-    const pairs = Array.isArray(data) ? data : data.pairs;
-    const pair  = pairs?.[0];
-    if (!pair) throw new Error("No pair found");
-    return {
-      success: true,
-      price:          pair.priceUsd,
-      priceChange24h: pair.priceChange?.h24,
-      priceChange1h:  pair.priceChange?.h1,
-      priceChange6h:  pair.priceChange?.h6,
-      volume24h:      pair.volume?.h24,
-      volume6h:       pair.volume?.h6,
-      volume1h:       pair.volume?.h1,
-      marketCap:      pair.marketCap || pair.fdv,
-      fdv:            pair.fdv,
-      liquidity:      pair.liquidity?.usd,
-      txns24h:        (pair.txns?.h24?.buys || 0) + (pair.txns?.h24?.sells || 0),
-      buys24h:        pair.txns?.h24?.buys,
-      sells24h:       pair.txns?.h24?.sells,
-      buys1h:         pair.txns?.h1?.buys,
-      sells1h:        pair.txns?.h1?.sells,
-      buys5m:         pair.txns?.m5?.buys,
-      sells5m:        pair.txns?.m5?.sells,
-      pairAddress:    pair.pairAddress,
-    };
-  },
-});
-
-// ── Real trades from GeckoTerminal ────────────────────────────────────────
-export const getRecentTrades = action({
-  args: {},
-  handler: async () => {
-    const [tradesRes, statsRes] = await Promise.all([
-      fetch(
-        `${GT}/networks/base/pools/${PAIR}/trades?trade_volume_in_usd_greater_than=0`,
-        { headers: { "Accept": "application/json;version=20230302" } }
-      ),
-      fetch(`${DEX}/tokens/v1/base/${CA}`),
-    ]);
-
-    if (!tradesRes.ok) throw new Error(`GeckoTerminal error: ${tradesRes.status}`);
-
-    const tradeData = await tradesRes.json();
-
-    // Get current $NOELCLAW price from DexScreener for reference
-    let currentPrice = 0;
-    if (statsRes.ok) {
-      const sd = await statsRes.json();
-      const pair = Array.isArray(sd) ? sd[0] : sd.pairs?.[0];
-      currentPrice = parseFloat(pair?.priceUsd || 0);
-    }
-
-    const trades = (tradeData.data || []).slice(0, 20).map((t: any) => {
-      const a = t.attributes || {};
-      const isBuy = a.kind === "buy";
-
-      // price_from_in_usd = price of token being sold
-      // price_to_in_usd   = price of token being bought
-      // For a BUY of $NOELCLAW: user sells USDC/ETH to get NOELCLAW
-      //   -> price_to_in_usd = price of NOELCLAW ✓
-      // For a SELL of $NOELCLAW: user sells NOELCLAW to get USDC/ETH
-      //   -> price_from_in_usd = price of NOELCLAW ✓
-      const rawPriceTo   = parseFloat(a.price_to_in_usd   || 0);
-      const rawPriceFrom = parseFloat(a.price_from_in_usd || 0);
-
-      // Pick the smaller price — $NOELCLAW is micro-cap so price << $1
-      // ETH/USDC prices are always >> $1
-      let priceUsd = 0;
-      if (isBuy) {
-        priceUsd = rawPriceTo < 1 ? rawPriceTo : rawPriceFrom < 1 ? rawPriceFrom : currentPrice;
-      } else {
-        priceUsd = rawPriceFrom < 1 ? rawPriceFrom : rawPriceTo < 1 ? rawPriceTo : currentPrice;
-      }
-      // Final fallback to current price
-      if (priceUsd === 0) priceUsd = currentPrice;
-
-      return {
-        type:      isBuy ? "buy" : "sell",
-        amountUsd: parseFloat(a.volume_in_usd || 0).toFixed(2),
-        priceUsd,
-        timestamp: a.block_timestamp ? new Date(a.block_timestamp).getTime() : Date.now(),
-        txHash:    a.tx_hash || null,
-        maker:     null,
-      };
-    });
-
-    // Get txn counts from DexScreener pair endpoint
-    let txStats: any = {};
+  // Method 1: x402 SDK (if private key set)
+  if (privateKey) {
     try {
-      const pairRes = await fetch(`${DEX}/dex/pairs/base/${PAIR}`);
-      if (pairRes.ok) {
-        const pd = await pairRes.json();
-        const pair = pd.pair || pd.pairs?.[0];
-        txStats = {
-          buys5m:    pair?.txns?.m5?.buys   || 0,
-          sells5m:   pair?.txns?.m5?.sells  || 0,
-          buys1h:    pair?.txns?.h1?.buys   || 0,
-          sells1h:   pair?.txns?.h1?.sells  || 0,
-          buys24h:   pair?.txns?.h24?.buys  || 0,
-          sells24h:  pair?.txns?.h24?.sells || 0,
-          volume24h: pair?.volume?.h24      || 0,
-        };
-      }
-    } catch {}
+      // @ts-ignore — optional dependency, install with: npm install @bankr/sdk
+      const { BankrClient } = await import("@bankr/sdk");
+      const client = new BankrClient({
+        privateKey,
+        ...(contextWallet ? { walletAddress: contextWallet } : {}),
+      });
+      const result = await client.promptAndWait({
+        prompt,
+        ...(threadId ? { threadId } : {}),
+      });
+      return {
+        response: result.response || result.result || "Done.",
+        threadId: result.threadId || threadId,
+        transactions: result.transactions || [],
+        method: "x402",
+      };
+    } catch (e: any) {
+      console.log("x402 SDK error, falling back to API key:", e?.message);
+    }
+  }
 
-    return { success: true, trades, ...txStats };
+  // Method 2: API key (direct REST)
+  const apiKey = process.env.BANKR_API_KEY;
+  if (!apiKey) throw new Error("Set BANKR_API_KEY or BANKR_PRIVATE_KEY in Convex env vars.");
+
+  const body: Record<string, string> = { prompt };
+  if (threadId) body.threadId = threadId;
+  if (contextWallet) body.walletAddress = contextWallet;
+
+  const startRes = await fetch("https://api.bankr.bot/agent/prompt", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${apiKey}`,
+    },
+    body: JSON.stringify(body),
+  });
+
+  if (!startRes.ok) {
+    const err = await startRes.text();
+    throw new Error(`Bankr ${startRes.status}: ${err.slice(0, 300)}`);
+  }
+
+  const { jobId, threadId: newThreadId } = await startRes.json();
+
+  // Poll for completion (max 50s)
+  for (let i = 0; i < 25; i++) {
+    await new Promise(r => setTimeout(r, 2000));
+    const pollRes = await fetch(`https://api.bankr.bot/agent/job/${jobId}`, {
+      headers: { "Authorization": `Bearer ${apiKey}` },
+    });
+    if (!pollRes.ok) continue;
+    const data = await pollRes.json();
+    if (data.status === "completed") {
+      return {
+        response: data.response || data.result || "Done.",
+        threadId: newThreadId || threadId,
+        transactions: data.transactions || [],
+        method: "api_key",
+      };
+    }
+    if (data.status === "failed") throw new Error("Bankr job failed: " + (data.error || "unknown"));
+  }
+  throw new Error("Bankr timeout after 50s");
+}
+
+// ══════════════════════════════════════════════════════
+// Exported Convex actions
+// ══════════════════════════════════════════════════════
+
+export const bankrAsk = action({
+  args: {
+    prompt: v.string(),
+    threadId: v.optional(v.string()),
+    walletAddress: v.optional(v.string()),
   },
+  handler: async (_, { prompt, threadId, walletAddress }) =>
+    callBankr(prompt, threadId, walletAddress),
 });
 
-// ── Trending tokens on Base ───────────────────────────────────────────────
+export const getTokenPrice = action({
+  args: { token: v.string() },
+  handler: async (_, { token }) =>
+    callBankr(`Price of ${token} on Base? Give: price USD, 24h change %, volume, market cap.`),
+});
+
+export const getRecentTrades = action({
+  args: { token: v.optional(v.string()) },
+  handler: async (_, { token }) =>
+    callBankr(`Recent trades for ${token || "NOELCLAW"} on Base: buys vs sells, volume, biggest trades last hour.`),
+});
+
 export const getTrendingBase = action({
   args: {},
-  handler: async () => {
-    const [boostRes, profileRes] = await Promise.all([
-      fetch(`${DEX}/token-boosts/top/v1`),
-      fetch(`${DEX}/token-profiles/latest/v1`),
-    ]);
-
-    let boosted:  any[] = [];
-    let trending: any[] = [];
-
-    if (boostRes.ok) {
-      const bd = await boostRes.json();
-      boosted = (Array.isArray(bd) ? bd : [])
-        .filter((t: any) => t.chainId === "base")
-        .slice(0, 8)
-        .map((t: any) => ({
-          address:     t.tokenAddress,
-          amount:      t.amount,
-          totalAmount: t.totalAmount,
-          url:         t.url,
-          description: t.description,
-        }));
-    }
-
-    if (profileRes.ok) {
-      const td = await profileRes.json();
-      trending = (Array.isArray(td) ? td : [])
-        .filter((t: any) => t.chainId === "base")
-        .slice(0, 6)
-        .map((t: any) => ({
-          address: t.tokenAddress,
-          name:    t.description || t.tokenAddress?.slice(0, 8),
-          url:     t.url,
-          icon:    t.icon,
-        }));
-    }
-
-    return { success: true, boosted, trending };
-  },
+  handler: async (_) =>
+    callBankr("Top 8 trending tokens on Base right now. List symbol, price, 24h change, volume."),
 });
 
-// ── OHLCV candlestick (bonus) ─────────────────────────────────────────────
-export const getOHLCV = action({
-  args: {},
-  handler: async () => {
-    const res = await fetch(
-      `${GT}/networks/base/pools/${PAIR}/ohlcv/hour?limit=24&currency=usd`,
-      { headers: { "Accept": "application/json;version=20230302" } }
-    );
-    if (!res.ok) throw new Error(`OHLCV error: ${res.status}`);
-    const data = await res.json();
-    const candles = (data.data?.attributes?.ohlcv_list || []).map((c: any) => ({
-      time:   c[0] * 1000,
-      open:   c[1],
-      high:   c[2],
-      low:    c[3],
-      close:  c[4],
-      volume: c[5],
-    }));
-    return { success: true, candles };
+export const getAlphaBankr = action({
+  args: { token: v.string() },
+  handler: async (_, { token }) =>
+    callBankr(`Alpha analysis ${token} on Base: momentum, whale activity. BUY/SELL/HOLD + conviction 1-10.`),
+});
+
+export const getPortfolio = action({
+  args: { walletAddress: v.string() },
+  handler: async (_, { walletAddress }) =>
+    callBankr(`Portfolio for ${walletAddress} on Base: holdings, USD values, 24h PnL.`, undefined, walletAddress),
+});
+
+export const swapTokens = action({
+  args: {
+    fromToken: v.string(),
+    toToken: v.string(),
+    amount: v.string(),
+    walletAddress: v.optional(v.string()),
   },
+  handler: async (_, { fromToken, toToken, amount, walletAddress }) =>
+    callBankr(`Swap ${amount} ${fromToken} to ${toToken} on Base.`, undefined, walletAddress),
+});
+
+export const getBalance = action({
+  args: { wallet: v.optional(v.string()), token: v.optional(v.string()) },
+  handler: async (_, { wallet, token }) =>
+    callBankr(`Wallet balance${token ? ` for ${token}` : ""} on Base.${wallet ? ` Wallet: ${wallet}` : ""}`, undefined, wallet),
+});
+
+export const setLimitOrder = action({
+  args: {
+    token: v.string(),
+    action: v.string(),
+    amount: v.string(),
+    targetPrice: v.string(),
+  },
+  handler: async (_, { token, action: act, amount, targetPrice }) =>
+    callBankr(`Limit order: ${act} ${amount} ${token} at $${targetPrice} on Base.`),
+});
+
+export const claimFees = action({
+  args: { token: v.optional(v.string()) },
+  handler: async (_, { token }) =>
+    callBankr(`Claim trading fees for ${token || "NOELCLAW"} on Base.`),
+});
+
+export const getSmartMoney = action({
+  args: { token: v.optional(v.string()) },
+  handler: async (_, { token }) =>
+    callBankr(`Smart money wallets for ${token || "Base chain"}: recent trades, PnL.`),
+});
+
+export const setupDCA = action({
+  args: { token: v.string(), amount: v.string(), frequency: v.string() },
+  handler: async (_, { token, amount, frequency }) =>
+    callBankr(`Setup DCA: buy $${amount} of ${token} every ${frequency} on Base.`),
+});
+
+export const deployToken = action({
+  args: {
+    name: v.string(),
+    symbol: v.string(),
+    supply: v.optional(v.string()),
+  },
+  handler: async (_, { name, symbol, supply }) =>
+    callBankr(`Deploy token on Base: name "${name}", symbol "${symbol}", supply ${supply || "1,000,000,000"}.`),
+});
+
+export const runAlphaAgent = action({
+  args: { condition: v.string(), action: v.string(), token: v.string() },
+  handler: async (_, { condition, action: act, token }) =>
+    callBankr(`Auto-agent for ${token}: if ${condition}, then ${act}.`),
 });

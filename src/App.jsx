@@ -14,9 +14,9 @@ const visitData = [
   {d:"7 Mar",v:920,u:640},{d:"8 Mar",v:860,u:580},{d:"9 Mar",v:1100,u:780},
 ];
 const articleViews = [
-  {name:"NoelClaw: AI OS",views:3240},{name:"AGI Horizon",views:1840},
-  {name:"AI Agents Prod.",views:1320},{name:"Reasoning Models",views:1180},
-  {name:"MCP Protocol",views:960},{name:"Context Windows",views:820},
+  {name:"Alpha Analysis",views:3240},{name:"Token Swap",views:2840},
+  {name:"Trending Base",views:2120},{name:"Smart Money",views:1980},
+  {name:"Wallet Balance",views:1340},{name:"Deploy Token",views:920},
 ];
 const trafficSources = [
   {name:"X / Twitter",value:42,color:"#3b82f6"},{name:"Direct",value:28,color:"#6366f1"},
@@ -29,16 +29,16 @@ const monthlyData = [
 const RANDOM_NAMES = ["Alex","Maya","Ryan","Zara","Kai","Lena","Omar","Noa","Jin","Sasha","Felix","Aria","Remi","Yuki","Dani","Theo","Ines","Cole","Mia","Ezra"];
 const RANDOM_CITIES = ["Singapore","Tokyo","Berlin","London","NYC","Sydney","Seoul","Amsterdam","São Paulo","Toronto"];
 const ACT_TEMPLATES = [
-  {tmpl:(n,c)=>`${n} from ${c} just read an article`,type:"read"},
+  {tmpl:(n,c)=>`${n} from ${c} ran Alpha Agent`,type:"read"},
   {tmpl:(n)=>`${n} opened a chat with Noel`,type:"chat"},
-  {tmpl:(n)=>`${n} shared NoelClaw: AI OS on X`,type:"share"},
+  {tmpl:(n)=>`${n} deployed a token on Base`,type:"deploy"},
   {tmpl:(n)=>`${n} grabbed $NOELCLAW on Base`,type:"token"},
   {tmpl:(n,c)=>`New visitor from ${c}`,type:"visit"},
-  {tmpl:(n)=>`${n} completed AGI Horizon`,type:"read"},
+  {tmpl:(n)=>`${n} executed a token swap`,type:"trade"},
   {tmpl:(n)=>`${n} followed @noelclawfun`,type:"follow"},
   {tmpl:(n,c)=>`${n} in ${c} — first session`,type:"visit"},
   {tmpl:(n)=>`${n} sent 8 messages to Noel`,type:"chat"},
-  {tmpl:(n)=>`${n} bookmarked Reasoning Models`,type:"read"},
+  {tmpl:(n)=>`${n} checked wallet balance`,type:"read"},
 ];
 function genActivity() {
   return Array.from({length:8},(_,i)=>{
@@ -51,13 +51,14 @@ function genActivity() {
 }
 
 const CSS = `
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=IBM+Plex+Mono:wght@300;400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --bg:       #05070e;
-  --bg2:      #08091a;
+  --bg:       #000408;
+  --bg2:      #020d1e;
   --surface:  rgba(255,255,255,0.04);
   --surface2: rgba(255,255,255,0.07);
   --border:   rgba(255,255,255,0.08);
@@ -70,20 +71,108 @@ const CSS = `
   --text2:    #6b78a8;
   --text3:    #2d3558;
   --white:    #ffffff;
-  --green:    #22d3a5;
+  --green:    #4d85ff;
   --orange:   #f97316;
   --purple:   #a78bfa;
 }
 
 html { scroll-behavior: smooth; }
-body { background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-weight:300;letter-spacing:.01em;overflow-x:hidden;cursor:none; }
+/* ── Scroll reveal global ── */
+[data-reveal] { opacity:0; transform:translateY(28px); transition:opacity .7s ease, transform .7s cubic-bezier(.23,1,.32,1); }
+[data-reveal].visible { opacity:1; transform:none; }
+/* Cinematic section transitions */
+.cin-section { transition:opacity .9s cubic-bezier(.23,1,.32,1), transform 1s cubic-bezier(.23,1,.32,1); }
+.cin-left { opacity:0; transform:translateX(-48px); }
+.cin-right { opacity:0; transform:translateX(48px); }
+.cin-up { opacity:0; transform:translateY(56px); }
+.cin-scale { opacity:0; transform:scale(.94); }
+.cin-visible { opacity:1 !important; transform:none !important; }
+.page, .dash, .analytics, .section { background:transparent; }
+.main { background:transparent; }
+body { background:#000408;color:var(--text);font-family:'Space Grotesk','Inter',system-ui,sans-serif;font-weight:400;letter-spacing:-.01em;overflow-x:hidden;cursor:none; }
+
+/* ── Typography scale ── */
+h1,h2,h3,h4,h5,h6 { font-family:'Space Grotesk','Inter',sans-serif; font-weight:700; letter-spacing:-.03em; line-height:.95; }
+p { line-height:1.75; }
+.mono, code, pre { font-family:'IBM Plex Mono',monospace; }
+
+/* ── Page bg gradients per section ── */
+.page-gradient-blue {
+  background: radial-gradient(ellipse 80% 40% at 50% 0%, rgba(26,79,255,.07) 0%, transparent 60%),
+              radial-gradient(ellipse 60% 30% at 100% 50%, rgba(60,100,255,.04) 0%, transparent 60%),
+              #000408;
+}
+.page-gradient-purple {
+  background: radial-gradient(ellipse 70% 40% at 0% 50%, rgba(100,50,255,.06) 0%, transparent 60%),
+              radial-gradient(ellipse 50% 30% at 100% 0%, rgba(26,79,255,.05) 0%, transparent 60%),
+              #000408;
+}
+* { font-family:inherit; }
+code,pre,.mono,[class*='mono'],[class*='plex'] { font-family:'IBM Plex Mono',ui-monospace,monospace; }
+
+/* ── Smooth global transitions ── */
+.page { animation:pageEnter .55s cubic-bezier(.23,1,.32,1) both; }
+@keyframes pageEnter { from{opacity:0;transform:translateY(18px)} to{opacity:1;transform:none} }
+
+/* ── Card hover system ── */
+.card-hover {
+  transition:transform .35s cubic-bezier(.23,1,.32,1),
+             box-shadow .35s cubic-bezier(.23,1,.32,1),
+             border-color .25s;
+}
+.card-hover:hover {
+  transform:translateY(-5px);
+  box-shadow:0 20px 60px rgba(0,0,0,.45), 0 0 0 1px rgba(77,133,255,.12);
+}
+
+/* ── Section fade-in ── */
+@keyframes sectionIn { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:none} }
+.section-in { animation:sectionIn .6s cubic-bezier(.23,1,.32,1) both; }
+
+/* ── Smooth scrollbar ── */
+* { scroll-behavior:smooth; }
+::-webkit-scrollbar { width:4px; }
+::-webkit-scrollbar-track { background:transparent; }
+::-webkit-scrollbar-thumb { background:rgba(77,133,255,.2); border-radius:4px; }
+::-webkit-scrollbar-thumb:hover { background:rgba(77,133,255,.4); }
+
+/* ── Focus ring ── */
+button:focus-visible, a:focus-visible {
+  outline:2px solid rgba(77,133,255,.5);
+  outline-offset:2px;
+  border-radius:4px;
+}
+
+/* ── Global color blobs (like image) ── */
+.blob-left {
+  position:fixed;bottom:-10%;left:-8%;width:35vw;height:35vw;max-width:500px;max-height:500px;
+  border-radius:50%;background:radial-gradient(circle,rgba(0,100,255,.22) 0%,rgba(0,180,255,.12) 40%,transparent 70%);
+  filter:blur(50px);pointer-events:none;z-index:0;animation:blobFloat 8s ease-in-out infinite;
+}
+.blob-right {
+  position:fixed;top:10%;right:-8%;width:30vw;height:30vw;max-width:450px;max-height:450px;
+  border-radius:50%;background:radial-gradient(circle,rgba(80,0,200,.18) 0%,rgba(60,80,255,.12) 40%,transparent 70%);
+  filter:blur(50px);pointer-events:none;z-index:0;animation:blobFloat 10s ease-in-out infinite reverse;
+}
+.blob-center {
+  position:fixed;bottom:20%;left:50%;transform:translateX(-50%);width:40vw;height:20vw;
+  border-radius:50%;background:radial-gradient(circle,rgba(0,60,200,.08) 0%,transparent 70%);
+  filter:blur(60px);pointer-events:none;z-index:0;
+}
+@keyframes blobFloat {
+  0%,100%{transform:translateY(0) scale(1);}
+  50%{transform:translateY(-30px) scale(1.05);}
+}
+.page,.dash,.analytics,.about { position:relative;z-index:1; }
+
 
 a, button { transition:color .18s,background .18s,border-color .18s,opacity .18s,transform .18s; }
 
-#cr  { width:8px;height:8px;border-radius:50%;background:#fff;position:fixed;top:0;left:0;z-index:9999;pointer-events:none;transform:translate(-50%,-50%);transition:width .18s,height .18s;mix-blend-mode:difference; }
-#crr { width:32px;height:32px;border-radius:50%;border:1px solid rgba(255,255,255,0.28);position:fixed;top:0;left:0;z-index:9998;pointer-events:none;transform:translate(-50%,-50%);transition:left .12s cubic-bezier(.23,1,.32,1),top .12s cubic-bezier(.23,1,.32,1),width .25s,height .25s; }
-body:has(a:hover) #cr,body:has(button:hover) #cr { width:14px;height:14px; }
-body:has(a:hover) #crr,body:has(button:hover) #crr { width:46px;height:46px;border-color:rgba(255,255,255,.14); }
+#cr  { width:6px;height:6px;border-radius:50%;background:#fff;position:fixed;top:0;left:0;z-index:9999;pointer-events:none;transform:translate(-50%,-50%);transition:width .15s,height .15s,opacity .15s;mix-blend-mode:difference; }
+#crr { width:36px;height:36px;border-radius:50%;border:1px solid rgba(77,133,255,0.5);position:fixed;top:0;left:0;z-index:9998;pointer-events:none;transform:translate(-50%,-50%);transition:left .18s cubic-bezier(.23,1,.32,1),top .18s cubic-bezier(.23,1,.32,1),width .3s,height .3s,border-color .3s;background:rgba(77,133,255,.04); }
+body:has(a:hover) #cr,body:has(button:hover) #cr { width:10px;height:10px;background:rgba(77,133,255,.9); }
+body:has(a:hover) #crr,body:has(button:hover) #crr { width:56px;height:56px;border-color:rgba(77,133,255,.35);background:rgba(77,133,255,.06); }
+.trail-dot { position:fixed;border-radius:50%;pointer-events:none;z-index:9997;transform:translate(-50%,-50%); }
 
 ::-webkit-scrollbar { width:3px; }
 ::-webkit-scrollbar-thumb { background:var(--text3);border-radius:2px; }
@@ -107,7 +196,7 @@ body:has(a:hover) #crr,body:has(button:hover) #crr { width:46px;height:46px;bord
 /* ── WALLET CONNECT ── */
 .wallet-btn { display:flex;align-items:center;gap:.4rem;background:rgba(26,79,255,.12);border:1px solid rgba(77,133,255,.3);border-radius:7px;padding:.38rem .85rem;color:var(--blue-hi);font-size:.72rem;font-family:inherit;cursor:pointer;letter-spacing:.06em;font-weight:400;transition:all .2s;white-space:nowrap; }
 .wallet-btn:hover { background:rgba(26,79,255,.2);border-color:rgba(77,133,255,.6); }
-.wallet-premium { font-size:.62rem;color:var(--green);background:rgba(34,211,165,.1);border:1px solid rgba(34,211,165,.2);border-radius:5px;padding:.25rem .6rem;letter-spacing:.08em;font-weight:500; }
+.wallet-premium { font-size:.62rem;color:var(--blue-hi);background:rgba(77,133,255,.1);border:1px solid rgba(77,133,255,.2);border-radius:5px;padding:.25rem .6rem;letter-spacing:.08em;font-weight:500; }
 
 .grain { position:fixed;inset:0;z-index:9990;pointer-events:none;opacity:.0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");background-size:180px;animation:gr .6s steps(1) infinite; }
 @keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 6px var(--blue-hi)}50%{opacity:.4;box-shadow:0 0 12px var(--blue-hi)}}
@@ -147,11 +236,13 @@ body:has(a:hover) #crr,body:has(button:hover) #crr { width:46px;height:46px;bord
 .nav {
   display:flex;align-items:center;justify-content:space-between;
   padding:0 2.5rem;height:62px;
-  position:sticky;top:0;z-index:200;
-  background:rgba(5,7,14,0.8);
-  backdrop-filter:blur(20px) saturate(1.5);
-  border-bottom:1px solid var(--border);
+  position:fixed;top:0;left:0;right:0;z-index:300;
+  background:rgba(0,4,12,0.85);
+  backdrop-filter:blur(28px) saturate(1.6);
+  border-bottom:1px solid rgba(77,133,255,.1);
 }
+/* Push content below fixed nav */
+.app { padding-top:62px; }
 .nav-logo {
   font-family:'Inter',sans-serif;font-weight:200;font-size:1.15rem;
   cursor:none;transition:opacity .2s;letter-spacing:.18em;text-transform:uppercase;color:var(--white);
@@ -161,9 +252,9 @@ body:has(a:hover) #crr,body:has(button:hover) #crr { width:46px;height:46px;bord
 
 .nav-links { display:flex;gap:.1rem; }
 .nav-item {
-  position:relative;font-size:.75rem;font-weight:300;color:var(--text2);
-  padding:.38rem .85rem;border-radius:7px;background:none;border:none;
-  cursor:none;font-family:'Inter',sans-serif;letter-spacing:.08em;transition:color .22s;
+  position:relative;font-size:.78rem;font-weight:400;color:rgba(200,215,255,.5);
+  padding:.4rem .9rem;border-radius:8px;background:none;border:none;
+  cursor:none;font-family:'Inter',sans-serif;letter-spacing:-.01em;transition:color .2s,background .2s;
   outline:none;-webkit-tap-highlight-color:transparent;
 }
 .nav-item:focus,.nav-item:focus-visible { outline:none;box-shadow:none; }
@@ -180,11 +271,11 @@ body:has(a:hover) #crr,body:has(button:hover) #crr { width:46px;height:46px;bord
 }
 .nav-burger span { width:16px;height:1px;background:var(--text2);display:block;transition:all .2s; }
 .mob-menu {
-  position:fixed;top:88px;left:0;right:0;z-index:199;
-  background:rgba(5,7,14,0.99);backdrop-filter:blur(20px);
-  border-bottom:1px solid var(--border);
+  position:fixed;top:62px;left:0;right:0;z-index:199;
+  background:rgba(2,11,24,0.98);backdrop-filter:blur(20px);
+  border-bottom:1px solid rgba(77,133,255,.12);
   display:flex;flex-direction:column;padding:.5rem 0;
-  box-shadow:0 8px 32px rgba(0,0,0,0.5);
+  box-shadow:0 8px 32px rgba(0,0,0,0.6);
 }
 .mob-overlay {
   position:fixed;inset:0;z-index:198;background:rgba(0,0,0,0.5);
@@ -197,12 +288,103 @@ body:has(a:hover) #crr,body:has(button:hover) #crr { width:46px;height:46px;bord
 .mob-item:hover,.mob-item.active { color:var(--white);background:var(--surface); }
 @media(max-width:600px){
   .nav-links { display:none; }
-  .nav-burger { display:flex; }
+  .nav-burger { display:flex !important; }
 }
 
 /* ── PAGE TRANSITION ── */
-.page { animation:pin .45s cubic-bezier(.23,1,.32,1) both; width:100%; }
-@keyframes pin { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
+.page { width:100%; }  /* animation handled by pageSlide */
+@keyframes pin  { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+@keyframes fadeUp   { from{opacity:0;transform:translateY(32px)} to{opacity:1;transform:none} }
+@keyframes fadeLeft { from{opacity:0;transform:translateX(-32px)} to{opacity:1;transform:none} }
+@keyframes fadeRight{ from{opacity:0;transform:translateX(32px)} to{opacity:1;transform:none} }
+@keyframes scaleIn  { from{opacity:0;transform:scale(.94)} to{opacity:1;transform:none} }
+/* Page enter */
+.page { animation:fadeUp .6s cubic-bezier(.23,1,.32,1) both; width:100%; }
+@keyframes charIn { from{opacity:0;transform:translateY(18px) skewY(2deg)} to{opacity:1;transform:translateY(0) skewY(0)} }
+@keyframes meshMove { 0%{background-position:0% 50%} 50%{background-position:100% 50%} 100%{background-position:0% 50%} }
+@keyframes pageSlide { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
+@keyframes tiltIn { from{opacity:0;transform:perspective(800px) rotateX(8deg) translateY(20px)} to{opacity:1;transform:perspective(800px) rotateX(0) translateY(0)} }
+@keyframes glowPulse { 0%,100%{box-shadow:0 0 20px rgba(77,133,255,.15)} 50%{box-shadow:0 0 40px rgba(77,133,255,.35),0 0 80px rgba(77,133,255,.1)} }
+@keyframes shimmer { from{background-position:-200% center} to{background-position:200% center} }
+
+/* ── Page transitions ── */
+.page { animation:pageSlide .55s cubic-bezier(.23,1,.32,1) both; width:100%; }
+.dash { padding:0;animation:pageSlide .5s cubic-bezier(.23,1,.32,1) both; }
+.analytics { padding:0;animation:pageSlide .5s cubic-bezier(.23,1,.32,1) both; }
+
+/* ── Gradient mesh background ── */
+.mesh-bg {
+  position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background:
+    radial-gradient(ellipse 80% 60% at 20% 20%, rgba(26,60,140,.12) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 50% at 80% 80%, rgba(14,40,100,.1) 0%, transparent 55%),
+    radial-gradient(ellipse 70% 40% at 50% 50%, rgba(8,25,80,.08) 0%, transparent 60%),
+    #020b18;
+  background-size:200% 200%;
+  animation:meshMove 18s ease infinite;
+}
+
+/* ── Glassmorphism card ── */
+.glass-card {
+  background:rgba(10,18,40,.55);
+  backdrop-filter:blur(20px) saturate(1.4);
+  border:1px solid rgba(77,133,255,.15);
+  border-radius:16px;
+  transition:transform .35s cubic-bezier(.23,1,.32,1), border-color .3s, box-shadow .3s;
+  transform-style:preserve-3d;
+  will-change:transform;
+}
+.glass-card:hover {
+  border-color:rgba(77,133,255,.35);
+  box-shadow:0 20px 60px rgba(0,0,0,.4), 0 0 0 1px rgba(77,133,255,.1), inset 0 1px 0 rgba(255,255,255,.06);
+}
+
+/* ── Magnetic button ── */
+.mag-btn {
+  position:relative;
+  transition:transform .4s cubic-bezier(.23,1,.32,1);
+  display:inline-flex;
+}
+
+/* ── Shimmer text ── */
+.shimmer-text {
+  background:linear-gradient(90deg,
+    rgba(200,230,255,.85) 0%,
+    #ffffff 25%,
+    rgba(100,180,255,.95) 50%,
+    #ffffff 75%,
+    rgba(200,230,255,.85) 100%);
+  background-size:200% auto;
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+  animation:shimmer 5s linear infinite;
+  text-shadow:none;
+}
+
+/* ── 3D tilt enhanced cards ── */
+.tilt-card {
+  transition:transform .4s cubic-bezier(.23,1,.32,1), box-shadow .4s;
+  transform-style:preserve-3d;
+  will-change:transform;
+}
+.tilt-card:hover { box-shadow:0 25px 60px rgba(0,0,0,.5); }
+
+/* ── Progress bar animate ── */
+.prog-bar { height:3px; border-radius:2px; overflow:hidden; background:rgba(255,255,255,.06); }
+.prog-fill {
+  height:100%; border-radius:2px;
+  transform:scaleX(0); transform-origin:left;
+  transition:transform 1.2s cubic-bezier(.23,1,.32,1);
+}
+.prog-fill.animate { transform:scaleX(1); }
+
+/* ── Glow pulse for active elements ── */
+.glow-active { animation:glowPulse 3s ease-in-out infinite; }
+
+/* ── Char reveal spans ── */
+.char-wrap { overflow:hidden; display:inline-block; }
+.char { display:inline-block; animation:charIn .6s cubic-bezier(.23,1,.32,1) both; }
 @keyframes spin { from{transform:rotate(0deg)} to{transform:rotate(360deg)} }
 
 .main { flex:1; width:100%; }
@@ -212,55 +394,233 @@ body:has(a:hover) #crr,body:has(button:hover) #crr { width:46px;height:46px;bord
 ══════════════════════════════ */
 .hero {
   position:relative;overflow:hidden;
-  min-height:92vh;width:100%;display:flex;flex-direction:column;justify-content:flex-end;
-  padding:0 0 4rem 0;border-bottom:1px solid var(--border);
+  min-height:100svh;width:100%;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  padding:0;border-bottom:1px solid rgba(255,255,255,.06);
+  text-align:center;
+  background:#000;
 }
+
+/* ── Space photo background ── */
 .hero-bg {
   position:absolute;inset:0;z-index:0;
-  background-image:url('/bg-blue.png');
-  background-size:cover;background-position:left center;
+  background:#000;
+}
+.hero-bg::before {
+  content:'';position:absolute;inset:0;
+  background-image:url('/bg.gif');
+  background-size:cover;
+  background-position:center center;
   background-repeat:no-repeat;
-  width:100%;height:100%;
-  filter:brightness(.85) saturate(1.3);
+  opacity:.55;
+  mix-blend-mode:screen;
 }
-.hero-curve-left {
-  position:absolute;z-index:1;pointer-events:none;
-  left:-5%;bottom:-10%;width:55%;height:85%;
-  background:#05070e;border-radius:0 60% 0 0;
+/* Dark overlay so text readable */
+.hero-bg::after {
+  content:'';position:absolute;inset:0;
+  background:
+    radial-gradient(ellipse 80% 55% at 50% 50%, rgba(5,10,40,.55) 0%, transparent 75%),
+    linear-gradient(to bottom, rgba(0,0,0,.5) 0%, rgba(0,0,0,.05) 35%, rgba(0,0,0,.65) 100%);
 }
+
+/* Stars layer */
+.hero-stars {
+  position:absolute;inset:0;z-index:1;pointer-events:none;
+  background-image:
+    radial-gradient(1px 1px at 12% 18%, rgba(255,255,255,.7) 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 28% 8%, rgba(255,255,255,.85) 0%, transparent 100%),
+    radial-gradient(1px 1px at 43% 22%, rgba(255,255,255,.5) 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 57% 11%, rgba(255,255,255,.9) 0%, transparent 100%),
+    radial-gradient(1px 1px at 68% 6%, rgba(255,255,255,.6) 0%, transparent 100%),
+    radial-gradient(2px 2px at 79% 19%, rgba(255,255,255,.75) 0%, transparent 100%),
+    radial-gradient(1px 1px at 91% 13%, rgba(255,255,255,.55) 0%, transparent 100%),
+    radial-gradient(1px 1px at 8% 35%, rgba(255,255,255,.4) 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 22% 42%, rgba(255,255,255,.65) 0%, transparent 100%),
+    radial-gradient(1px 1px at 36% 38%, rgba(255,255,255,.45) 0%, transparent 100%),
+    radial-gradient(1px 1px at 51% 32%, rgba(255,255,255,.5) 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 64% 28%, rgba(255,255,255,.8) 0%, transparent 100%),
+    radial-gradient(1px 1px at 76% 41%, rgba(255,255,255,.4) 0%, transparent 100%),
+    radial-gradient(1px 1px at 88% 33%, rgba(255,255,255,.6) 0%, transparent 100%),
+    radial-gradient(1px 1px at 15% 55%, rgba(255,255,255,.35) 0%, transparent 100%),
+    radial-gradient(1.5px 1.5px at 33% 61%, rgba(255,255,255,.55) 0%, transparent 100%),
+    radial-gradient(1px 1px at 47% 48%, rgba(255,255,255,.4) 0%, transparent 100%),
+    radial-gradient(1px 1px at 72% 52%, rgba(255,255,255,.45) 0%, transparent 100%),
+    radial-gradient(1px 1px at 85% 58%, rgba(255,255,255,.35) 0%, transparent 100%),
+    radial-gradient(2px 2px at 94% 44%, rgba(255,255,255,.7) 0%, transparent 100%),
+    radial-gradient(1px 1px at 6% 72%, rgba(255,255,255,.3) 0%, transparent 100%),
+    radial-gradient(1px 1px at 19% 78%, rgba(255,255,255,.4) 0%, transparent 100%);
+}
+
+/* Center light beam like photo 1 */
+.hero-beam {
+  position:absolute;bottom:0;left:50%;transform:translateX(-50%);z-index:2;
+  width:600px;height:70%;pointer-events:none;
+  background:conic-gradient(
+    from 260deg at 50% 100%,
+    transparent 0deg,
+    rgba(77,133,255,.04) 10deg,
+    rgba(26,79,255,.08) 20deg,
+    rgba(100,150,255,.06) 30deg,
+    rgba(26,79,255,.1) 40deg,
+    rgba(77,133,255,.04) 50deg,
+    transparent 60deg,
+    transparent 240deg,
+    rgba(77,133,255,.04) 250deg,
+    rgba(26,79,255,.08) 260deg,
+    transparent 300deg
+  );
+}
+
+/* Arc lines like photo 1 */
+.hero-arc-left {
+  position:absolute;z-index:2;pointer-events:none;
+  bottom:-20%;left:-15%;
+  width:55%;height:90%;
+  border-radius:0 100% 0 0;
+  border-top:1px solid rgba(180,200,255,.12);
+  border-right:1px solid rgba(180,200,255,.08);
+}
+.hero-arc-left-2 {
+  position:absolute;z-index:2;pointer-events:none;
+  bottom:-25%;left:-20%;
+  width:52%;height:85%;
+  border-radius:0 100% 0 0;
+  border-top:1px solid rgba(180,200,255,.06);
+  border-right:1px solid rgba(180,200,255,.04);
+}
+.hero-arc-right {
+  position:absolute;z-index:2;pointer-events:none;
+  bottom:-20%;right:-15%;
+  width:55%;height:90%;
+  border-radius:100% 0 0 0;
+  border-top:1px solid rgba(180,200,255,.12);
+  border-left:1px solid rgba(180,200,255,.08);
+}
+.hero-arc-right-2 {
+  position:absolute;z-index:2;pointer-events:none;
+  bottom:-25%;right:-20%;
+  width:52%;height:85%;
+  border-radius:100% 0 0 0;
+  border-top:1px solid rgba(180,200,255,.06);
+  border-left:1px solid rgba(180,200,255,.04);
+}
+
+/* Center glow point */
+.hero-glow-point {
+  position:absolute;bottom:12%;left:50%;transform:translateX(-50%);
+  z-index:3;pointer-events:none;
+  width:4px;height:4px;border-radius:50%;
+  background:#fff;
+  box-shadow:0 0 8px 2px #fff, 0 0 30px 8px rgba(100,160,255,.8), 0 0 80px 20px rgba(26,79,255,.5), 0 0 160px 40px rgba(26,79,255,.2);
+}
+
+/* Bottom fade */
 .hero-vignette {
-  position:absolute;inset:0;z-index:2;pointer-events:none;
-  background:linear-gradient(to top, rgba(5,7,14,1) 0%, rgba(5,7,14,0.4) 35%, transparent 70%);
+  position:absolute;inset:0;z-index:3;pointer-events:none;
+  background:
+    linear-gradient(to bottom, rgba(0,0,0,.55) 0%, transparent 30%),
+    linear-gradient(to top, rgba(0,0,0,.95) 0%, rgba(0,0,0,.4) 20%, transparent 50%),
+    linear-gradient(to right, rgba(0,0,0,.3) 0%, transparent 30%),
+    linear-gradient(to left, rgba(0,0,0,.3) 0%, transparent 30%);
 }
-.hero-content { position:relative;z-index:3;padding:0 3.5rem;max-width:820px; }
-.hero-eyebrow { font-family:'Inter',sans-serif;font-size:.65rem;font-weight:200;color:var(--text2);letter-spacing:.35em;text-transform:uppercase;margin-bottom:1.4rem;animation:pin .6s .1s both; }
-.hero-h1 { font-family:'Inter',sans-serif;font-size:clamp(3.5rem,7vw,6.5rem);font-weight:100;line-height:.95;letter-spacing:-.02em;color:var(--white);margin-bottom:1.2rem;animation:pin .6s .2s both; }
-.hero-h1 em { font-style:normal;font-weight:100;color:rgba(255,255,255,0.72); }
 
-/* NEW: hero sub-tagline */
+/* ── CENTERED content layout like photo 2 ── */
+.hero-content {
+  position:relative;z-index:4;
+  display:flex;flex-direction:column;
+  align-items:center;
+  padding:0 2rem;
+  max-width:780px;
+  width:100%;
+}
+.hero-eyebrow {
+  font-family:'Inter',sans-serif;font-size:.58rem;font-weight:500;
+  color:rgba(180,210,255,.85);letter-spacing:.32em;text-transform:uppercase;
+  margin-bottom:2rem;
+  animation:pin .6s .1s both;
+  border:1px solid rgba(77,133,255,.3);
+  border-radius:20px;
+  padding:.35rem 1.2rem;
+  background:rgba(10,40,120,.35);
+  backdrop-filter:blur(20px);
+  box-shadow:0 0 20px rgba(30,90,200,.25), inset 0 1px 0 rgba(255,255,255,.1);
+}
+.hero-h1 {
+  font-family:'Space Grotesk','Inter',sans-serif !important;
+  font-size:clamp(3rem,7.5vw,6.5rem);
+  font-weight:800;
+  line-height:.92;
+  letter-spacing:-.04em;
+  color:#ffffff;
+  margin-bottom:1.8rem;
+  text-align:center;
+  text-shadow:0 2px 40px rgba(0,0,0,.85);
+}
+.hero-h1 em { font-style:normal;font-weight:200;color:rgba(100,150,255,0.9); }
 .hero-tagline {
-  font-size:.95rem;font-weight:300;color:var(--text2);letter-spacing:.04em;
-  margin-bottom:2rem;line-height:1.6;max-width:520px;
+  font-size:1.05rem;font-weight:300;color:rgba(200,220,255,.8);
+  letter-spacing:.01em;margin-bottom:2.6rem;
+  line-height:1.75;max-width:540px;text-align:center;
   animation:pin .6s .28s both;
+  text-shadow:0 1px 20px rgba(0,0,0,.9);
 }
-.hero-tagline strong { color:var(--text);font-weight:400; }
+.hero-tagline strong { color:rgba(210,225,255,.9);font-weight:400; }
+.hero-ctas {
+  display:flex;gap:.75rem;align-items:center;justify-content:center;
+  flex-wrap:wrap;
+  animation:pin .6s .38s both;
+}
+.cta-solid {
+  display:inline-flex;align-items:center;gap:.45rem;
+  background:rgba(240,248,255,.95);color:#020b18;
+  padding:.72rem 1.8rem;border-radius:50px;
+  font-size:.78rem;font-weight:500;letter-spacing:.06em;
+  border:none;cursor:pointer;font-family:'Inter',sans-serif;
+  transition:background .3s,transform .4s cubic-bezier(.23,1,.32,1),box-shadow .3s;
+  box-shadow:0 0 30px rgba(255,255,255,.12), 0 4px 20px rgba(0,0,0,.3);
+  position:relative;overflow:hidden;
+}
+.cta-solid::before {
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(255,255,255,.2),transparent);
+  opacity:0;transition:opacity .3s;border-radius:50px;
+}
+.cta-solid:hover { background:rgba(255,255,255,.95);transform:translateY(-3px) scale(1.02);box-shadow:0 12px 40px rgba(255,255,255,.25),0 0 0 1px rgba(255,255,255,.1); }
+.cta-solid:hover::before { opacity:1; }
+.cta-solid:active { transform:translateY(0) scale(.98); }
+.cta-outline {
+  display:inline-flex;align-items:center;gap:.45rem;
+  background:rgba(255,255,255,.05);color:rgba(210,225,255,.9);
+  padding:.72rem 1.6rem;border-radius:50px;
+  font-size:.78rem;font-weight:300;letter-spacing:.06em;
+  border:1px solid rgba(255,255,255,.12);
+  cursor:pointer;font-family:'Inter',sans-serif;text-decoration:none;
+  transition:background .3s,border-color .3s,transform .4s cubic-bezier(.23,1,.32,1),box-shadow .3s;
+  backdrop-filter:blur(12px);
+  position:relative;overflow:hidden;
+}
+.cta-outline:hover { background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.35);transform:translateY(-3px) scale(1.02);box-shadow:0 8px 30px rgba(0,0,0,.3); }
+.cta-outline:active { transform:translateY(0) scale(.98); }
+.hero-scroll {
+  position:absolute;bottom:2rem;left:50%;transform:translateX(-50%);
+  z-index:4;display:flex;flex-direction:column;align-items:center;gap:.5rem;
+  font-size:.55rem;color:rgba(180,200,255,.35);letter-spacing:.18em;text-transform:uppercase;
+  animation:pin .6s .7s both;
+}
+.scroll-line { width:1px;height:36px;background:linear-gradient(to bottom,rgba(77,133,255,.4),transparent);animation:sl 2s ease infinite; }
+@keyframes sl{0%,100%{opacity:.3;transform:scaleY(.6)}50%{opacity:1;transform:scaleY(1)}}
 
-.hero-bottom { display:flex;align-items:flex-end;justify-content:space-between;gap:2rem;flex-wrap:wrap;animation:pin .6s .35s both; }
-.hero-desc { font-size:.85rem;color:var(--text2);line-height:1.85;max-width:340px;font-weight:200;letter-spacing:.03em; }
-.hero-ctas { display:flex;gap:.75rem;align-items:center;flex-shrink:0; }
-.cta-solid { display:inline-flex;align-items:center;gap:.45rem;background:var(--white);color:var(--bg);padding:.7rem 1.6rem;border-radius:6px;font-size:.78rem;font-weight:400;letter-spacing:.08em;border:none;cursor:none;font-family:'Inter',sans-serif;transition:background .2s,transform .18s,box-shadow .25s; }
-.cta-solid:hover { background:rgba(255,255,255,.88);transform:translateY(-2px);box-shadow:0 10px 35px rgba(255,255,255,.1); }
-.cta-outline { display:inline-flex;align-items:center;gap:.45rem;background:transparent;color:var(--white);padding:.7rem 1.6rem;border-radius:6px;font-size:.78rem;font-weight:300;letter-spacing:.08em;border:1px solid rgba(255,255,255,.25);cursor:none;font-family:'Inter',sans-serif;text-decoration:none;transition:background .2s,border-color .2s; }
-.cta-outline:hover { background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.5); }
-.hero-scroll { position:absolute;bottom:2.5rem;right:3.5rem;z-index:3;display:flex;flex-direction:column;align-items:center;gap:.5rem;font-size:.6rem;color:var(--text2);letter-spacing:.14em;text-transform:uppercase;animation:pin .6s .6s both; }
-.scroll-line { width:1px;height:40px;background:linear-gradient(to bottom,rgba(255,255,255,.22),transparent);animation:sl 2s ease infinite; }
-@keyframes sl{0%,100%{opacity:.4;transform:scaleY(.6)}50%{opacity:1;transform:scaleY(1)}}
+/* hero-bottom no longer used but keep for compat */
+.hero-bottom { display:none; }
+.hero-desc { display:none; }
+.hero-curve-left { display:none; }
 
 /* ── STATS ── */
 .stats-row { display:grid;grid-template-columns:repeat(3,1fr);border-bottom:1px solid var(--border); }
-@media(max-width:768px){ .stats-row { grid-template-columns:1fr; } .stat-box { border-right:none;border-bottom:1px solid var(--border); } }
-.stat-box { padding:1.8rem 3.5rem;border-right:1px solid var(--border);position:relative;overflow:hidden;cursor:default;transition:background .22s; }
-.stat-box:hover { background:var(--surface); }
+@media(max-width:768px){ .stats-row { grid-template-columns:repeat(3,1fr); } .stat-box { border-right:none;border-bottom:1px solid var(--border);padding:1.2rem 1rem; } }
+.stat-box { padding:1.8rem 3.5rem;border-right:1px solid var(--border);position:relative;overflow:hidden;cursor:default;transition:background .3s,transform .4s cubic-bezier(.23,1,.32,1); }
+.stat-box:hover { background:rgba(26,79,255,.04);transform:translateY(-2px); }
 .stat-box:last-child { border-right:none; }
 .stat-box::after { content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,var(--blue2),transparent);transform:scaleX(0);transform-origin:left;transition:transform .45s cubic-bezier(.34,1.56,.64,1); }
 .stat-box:hover::after { transform:scaleX(1); }
@@ -472,7 +832,7 @@ body:has(a:hover) #crr,body:has(button:hover) #crr { width:46px;height:46px;bord
 .arow:hover { padding-left:.7rem; }
 .arow:hover::before { height:55%; }
 .arow:last-child { border-bottom:none; }
-.anum { font-family:'Cormorant Garamond',serif;font-size:.9rem;font-weight:400;color:var(--text3);min-width:26px; }
+.anum { font-family:'Inter',sans-serif;font-size:.9rem;font-weight:400;color:var(--text3);min-width:26px; }
 .abody { min-width:0; }
 .atags { display:flex;gap:.4rem;margin-bottom:.5rem; }
 .atag { font-size:.57rem;font-weight:700;padding:.12rem .48rem;border-radius:3px;text-transform:uppercase;letter-spacing:.08em; }
@@ -555,7 +915,7 @@ body:has(a:hover) #crr,body:has(button:hover) #crr { width:46px;height:46px;bord
 .rec-card-meta { font-size:.62rem;color:var(--text3);margin-top:.6rem; }
 
 /* ── DASHBOARD ── */
-.dash { padding:0;animation:pin .4s cubic-bezier(.23,1,.32,1) both; }
+.dash { padding:0; }  /* animation handled by pageSlide */
 .pg-hd { padding:2.5rem 3.5rem 2rem;border-bottom:1px solid var(--border);display:flex;align-items:flex-end;justify-content:space-between;gap:1rem;flex-wrap:wrap; }
 .pg-title { font-family:'Inter',sans-serif;font-size:1.5rem;font-weight:200;color:var(--white);margin-bottom:.2rem;line-height:1;letter-spacing:-.02em; }
 .pg-sub { font-size:.6rem;color:var(--text3);font-weight:300;letter-spacing:.18em;text-transform:uppercase; }
@@ -567,10 +927,10 @@ body:has(a:hover) #crr,body:has(button:hover) #crr { width:46px;height:46px;bord
 .kpi::before { content:'';position:absolute;top:0;left:0;right:0;height:2px;opacity:0;transition:opacity .3s; }
 .kpi:hover::before { opacity:1; }
 .kpi.kblue::before{background:linear-gradient(90deg,transparent,var(--blue2),var(--blue-hi),transparent)}
-.kpi.kgreen::before{background:linear-gradient(90deg,transparent,var(--green),#34d399,transparent)}
+.kpi.kblue2::before{background:linear-gradient(90deg,transparent,var(--blue-hi),#34d399,transparent)}
 .kpi.korange::before{background:linear-gradient(90deg,transparent,var(--orange),#fb923c,transparent)}
 .kpi.kpurple::before{background:linear-gradient(90deg,transparent,var(--purple),#c4b5fd,transparent)}
-.kpi.ktoken::before{background:linear-gradient(90deg,transparent,#22d3a5,#3b82f6,transparent)}
+.kpi.ktoken::before{background:linear-gradient(90deg,transparent,#4d85ff,#3b82f6,transparent)}
 .kpi-lbl { font-size:.54rem;font-weight:400;color:var(--text3);letter-spacing:.22em;text-transform:uppercase;display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem; }
 .kpi-ico { font-size:.8rem;opacity:.4; }
 .kpi-val { font-family:'Inter',sans-serif;font-size:2.1rem;font-weight:100;color:var(--white);line-height:1;letter-spacing:-.04em;margin-bottom:.5rem; }
@@ -588,7 +948,7 @@ body:has(a:hover) #crr,body:has(button:hover) #crr { width:46px;height:46px;bord
 .panel-title { font-size:.62rem;font-weight:400;color:var(--text2);letter-spacing:.14em;text-transform:uppercase; }
 .panel-tag { font-size:.54rem;font-weight:600;padding:.12rem .5rem;border-radius:3px;text-transform:uppercase;letter-spacing:.1em; }
 .panel-tag.blue { background:rgba(77,133,255,.12);color:var(--blue-hi); }
-.panel-tag.green { background:rgba(34,211,165,.09);color:var(--green); }
+.panel-tag.green { background:rgba(77,133,255,.09);color:var(--blue-hi); }
 .panel-tag.purple { background:rgba(167,139,250,.1);color:var(--purple); }
 
 .token-hero { padding:1.2rem 1.3rem;border-bottom:1px solid var(--border); }
@@ -615,11 +975,11 @@ body:has(a:hover) #crr,body:has(button:hover) #crr { width:46px;height:46px;bord
 .chart-title { font-size:.62rem;font-weight:400;color:var(--text2);letter-spacing:.14em;text-transform:uppercase; }
 .cbadge { font-size:.54rem;font-weight:600;padding:.12rem .5rem;border-radius:3px;text-transform:uppercase;letter-spacing:.1em; }
 .cbadge-b { background:rgba(77,133,255,.12);color:var(--blue-hi); }
-.cbadge-g { background:rgba(34,211,165,.09);color:var(--green); }
+.cbadge-g { background:rgba(77,133,255,.09);color:var(--blue-hi); }
 .two-col { display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;margin-bottom:1.2rem;min-width:0; }
 
 /* ── ANALYTICS ── */
-.analytics { padding:0;animation:pin .4s cubic-bezier(.23,1,.32,1) both; }
+.analytics { padding:0; }  /* animation handled by pageSlide */
 .an-hd { padding:2.5rem 3.5rem 2rem;border-bottom:1px solid var(--border);display:flex;align-items:flex-end;justify-content:space-between;gap:1rem; }
 .range-btns { display:flex;border:1px solid var(--border);border-radius:6px;overflow:hidden; }
 .rbtn { font-size:.6rem;font-weight:400;padding:.32rem .75rem;background:none;border:none;border-right:1px solid var(--border);color:var(--text3);cursor:pointer;font-family:'Inter',sans-serif;letter-spacing:.1em;transition:all .18s; }
@@ -666,7 +1026,7 @@ body:has(a:hover) #crr,body:has(button:hover) #crr { width:46px;height:46px;bord
 .abt-ring { position:absolute;inset:-9px;border-radius:50%;border:1px solid rgba(255,255,255,.1);animation:sp 9s linear infinite; }
 .abt-ring::before { content:'';position:absolute;top:-2px;left:50%;width:4px;height:4px;border-radius:50%;background:var(--blue-hi);transform:translateX(-50%); }
 @keyframes sp{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
-.abt-name { font-family:'Cormorant Garamond',serif;font-size:3rem;font-weight:500;color:var(--white);line-height:1; }
+.abt-name { font-family:'Inter',sans-serif;font-weight:200;font-size:3rem;font-weight:500;color:var(--white);line-height:1; }
 .abt-name em { color:var(--blue-hi);font-style:italic; }
 .abt-handle { font-size:.76rem;color:var(--text2);margin-top:.4rem; }
 .abt-body { font-size:.9rem;color:var(--text2);line-height:1.95;font-weight:300;margin-bottom:2.5rem; }
@@ -691,8 +1051,9 @@ body:has(a:hover) #crr,body:has(button:hover) #crr { width:46px;height:46px;bord
    FOOTER
 ══════════════════════════════ */
 .footer {
-  border-top:1px solid var(--border);
-  background:rgba(5,7,14,0.95);
+  border-top:1px solid rgba(77,133,255,.1);
+  background:rgba(2,11,24,0.98);
+  backdrop-filter:blur(20px);
 }
 .footer-main {
   display:grid;
@@ -777,10 +1138,10 @@ body:has(a:hover) #crr,body:has(button:hover) #crr { width:46px;height:46px;bord
 .chat-fab-badge {
   position:absolute;top:1px;right:1px;
   width:12px;height:12px;border-radius:50%;
-  background:var(--green);border:2px solid var(--bg);
+  background:var(--blue-hi);border:2px solid var(--bg);
   animation:bdg 2.5s infinite;
 }
-@keyframes bdg{0%,100%{box-shadow:0 0 0 0 rgba(34,211,165,.5)}60%{box-shadow:0 0 0 5px rgba(34,211,165,0)}}
+@keyframes bdg{0%,100%{box-shadow:0 0 0 0 rgba(77,133,255,.5)}60%{box-shadow:0 0 0 5px rgba(77,133,255,0)}}
 
 .chat-popup {
   position:fixed;bottom:6rem;right:2rem;z-index:500;
@@ -817,8 +1178,8 @@ body:has(a:hover) #crr,body:has(button:hover) #crr { width:46px;height:46px;bord
 }
 .cp-avi { width:26px;height:26px;object-fit:contain;filter:drop-shadow(0 0 5px rgba(26,79,255,.6)); }
 .cp-name { font-family:'Inter',sans-serif;font-size:.85rem;font-weight:300;color:var(--white);letter-spacing:.06em; }
-.cp-status { font-size:.58rem;color:var(--green);letter-spacing:.08em;display:flex;align-items:center;gap:.32rem; }
-.cp-sdot { width:4px;height:4px;border-radius:50%;background:var(--green);animation:bdg 2s infinite; }
+.cp-status { font-size:.58rem;color:var(--blue-hi);letter-spacing:.08em;display:flex;align-items:center;gap:.32rem; }
+.cp-sdot { width:4px;height:4px;border-radius:50%;background:var(--blue-hi);animation:bdg 2s infinite; }
 .cp-actions { display:flex;gap:.4rem; }
 .cp-btn { width:26px;height:26px;border-radius:6px;background:none;border:1px solid var(--border);color:var(--text2);cursor:none;font-size:.75rem;display:flex;align-items:center;justify-content:center;transition:all .18s; }
 .cp-btn:hover { color:var(--white);border-color:var(--border2);background:var(--surface); }
@@ -876,6 +1237,12 @@ body:has(a:hover) #crr,body:has(button:hover) #crr { width:46px;height:46px;bord
   .caps-grid { grid-template-columns:1fr 1fr; }
   .node-inner { grid-template-columns:1fr; }
   .arch-diagram { gap:0; }
+  /* Docs */
+  .docs-grid { grid-template-columns:1fr !important; padding:1.5rem !important; gap:1rem !important; }
+  .docs-sidebar { display:none !important; }
+  .docs-content { min-width:0 !important; }
+  /* Howto */
+  .howto-grid { grid-template-columns:repeat(2,1fr) !important; gap:.75rem !important; padding-left:1.5rem !important; padding-right:1.5rem !important; }
 }
 @media(max-width:600px){
   html,body { overflow-x:hidden;width:100%; }
@@ -885,7 +1252,7 @@ body:has(a:hover) #crr,body:has(button:hover) #crr { width:46px;height:46px;bord
   .nav { padding:0 1rem;height:54px; }
   .nav-links { gap:0; }
   .nav-item { padding:.32rem .5rem;font-size:.68rem; }
-  .hero { min-height:75vh;padding-bottom:3rem; }
+  .hero { min-height:100svh;min-height:100vh;padding-bottom:2rem; }
   .hero-curve-left { display:none; }
   .hero-content { padding:0 1.5rem;max-width:100%; }
   .hero-h1 { font-size:clamp(2.8rem,11vw,4rem); }
@@ -906,7 +1273,7 @@ body:has(a:hover) #crr,body:has(button:hover) #crr { width:46px;height:46px;bord
   .abt-section-label { position:static !important; }
   .abt-grid-cell { padding:2rem 1.2rem !important;border-right:none !important; }
   .abt-inline-grid { grid-template-columns:1fr !important; }
-  .mob-menu { top:82px; }
+  .mob-menu { top:54px; }
   .arow { flex-direction:column;gap:.5rem;padding:1.2rem 1rem; }
   .ameta { flex-direction:row;gap:1rem; }
   .anum { display:none; }
@@ -951,23 +1318,94 @@ body:has(a:hover) #crr,body:has(button:hover) #crr { width:46px;height:46px;bord
   /* Kpi 2 col on mobile */
   .kpi-grid { grid-template-columns:repeat(2,1fr) !important; }
   .kpi:nth-child(5) { grid-column:1/-1; }
+  /* Playground mobile — all grids single col */
+  .pg-wrap { padding:1rem 1rem 4rem !important; }
+  .pg-token-card,.pg-wallet-card { padding:.9rem 1rem !important; }
+  .pg-chat-wrap { border-radius:14px !important; }
+  .pg-chat-header { padding:.8rem 1rem !important; flex-wrap:wrap; gap:.4rem !important; }
+  .pg-terminal { border-radius:12px !important; }
+  .pg-output { border-radius:12px !important; }
+  /* Force all playground grids to 1 col on mobile */
+  .pg-wrap [style*="grid-template-columns:repeat(3"] { grid-template-columns:1fr !important; }
+  .pg-wrap [style*="grid-template-columns:repeat(2"] { grid-template-columns:1fr !important; }
+  .pg-wrap [style*="grid-template-columns:1fr 340px"] { grid-template-columns:1fr !important; }
+  .pg-wrap [style*="grid-template-columns:300px 1fr"] { grid-template-columns:1fr !important; }
+  .pg-wrap [style*="grid-template-columns:280px 1fr"] { grid-template-columns:1fr !important; }
 }
 
 @media(max-width:768px){
   .prem-cards { grid-template-columns:1fr 1fr !important; }
+  /* Playground tablet */
+  .pg-wrap { padding:1.5rem 1.5rem 4rem !important; }
   .two-col { grid-template-columns:1fr !important; }
   .an-grid { grid-template-columns:1fr 1fr !important; }
   .dash-body { grid-template-columns:1fr !important; }
   .reader-layout { gap:1.5rem !important; }
   .section { padding-left:1.5rem !important;padding-right:1.5rem !important; }
 }
+/* ══ MOBILE RESPONSIVE ══ */
+@media(max-width:768px){
+  .hero { min-height:100svh; }
+  .hero-content { padding:0 1.4rem; }
+  .hero-h1 { font-size:clamp(2.8rem,11vw,5rem) !important; letter-spacing:-.03em; }
+  .hero-tagline { font-size:.9rem; max-width:100%; padding:0 .5rem; }
+  .hero-eyebrow { font-size:.5rem; letter-spacing:.18em; padding:.3rem .9rem; }
+  .hero-ctas { gap:.6rem; flex-direction:column; align-items:stretch; width:100%; max-width:320px; }
+  .hero-ctas .mag-btn { width:100%; }
+  .hero-ctas .mag-btn > * { width:100%; justify-content:center; }
+  .cta-solid, .cta-outline { width:100%; justify-content:center; padding:.75rem 1.2rem; font-size:.8rem; }
+  .nav { padding:0 1.2rem; height:58px; }
+  .nav-logo-name { font-size:.85rem; }
+  .stats-row { grid-template-columns:1fr !important; }
+  .stat-box { padding:1.2rem 1.5rem; border-right:none !important; border-bottom:1px solid var(--border); }
+  .hero-scroll { display:none; }
+}
+@media(max-width:480px){
+  .hero-h1 { font-size:clamp(2.4rem,12vw,4rem) !important; }
+  .hero-tagline { font-size:.82rem; }
+}
+
+/* ══ DOCS mobile ══ */
+@media(max-width:768px){
+  .docs-grid { grid-template-columns:1fr !important; padding:1rem 1.2rem 3rem !important; gap:0 !important; }
+  .docs-sidebar { display:none !important; }
+  .docs-content { min-width:0 !important; overflow-x:hidden !important; }
+}
+
+/* ══ Howto mobile ══ */
+@media(max-width:900px){
+  .howto-grid { grid-template-columns:repeat(2,1fr) !important; }
+}
+@media(max-width:500px){
+  .howto-grid { grid-template-columns:1fr !important; }
+  .abt-inline-grid { grid-template-columns:1fr !important; }
+}
+
 `;
 
 const ACT_ICONS = {visit:"👁",share:"↗",chat:"💬",read:"📖",follow:"✦",view:"📊"};
 const ACT_CLS   = {visit:"ico-v",share:"ico-s",chat:"ico-c",read:"ico-r",follow:"ico-s",view:"ico-v"};
-const SUGGESTIONS = ["What is Noelclaw?","Latest article?","How does this work?","Tech stack?"];
-const SYS = `You are Noel, the AI assistant embedded in Noelclaw — a personal AI operating system and blog. The site documents building composable AI agents, architecture decisions, and the journey of thinking with AI. Creator's X: @noelclawfun. Be sharp, warm, concise — max 3-4 sentences. Confident, slightly witty. Never generic.`;
-const INIT = [{ r:"a", t:"Hey — I'm Noel 🦕. Ask me anything about this site or AI systems." }];
+const SUGGESTIONS = ["What is NoelClaw?","What can Bankr agent do?","How do I swap tokens?","What's trending on Base?"];
+const SYS = `You are Noel, the AI assistant for NoelClaw. Here is everything you need to know:
+
+ABOUT NOELCLAW:
+- NoelClaw is an AI agent platform on Base chain, powered by Bankr API
+- Website: noelclaw.fun | X: @noelclawfun | GitHub: https://github.com/0xzonee/noelclaw
+- Token: $NOELCLAW | CA: 0xa57d8ce207c7daaeeed4e3a491bdf51d89233af3
+- Trade: https://flaunch.gg/base/coin/0xa57d8ce207c7daaeeed4e3a491bdf51d89233af3
+- NOT a chatbot — executes real on-chain actions via natural language
+
+WHAT IT CAN DO (via Bankr API):
+- Swap tokens on Base, analyze with AI signals (BUY/SELL/HOLD 1-10)
+- Deploy new tokens, set limit orders, claim fees
+- Track smart money & whale wallets
+- Auto-agent: monitors market every 30s and executes autonomously
+
+STACK: React + Vite, Convex, Privy, Bankr API, Base chain, Claude AI, TypeScript
+
+PERSONALITY: Sharp, direct, crypto-native. Max 2-3 sentences. Confident. Never generic.`;
+
+const INIT = [{ r:"a", t:"Hey — I'm Noel 🦕. Ask me anything — token prices, swaps, trending Base tokens, or anything crypto." }];
 
 const TT = ({active,payload,label})=>{
   if(!active||!payload?.length) return null;
@@ -1063,79 +1501,78 @@ function AgentCaps(){
 ══════════════════════════════ */
 const USE_CASES = [
   {
-    id:"monitor",
-    label:"System Monitor",
-    icon:"🔍",
-    tag:"Infrastructure",
+    id:"swap",
+    label:"Token Swap",
+    icon:"🔁",
+    tag:"Bankr Execute",
     tagColor:"#4d85ff",
-    title:"AI that watches your infra 24/7",
-    desc:"An agent continuously monitors your servers, APIs, and services. When something breaks, it doesn't just alert you — it diagnoses the issue, checks logs, and suggests a fix.",
+    title:"Swap any token via chat",
+    desc:"Type what you want and Bankr executes it on Base chain. No DEX UI, no manual approvals — just natural language to on-chain action in seconds.",
     steps:[
-      {step:"01", text:"Agent polls 12 health endpoints every 30s"},
-      {step:"02", text:"Detects latency spike on /api/checkout"},
-      {step:"03", text:"Reads last 500 log lines, isolates DB timeout"},
-      {step:"04", text:"Sends Slack alert with root cause + fix suggestion"},
+      {step:"01", text:"User: 'swap 0.5 ETH to USDC on Base'"},
+      {step:"02", text:"Bankr agent parses intent & checks balance"},
+      {step:"03", text:"Routes through best liquidity path on Base"},
+      {step:"04", text:"Transaction confirmed — USDC received"},
     ],
-    result:"Incident detected & diagnosed in 47 seconds",
-    resultColor:"#22d3a5",
-  },
-  {
-    id:"research",
-    label:"Research Agent",
-    icon:"📊",
-    tag:"Intelligence",
-    tagColor:"#a78bfa",
-    title:"Deep research on autopilot",
-    desc:"Give the agent a topic. It searches the web, reads papers, cross-references sources, and returns a structured brief — complete with citations and confidence scores.",
-    steps:[
-      {step:"01", text:"Query: 'competitive landscape of AI agent frameworks'"},
-      {step:"02", text:"Searches 40+ sources across web & papers"},
-      {step:"03", text:"Extracts key data, removes noise & duplicates"},
-      {step:"04", text:"Returns structured brief with 12 cited sources"},
-    ],
-    result:"Research brief ready in 3 minutes 22 seconds",
-    resultColor:"#a78bfa",
-  },
-  {
-    id:"workflow",
-    label:"Workflow Automation",
-    icon:"⚙️",
-    tag:"Automation",
-    tagColor:"#f97316",
-    title:"Chain actions across your tools",
-    desc:"Connect GitHub, Notion, Slack, and your database. The agent handles the handoffs — moving data between tools, triggering actions based on events, and keeping everything in sync.",
-    steps:[
-      {step:"01", text:"New PR merged on GitHub main branch"},
-      {step:"02", text:"Agent reads diff, generates changelog entry"},
-      {step:"03", text:"Updates Notion release doc automatically"},
-      {step:"04", text:"Posts summary to #releases Slack channel"},
-    ],
-    result:"4-tool workflow completed in 8 seconds",
-    resultColor:"#f97316",
+    result:"Swap executed and confirmed in 9 seconds",
+    resultColor:"#4d85ff",
   },
   {
     id:"alpha",
-    label:"Alpha Research",
-    icon:"📡",
-    tag:"Crypto · Premium",
-    tagColor:"#22d3a5",
-    title:"On-chain signals before CT knows",
-    desc:"Agent scans on-chain activity, social sentiment, and dev commits across AI infrastructure projects — surfacing early signals before they hit mainstream crypto Twitter.",
+    label:"Alpha Analysis",
+    icon:"⚡",
+    tag:"AI · Bankr",
+    tagColor:"#a78bfa",
+    title:"Deep token analysis in seconds",
+    desc:"Ask for analysis on any Base chain token. The agent pulls live on-chain data, smart money activity, and generates a conviction signal with entry/exit targets.",
     steps:[
-      {step:"01", text:"Monitors 200+ on-chain addresses & GitHub repos"},
-      {step:"02", text:"Detects unusual accumulation in AI infra token"},
-      {step:"03", text:"Cross-checks dev activity + social sentiment"},
-      {step:"04", text:"Generates signal report with confidence score"},
+      {step:"01", text:"Query: 'analyze BRETT on Base — should I buy?'"},
+      {step:"02", text:"Bankr fetches price, volume, whale activity"},
+      {step:"03", text:"Claude analyzes patterns & momentum"},
+      {step:"04", text:"Returns BUY/SELL signal with conviction 8/10"},
     ],
-    result:"Signal detected 6 hours before CT picked it up",
-    resultColor:"#22d3a5",
-    locked:true,
+    result:"Full analysis with entry/exit targets ready",
+    resultColor:"#a78bfa",
+  },
+  {
+    id:"deploy",
+    label:"Deploy Token",
+    icon:"🚀",
+    tag:"Bankr Execute",
+    tagColor:"#f97316",
+    title:"Launch a token in one sentence",
+    desc:"Describe your token and Bankr deploys it on Base chain. Name, symbol, supply — that's all you need. Contract deployed, verified, ready to trade.",
+    steps:[
+      {step:"01", text:"User: 'deploy MYTOKEN with 1B supply on Base'"},
+      {step:"02", text:"Bankr generates deployment transaction"},
+      {step:"03", text:"Contract deployed to Base chain"},
+      {step:"04", text:"Contract address returned & verified"},
+    ],
+    result:"Token live on Base in under 30 seconds",
+    resultColor:"#f97316",
+  },
+  {
+    id:"limit",
+    label:"Limit Order",
+    icon:"📋",
+    tag:"Bankr Execute",
+    tagColor:"#4d85ff",
+    title:"Set orders while you sleep",
+    desc:"Natural language limit orders on Base chain. Tell Bankr your target price and it monitors and executes automatically — no platform login required.",
+    steps:[
+      {step:"01", text:"User: 'buy 0.1 ETH when price drops to $1,800'"},
+      {step:"02", text:"Bankr sets limit order via on-chain protocol"},
+      {step:"03", text:"Price monitor watches Base chain in real-time"},
+      {step:"04", text:"Order triggered & filled at $1,798 — confirmed"},
+    ],
+    result:"Limit order filled at target price automatically",
+    resultColor:"#4d85ff",
   },
 ];
 
-function UseCaseShowcase({walletTier}){
+function UseCaseShowcase(){
   const [active, setActive] = useState(0);
-  const uc = {...USE_CASES[active], locked: USE_CASES[active].locked && walletTier !== "premium"};
+  const uc = USE_CASES[active];
   return(
     <div>
       {/* Tabs */}
@@ -1154,7 +1591,7 @@ function UseCaseShowcase({walletTier}){
           }}>
             <span>{u.icon}</span>
             {u.label}
-            {u.locked && <span style={{fontSize:".5rem",marginLeft:".2rem"}}>🔒</span>}
+  
           </button>
         ))}
       </div>
@@ -1167,22 +1604,6 @@ function UseCaseShowcase({walletTier}){
       }}>
         {/* Left: description */}
         <div style={{padding:"2rem 2.2rem",background:"var(--bg)",position:"relative"}}>
-          {uc.locked && (
-            <div style={{
-              position:"absolute",inset:0,background:"rgba(5,7,14,0.7)",
-              backdropFilter:"blur(4px)",display:"flex",flexDirection:"column",
-              alignItems:"center",justifyContent:"center",gap:".8rem",zIndex:2,
-            }}>
-              <div style={{fontSize:"2rem"}}>🔒</div>
-              <div style={{fontSize:".82rem",color:"var(--text2)",fontWeight:300,textAlign:"center",maxWidth:"200px",lineHeight:1.6}}>
-                Hold 20M $NOELCLAW to unlock Alpha Research
-              </div>
-              <a href="https://flaunch.gg/base/coin/0xa57d8ce207c7daaeeed4e3a491bdf51d89233af3" target="_blank" rel="noopener noreferrer"
-                style={{display:"inline-flex",alignItems:"center",gap:".4rem",background:"var(--blue2)",color:"#fff",padding:".5rem 1.1rem",borderRadius:"6px",fontSize:".72rem",fontWeight:400,textDecoration:"none",letterSpacing:".06em"}}>
-                Buy $NOELCLAW
-              </a>
-            </div>
-          )}
           <div style={{fontSize:".55rem",fontWeight:700,padding:".12rem .5rem",borderRadius:"3px",background:`${uc.tagColor}18`,color:uc.tagColor,letterSpacing:".12em",textTransform:"uppercase",display:"inline-block",marginBottom:"1rem"}}>{uc.tag}</div>
           <div style={{fontSize:"1.15rem",fontWeight:300,color:"var(--white)",lineHeight:1.25,marginBottom:".8rem",letterSpacing:"-.01em"}}>{uc.title}</div>
           <div style={{fontSize:".8rem",color:"var(--text2)",lineHeight:1.8,fontWeight:200,marginBottom:"1.5rem"}}>{uc.desc}</div>
@@ -1196,12 +1617,6 @@ function UseCaseShowcase({walletTier}){
 
         {/* Right: agent steps terminal */}
         <div style={{background:"#030408",padding:"1.5rem 1.8rem",fontFamily:"'Courier New',monospace",position:"relative"}}>
-          {uc.locked && (
-            <div style={{
-              position:"absolute",inset:0,background:"rgba(5,7,14,0.7)",
-              backdropFilter:"blur(4px)",zIndex:2,borderRadius:"inherit",
-            }}/>
-          )}
           {/* Terminal header */}
           <div style={{display:"flex",alignItems:"center",gap:".4rem",marginBottom:"1.2rem"}}>
             <div style={{width:"8px",height:"8px",borderRadius:"50%",background:"#ff5f57"}}/>
@@ -1211,7 +1626,7 @@ function UseCaseShowcase({walletTier}){
           </div>
 
           {/* Prompt line */}
-          <div style={{fontSize:".68rem",color:"#22d3a5",marginBottom:"1rem",display:"flex",alignItems:"center",gap:".4rem"}}>
+          <div style={{fontSize:".68rem",color:"#4d85ff",marginBottom:"1rem",display:"flex",alignItems:"center",gap:".4rem"}}>
             <span style={{opacity:.5}}>$</span>
             <span>noel run --agent {uc.id}</span>
             <span style={{width:"6px",height:"12px",background:"rgba(255,255,255,.5)",animation:"cursor-blink 1s step-end infinite",display:"inline-block"}}/>
@@ -1234,12 +1649,1553 @@ function UseCaseShowcase({walletTier}){
 
           {/* Done line */}
           <div style={{marginTop:"1.2rem",paddingTop:"1rem",borderTop:"1px solid rgba(255,255,255,.06)"}}>
-            <span style={{fontSize:".65rem",color:"#22d3a5",letterSpacing:".04em"}}>✓ Agent completed successfully</span>
+            <span style={{fontSize:".65rem",color:"#4d85ff",letterSpacing:".04em"}}>✓ Agent completed successfully</span>
           </div>
         </div>
       </div>
 
       <style>{`@keyframes cursor-blink{0%,100%{opacity:1}50%{opacity:0}}`}</style>
+    </div>
+  );
+}
+
+/* ══════════════════════════════
+   AGENT PLAYGROUND COMPONENT
+══════════════════════════════ */
+/* ══════════════════════════════
+   AGENT PLAYGROUND — FULL BANKR
+══════════════════════════════ */
+/* ══════════════════════════════
+   AGENT PLAYGROUND — BANKR
+   Aesthetic: Dark dashboard cards (ref img 2)
+   Terminal: Retro-blue monospace (ref img 3)
+══════════════════════════════ */
+/* ══════════════════════════════
+   CLI TERMINAL — truemarkets style
+   Type commands, Bankr executes
+══════════════════════════════ */
+/* ── BnkrRow — live BNKR token price row ── */
+function BnkrRow() {
+  const [bnkr, setBnkr] = useState(null);
+  useEffect(()=>{
+    const fetch_ = async()=>{
+      try{
+        const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent("https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=bankr&sparkline=false&price_change_percentage=24h")}`;
+        const r0 = await fetch(proxyUrl,{signal:AbortSignal.timeout(8000)}).catch(()=>null);
+        const r = r0?.ok ? {ok:true, json:async()=>{const w=await r0.json();return JSON.parse(w.contents||"[]");}} : null;
+        if(r?.ok){ const d=await r.json().catch(()=>null); if(d?.[0]) setBnkr(d[0]); }
+      }catch(e){}
+    };
+    fetch_();
+    const id = setInterval(fetch_, 60000);
+    return ()=>clearInterval(id);
+  },[]);
+
+  if(!bnkr) return null;
+  const chg = parseFloat(bnkr.price_change_percentage_24h||0)||0;
+  const isPos = chg>=0;
+  const fmt = n=>{try{const v=parseFloat(n)||0;return v>=1e9?"$"+(v/1e9).toFixed(2)+"B":v>=1e6?"$"+(v/1e6).toFixed(1)+"M":v>=1e3?"$"+(v/1e3).toFixed(1)+"K":"$"+v.toFixed(2);}catch{return"—";}};
+  return (
+    <div style={{display:"grid",gridTemplateColumns:"2fr 1fr 1fr 70px",padding:".65rem 1.2rem",borderBottom:"1px solid var(--border)",background:"rgba(100,50,255,.04)",alignItems:"center",cursor:"pointer",transition:"background .15s"}}
+      onClick={()=>window.open("https://www.coingecko.com/en/coins/bankr","_blank")}
+      onMouseEnter={e=>e.currentTarget.style.background="rgba(100,50,255,.09)"}
+      onMouseLeave={e=>e.currentTarget.style.background="rgba(100,50,255,.04)"}>
+      <div style={{display:"flex",alignItems:"center",gap:".6rem"}}>
+        {bnkr.image?<img src={bnkr.image} alt="BNKR" style={{width:"22px",height:"22px",borderRadius:"50%",objectFit:"cover",flexShrink:0}}/>
+        :<div style={{width:"22px",height:"22px",borderRadius:"50%",background:"rgba(100,50,255,.2)",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,fontSize:".65rem",fontWeight:700,color:"#a78bfa"}}>B</div>}
+        <div>
+          <div style={{display:"flex",alignItems:"center",gap:".4rem"}}>
+            <span style={{fontSize:".72rem",color:"#a78bfa",fontWeight:700}}>$BNKR</span>
+            <span style={{fontSize:".38rem",background:"rgba(100,50,255,.15)",color:"#a78bfa",border:"1px solid rgba(167,139,250,.3)",borderRadius:"4px",padding:".06rem .3rem",fontWeight:700}}>BANKR</span>
+          </div>
+          <span style={{fontSize:".5rem",color:"var(--text3)",fontFamily:"'IBM Plex Mono',monospace"}}>
+            {"$"+(bnkr.current_price||0).toFixed(4)}
+          </span>
+        </div>
+      </div>
+      <div style={{textAlign:"right"}}><span style={{fontSize:".65rem",color:"rgba(180,200,255,.6)",fontFamily:"'IBM Plex Mono',monospace"}}>{bnkr.market_cap?fmt(bnkr.market_cap):"—"}</span></div>
+      <div style={{textAlign:"right"}}><span style={{fontSize:".65rem",color:"rgba(180,200,255,.6)",fontFamily:"'IBM Plex Mono',monospace"}}>{bnkr.total_volume?fmt(bnkr.total_volume):"—"}</span></div>
+      <div style={{textAlign:"right"}}><span style={{fontSize:".72rem",fontWeight:700,color:isPos?"#4d85ff":"#ff6b6b",fontFamily:"'IBM Plex Mono',monospace"}}>{isPos?"+":""}{chg.toFixed(2)}%</span></div>
+    </div>
+  );
+}
+
+function CliTerminal({ bankrAsk, walletAddress, authenticated, login }) {
+  const [input, setInput]       = useState("");
+  const [history, setHistory]   = useState([
+    { type:"system", text:"NoelClaw CLI v1.0 — Noel Agent Terminal" },
+    { type:"system", text:'Type "help" to see available commands.' },
+    { type:"system", text:"━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" },
+  ]);
+  const [busy, setBusy]         = useState(false);
+  const [cmdHistory, setCmdHistory] = useState([]);
+  const [cmdIdx, setCmdIdx]     = useState(-1);
+  const [threadId, setThreadId] = useState(null);
+  const inputRef  = useRef(null);
+  const bottomRef = useRef(null);
+
+  useEffect(()=>{ bottomRef.current?.scrollIntoView({behavior:"smooth"}); },[history]);
+
+  const COMMANDS = {
+    help: {
+      desc: "Show all commands",
+      handler: () => ({
+        type:"output",
+        text:`Available commands:
+  price <token>          — Get live price (e.g. price ETH)
+  analyze <token>        — Deep AI analysis with signal
+  swap <amt> <from> <to> — Execute swap (e.g. swap 0.01 ETH USDC)
+  trending               — Top trending tokens on Base
+  balance                — Check wallet balance
+  smartmoney <token>     — Track whale wallets
+  trades <token>         — Recent trade activity
+  deploy <name> <symbol> — Deploy token on Base
+  fees <token>           — Check & claim fees
+  ask <anything>         — Ask Bankr anything
+  clear                  — Clear terminal
+  help                   — Show this menu`
+      })
+    },
+    clear: {
+      desc: "Clear terminal",
+      handler: () => { setHistory([{type:"system",text:"Terminal cleared."}]); return null; }
+    },
+  };
+
+  const runCmd = async (raw) => {
+    if(!raw.trim()) return;
+    const parts = raw.trim().split(/\s+/);
+    const cmd = parts[0].toLowerCase();
+    const args = parts.slice(1);
+
+    setHistory(h=>[...h, {type:"input", text:`$ ${raw}`}]);
+    setCmdHistory(h=>[raw,...h].slice(0,50));
+    setCmdIdx(-1);
+    setBusy(true);
+
+    // Built-in commands
+    if(cmd === "clear") { COMMANDS.clear.handler(); setBusy(false); return; }
+    if(cmd === "help") {
+      const r = COMMANDS.help.handler();
+      setHistory(h=>[...h, r]);
+      setBusy(false);
+      return;
+    }
+
+    // Build Bankr prompt from command
+    let prompt = "";
+    if(cmd === "price")          prompt = `What is the current price of ${args[0]||"ETH"}? Give price, 24h change, volume, market cap. Be concise.`;
+    else if(cmd === "analyze")   prompt = `Deep analysis of ${args[0]||"ETH"}: price momentum, whale activity, buy/sell pressure. Give BUY/SELL/HOLD signal with conviction 1-10.`;
+    else if(cmd === "swap")      prompt = `Swap ${args[0]||"0.01"} ${args[1]||"ETH"} to ${args[2]||"USDC"} on Base chain.`;
+    else if(cmd === "trending")  prompt = `Top 8 trending tokens on Base right now. List: symbol, price, 24h change, volume.`;
+    else if(cmd === "balance")   prompt = `What is my wallet balance on Base chain?${walletAddress?` Wallet: ${walletAddress}`:""}`;
+    else if(cmd === "smartmoney") prompt = `Who are the top smart money wallets for ${args[0]||"Base chain"}? Show their recent buys and PnL.`;
+    else if(cmd === "trades")    prompt = `Recent trade activity for ${args[0]||"ETH"} on Base: buys vs sells, volume, biggest trades.`;
+    else if(cmd === "deploy")    prompt = `Deploy a token on Base chain: name "${args.slice(0,-1).join(" ")||args[0]||"MyToken"}", symbol "${args[args.length-1]||"MYT"}", supply 1000000000.`;
+    else if(cmd === "fees")      prompt = `Check and claim trading fees for ${args[0]||"NOELCLAW"} token.`;
+    else if(cmd === "ask")       prompt = args.join(" ");
+    else                          prompt = raw; // pass anything to Bankr
+
+    if(!prompt) {
+      setHistory(h=>[...h, {type:"error", text:`Unknown command: ${cmd}. Type "help" for available commands.`}]);
+      setBusy(false);
+      return;
+    }
+
+    // Spinner line
+    setHistory(h=>[...h, {type:"loading", text:"Bankr processing…", id:"spinner"}]);
+
+    try {
+      const res = await bankrAsk({ prompt, threadId: threadId||undefined });
+      if(res.threadId) setThreadId(res.threadId);
+      // Remove spinner
+      setHistory(h=>h.filter(l=>l.id!=="spinner").concat({
+        type:"output",
+        text: res.response,
+        txs: res.transactions,
+      }));
+    } catch(e) {
+      setHistory(h=>h.filter(l=>l.id!=="spinner").concat({type:"error", text:`Error: ${e.message}`}));
+    }
+    setBusy(false);
+  };
+
+  const onKey = e => {
+    if(e.key === "Enter") { runCmd(input); setInput(""); }
+    else if(e.key === "ArrowUp") {
+      e.preventDefault();
+      const idx = Math.min(cmdIdx+1, cmdHistory.length-1);
+      setCmdIdx(idx);
+      setInput(cmdHistory[idx]||"");
+    }
+    else if(e.key === "ArrowDown") {
+      e.preventDefault();
+      const idx = Math.max(cmdIdx-1, -1);
+      setCmdIdx(idx);
+      setInput(idx===-1?"":cmdHistory[idx]||"");
+    }
+  };
+
+  return (
+    <div style={{background:"#030508",border:"1px solid rgba(26,79,255,.2)",borderRadius:"16px",overflow:"hidden",fontFamily:"'IBM Plex Mono',monospace",boxShadow:"0 0 40px rgba(26,79,255,.06),0 0 0 1px rgba(26,79,255,.08)"}}>
+      {/* Title bar */}
+      <div style={{background:"#07090f",borderBottom:"1px solid rgba(26,79,255,.15)",padding:".6rem 1rem",display:"flex",alignItems:"center",gap:".5rem"}}>
+        <div style={{width:"10px",height:"10px",borderRadius:"50%",background:"#ff5f57"}}/>
+        <div style={{width:"10px",height:"10px",borderRadius:"50%",background:"#febc2e"}}/>
+        <div style={{width:"10px",height:"10px",borderRadius:"50%",background:"#28c840"}}/>
+        <span style={{marginLeft:".7rem",fontSize:".6rem",color:"rgba(77,133,255,.5)",letterSpacing:".1em"}}>noelclaw — bankr-agent-terminal</span>
+        {threadId&&<span style={{marginLeft:"auto",fontSize:".5rem",color:"rgba(77,133,255,.5)",background:"rgba(26,79,255,.08)",border:"1px solid rgba(77,133,255,.15)",borderRadius:"20px",padding:".1rem .45rem"}}>⚡ thread active</span>}
+      </div>
+
+      {/* Output */}
+      <div onClick={()=>inputRef.current?.focus()}
+        style={{padding:"1.2rem 1.4rem",minHeight:"400px",maxHeight:"520px",overflowY:"auto",display:"flex",flexDirection:"column",gap:".3rem",cursor:"text",scrollbarWidth:"thin",scrollbarColor:"rgba(26,79,255,.2) transparent"}}>
+        {history.map((l,i)=>(
+          <div key={i} style={{
+            fontSize:".73rem",
+            lineHeight:1.7,
+            color: l.type==="input"?"rgba(180,210,255,.9)":
+                   l.type==="error"?"#f87171":
+                   l.type==="system"?"rgba(77,133,255,.5)":
+                   l.type==="loading"?"rgba(77,133,255,.4)":
+                   "rgba(200,220,255,.8)",
+            whiteSpace:"pre-wrap",
+            wordBreak:"break-word",
+            fontWeight: l.type==="input"?500:300,
+          }}>
+            {l.type==="loading"&&<span style={{animation:"pulse 1s infinite",display:"inline-block",marginRight:".5rem"}}>▋</span>}
+            {l.text}
+            {l.txs?.length>0&&(
+              <div style={{marginTop:".4rem",color:"#4d85ff",fontSize:".65rem"}}>
+                ✓ {l.txs.length} transaction{l.txs.length>1?"s":""} executed on Base
+              </div>
+            )}
+          </div>
+        ))}
+        <div ref={bottomRef}/>
+      </div>
+
+      {/* Input */}
+      <div style={{borderTop:"1px solid rgba(26,79,255,.12)",padding:".75rem 1.4rem",display:"flex",alignItems:"center",gap:".6rem",background:"rgba(26,79,255,.02)"}}>
+        <span style={{color:"rgba(77,133,255,.6)",fontSize:".78rem",flexShrink:0,userSelect:"none"}}>{"$"}</span>
+        <input
+          ref={inputRef}
+          value={input}
+          onChange={e=>setInput(e.target.value)}
+          onKeyDown={onKey}
+          placeholder={busy?"processing…":"type a command or ask Bankr anything…"}
+          disabled={busy}
+          autoComplete="off"
+          spellCheck={false}
+          style={{flex:1,background:"none",border:"none",outline:"none",color:"rgba(200,220,255,.9)",fontSize:".76rem",fontFamily:"'IBM Plex Mono',monospace",caretColor:"rgba(77,133,255,.8)"}}
+        />
+        {busy&&<span style={{fontSize:".6rem",color:"rgba(77,133,255,.4)",animation:"pulse 1s infinite",flexShrink:0}}>●</span>}
+      </div>
+    </div>
+  );
+}
+
+/* ══════════════════════════════
+   AUTO-AGENT LOOP COMPONENT
+   Analyze → Decide → Execute autonomously
+══════════════════════════════ */
+function AutoAgent({ bankrAsk, swapTokens, walletAddress, authenticated, login }) {
+  const [token, setToken]         = useState("ETH");
+  const [action, setAction]       = useState("buy");
+  const [condition, setCondition] = useState("price_drop");
+  const [threshold, setThreshold] = useState("5");
+  const [amount, setAmount]       = useState("0.01");
+  const [targetToken, setTargetToken] = useState("USDC");
+  const [running, setRunning]     = useState(false);
+  const [logs, setLogs]           = useState([]);
+  const [status, setStatus]       = useState("idle"); // idle | watching | triggered | done | error
+  const [threadId, setThreadId]   = useState(null);
+  const intervalRef               = useRef(null);
+  const cycleRef                  = useRef(0);
+
+  const CONDITIONS = [
+    { id:"price_drop",   label:"Price drops by %",    prompt:(t,v)=>`What is the current price of ${t} and has it dropped more than ${v}% in the last hour? Answer YES or NO first, then give the current price.` },
+    { id:"price_rise",   label:"Price rises by %",    prompt:(t,v)=>`Has ${t} risen more than ${v}% in the last hour? Answer YES or NO first, then give the current price.` },
+    { id:"volume_spike", label:"Volume spikes by %",  prompt:(t,v)=>`Has the trading volume for ${t} increased by more than ${v}% compared to the 24h average? Answer YES or NO first.` },
+    { id:"smart_money",  label:"Smart money buys",    prompt:(t,v)=>`Are smart money wallets or whales accumulating ${t} right now? Answer YES or NO first, then briefly explain.` },
+    { id:"sentiment",    label:"Bullish signal",       prompt:(t,v)=>`Is there a strong bullish signal for ${t} right now based on price, volume, and whale activity? Answer YES or NO first.` },
+  ];
+
+  const addLog = (msg, type="info") => {
+    const ts = new Date().toLocaleTimeString("en-US",{hour12:false,hour:"2-digit",minute:"2-digit",second:"2-digit"});
+    setLogs(p=>[{msg,type,ts},...p].slice(0,30));
+  };
+
+  const stopAgent = () => {
+    if(intervalRef.current) clearInterval(intervalRef.current);
+    intervalRef.current = null;
+    setRunning(false);
+    setStatus("idle");
+    addLog("Agent stopped by user","warn");
+  };
+
+  const startAgent = async () => {
+    if(!authenticated){ login(); return; }
+    setRunning(true);
+    setStatus("watching");
+    setLogs([]);
+    cycleRef.current = 0;
+    addLog(`Auto-agent started — watching ${token} via Bankr…`,"info");
+    addLog(`Condition: ${CONDITIONS.find(c=>c.id===condition)?.label} ${threshold}%`,"info");
+    addLog(`Action: ${action === "swap" ? `Swap ${amount} ${token} → ${targetToken}` : action}`,"info");
+
+    const check = async () => {
+      cycleRef.current++;
+      const condObj = CONDITIONS.find(c=>c.id===condition);
+      addLog(`[Cycle ${cycleRef.current}] Querying Bankr for ${token} status…`,"info");
+
+      try {
+        const res = await bankrAsk({
+          prompt: condObj.prompt(token, threshold),
+          threadId: threadId||undefined,
+        });
+        if(res.threadId) setThreadId(res.threadId);
+
+        const answer = res.response.trim().toUpperCase();
+        const triggered = answer.startsWith("YES") || answer.includes("\nYES") || answer.includes(" YES");
+
+        addLog(`Bankr: "${res.response.slice(0,120)}${res.response.length>120?"…":""}"`, "info");
+
+        if(triggered) {
+          setStatus("triggered");
+          addLog(`✓ Condition met! Executing ${action}…`,"success");
+
+          if(action === "swap") {
+            try {
+              addLog(`Submitting swap: ${amount} ${token} → ${targetToken} via Bankr…`,"info");
+              const swapRes = await bankrAsk({
+                prompt: `Swap ${amount} ${token} to ${targetToken} on Base chain now.`,
+                threadId: res.threadId||undefined,
+              });
+              addLog(`Swap executed: ${swapRes.response.slice(0,100)}`,"success");
+            } catch(e) {
+              addLog(`Swap failed: ${e.message}`,"error");
+            }
+          } else if(action === "alert") {
+            addLog(`🔔 ALERT: ${token} condition triggered at cycle ${cycleRef.current}`,"success");
+          } else if(action === "analyze") {
+            const alphaRes = await bankrAsk({
+              prompt: `Full analysis of ${token}: price, momentum, whale activity, and BUY/SELL/HOLD verdict with conviction score.`,
+              threadId: res.threadId||undefined,
+            });
+            addLog(`Alpha: ${alphaRes.response.slice(0,150)}`,"success");
+          }
+
+          stopAgent();
+          setStatus("done");
+        } else {
+          addLog(`Condition not yet met — next check in 30s…`,"info");
+        }
+      } catch(e) {
+        addLog(`Error: ${e.message}`,"error");
+        setStatus("error");
+        stopAgent();
+      }
+    };
+
+    await check();
+    intervalRef.current = setInterval(check, 30000);
+  };
+
+  useEffect(()=>()=>{ if(intervalRef.current) clearInterval(intervalRef.current); },[]);
+
+  const inp = {background:"rgba(255,255,255,.05)",border:"1px solid rgba(255,255,255,.1)",borderRadius:"8px",padding:".42rem .75rem",color:"#dde4ff",fontSize:".75rem",fontFamily:"'DM Sans',sans-serif",outline:"none",transition:"border-color .2s"};
+  const statusColor = {idle:"rgba(255,255,255,.3)",watching:"#4d85ff",triggered:"#f97316",done:"#4d85ff",error:"#f87171"}[status];
+  const statusLabel = {idle:"Idle",watching:"Watching…",triggered:"Triggered!",done:"Done ✓",error:"Error"}[status];
+
+  return (
+    <div style={{background:"rgba(26,79,255,.04)",border:"1px solid rgba(77,133,255,.2)",borderRadius:"16px",overflow:"hidden",marginBottom:"1.5rem"}}>
+      {/* Header */}
+      <div style={{padding:"1rem 1.4rem",borderBottom:"1px solid rgba(77,133,255,.12)",display:"flex",alignItems:"center",gap:".7rem",background:"linear-gradient(90deg,rgba(26,79,255,.08),transparent)"}}>
+        <div style={{width:"32px",height:"32px",borderRadius:"10px",background:"rgba(77,133,255,.15)",border:"1px solid rgba(77,133,255,.3)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:".9rem",flexShrink:0}}>🤖</div>
+        <div style={{flex:1}}>
+          <div style={{fontSize:".82rem",fontWeight:500,color:"#dde4ff",letterSpacing:"-.01em"}}>Auto-Agent Loop</div>
+          <div style={{fontSize:".58rem",color:"rgba(180,200,255,.5)",marginTop:".1rem"}}>Analyze → Decide → Execute autonomously · any token · powered by Bankr</div>
+        </div>
+        <div style={{display:"flex",alignItems:"center",gap:".4rem",fontSize:".58rem",color:statusColor,background:"rgba(255,255,255,.04)",border:`1px solid ${statusColor}33`,borderRadius:"20px",padding:".2rem .65rem"}}>
+          {status==="watching"&&<span style={{width:"5px",height:"5px",borderRadius:"50%",background:statusColor,animation:"pulse 1s infinite",display:"inline-block"}}/>}
+          {statusLabel}
+        </div>
+      </div>
+
+      <div style={{padding:"1.2rem 1.4rem",display:"grid",gridTemplateColumns:"1fr 1fr",gap:"1.2rem"}}>
+        {/* Left — Config */}
+        <div style={{display:"flex",flexDirection:"column",gap:".7rem"}}>
+          <div style={{fontSize:".55rem",color:"rgba(180,200,255,.4)",letterSpacing:".2em",textTransform:"uppercase",marginBottom:".2rem"}}>Agent Configuration</div>
+
+          {/* Token */}
+          <div>
+            <div style={{fontSize:".6rem",color:"rgba(180,200,255,.5)",marginBottom:".3rem"}}>Token to watch</div>
+            <input value={token} onChange={e=>setToken(e.target.value.toUpperCase())} placeholder="ETH, BRETT, DEGEN, or 0x…" style={{...inp,width:"100%"}}
+              onFocus={e=>e.target.style.borderColor="rgba(77,133,255,.5)"}
+              onBlur={e=>e.target.style.borderColor="rgba(255,255,255,.1)"}/>
+            <div style={{display:"flex",gap:".3rem",marginTop:".4rem",flexWrap:"wrap"}}>
+              {["ETH","BRETT","DEGEN","HIGHER","NOELCLAW"].map(t=>(
+                <button key={t} onClick={()=>setToken(t)}
+                  style={{background:token===t?"rgba(77,133,255,.2)":"rgba(255,255,255,.04)",border:"1px solid",borderColor:token===t?"rgba(77,133,255,.5)":"rgba(255,255,255,.08)",borderRadius:"6px",padding:".18rem .5rem",fontSize:".58rem",color:token===t?"#4d85ff":"rgba(180,200,255,.5)",cursor:"pointer",fontFamily:"inherit"}}>
+                  {t}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Condition */}
+          <div>
+            <div style={{fontSize:".6rem",color:"rgba(180,200,255,.5)",marginBottom:".3rem"}}>Trigger condition</div>
+            <select value={condition} onChange={e=>setCondition(e.target.value)} style={{...inp,width:"100%",cursor:"pointer"}}>
+              {CONDITIONS.map(c=><option key={c.id} value={c.id}>{c.label}</option>)}
+            </select>
+          </div>
+
+          {/* Threshold */}
+          {(condition==="price_drop"||condition==="price_rise"||condition==="volume_spike")&&(
+            <div>
+              <div style={{fontSize:".6rem",color:"rgba(180,200,255,.5)",marginBottom:".3rem"}}>Threshold (%)</div>
+              <input value={threshold} onChange={e=>setThreshold(e.target.value)} placeholder="5" type="number" min="1" max="100" style={{...inp,width:"100%"}}
+                onFocus={e=>e.target.style.borderColor="rgba(77,133,255,.5)"}
+                onBlur={e=>e.target.style.borderColor="rgba(255,255,255,.1)"}/>
+            </div>
+          )}
+
+          {/* Action */}
+          <div>
+            <div style={{fontSize:".6rem",color:"rgba(180,200,255,.5)",marginBottom:".3rem"}}>Action to execute</div>
+            <select value={action} onChange={e=>setAction(e.target.value)} style={{...inp,width:"100%",cursor:"pointer"}}>
+              <option value="swap">Swap token via Bankr</option>
+              <option value="alert">Send alert only</option>
+              <option value="analyze">Run deep analysis</option>
+            </select>
+          </div>
+
+          {/* Swap details */}
+          {action==="swap"&&(
+            <div style={{display:"flex",gap:".5rem",alignItems:"center"}}>
+              <div style={{flex:1}}>
+                <div style={{fontSize:".6rem",color:"rgba(180,200,255,.5)",marginBottom:".3rem"}}>Amount</div>
+                <input value={amount} onChange={e=>setAmount(e.target.value)} placeholder="0.01" style={{...inp,width:"100%"}}
+                  onFocus={e=>e.target.style.borderColor="rgba(77,133,255,.5)"}
+                  onBlur={e=>e.target.style.borderColor="rgba(255,255,255,.1)"}/>
+              </div>
+              <span style={{color:"rgba(255,255,255,.3)",fontSize:".9rem",marginTop:"1.2rem",flexShrink:0}}>→</span>
+              <div style={{flex:1}}>
+                <div style={{fontSize:".6rem",color:"rgba(180,200,255,.5)",marginBottom:".3rem"}}>Receive token</div>
+                <input value={targetToken} onChange={e=>setTargetToken(e.target.value.toUpperCase())} placeholder="USDC" style={{...inp,width:"100%"}}
+                  onFocus={e=>e.target.style.borderColor="rgba(77,133,255,.5)"}
+                  onBlur={e=>e.target.style.borderColor="rgba(255,255,255,.1)"}/>
+              </div>
+            </div>
+          )}
+
+          {/* Start/Stop */}
+          {!authenticated ? (
+            <button onClick={login} style={{background:"rgba(255,255,255,.07)",border:"1px solid rgba(255,255,255,.15)",borderRadius:"10px",padding:".6rem",color:"#dde4ff",fontSize:".75rem",cursor:"pointer",fontFamily:"'DM Sans',sans-serif",fontWeight:500,width:"100%",marginTop:".3rem"}}>
+              🔗 Connect Wallet to Start Agent
+            </button>
+          ) : running ? (
+            <button onClick={stopAgent} style={{background:"rgba(248,113,113,.12)",border:"1px solid rgba(248,113,113,.3)",borderRadius:"10px",padding:".6rem",color:"#f87171",fontSize:".75rem",cursor:"pointer",fontFamily:"'DM Sans',sans-serif",fontWeight:500,width:"100%",marginTop:".3rem",display:"flex",alignItems:"center",justifyContent:"center",gap:".5rem"}}>
+              <span style={{width:"6px",height:"6px",borderRadius:"50%",background:"#f87171",animation:"pulse 1s infinite",display:"inline-block"}}/>
+              Stop Agent
+            </button>
+          ) : (
+            <button onClick={startAgent} style={{background:"linear-gradient(135deg,rgba(26,79,255,.25),rgba(77,133,255,.15))",border:"1px solid rgba(77,133,255,.4)",borderRadius:"10px",padding:".6rem",color:"#4d85ff",fontSize:".75rem",cursor:"pointer",fontFamily:"'DM Sans',sans-serif",fontWeight:600,width:"100%",marginTop:".3rem",letterSpacing:".04em",boxShadow:"0 0 20px rgba(26,79,255,.15)"}}>
+              ▶ Start Auto-Agent
+            </button>
+          )}
+          <div style={{fontSize:".58rem",color:"rgba(180,200,255,.3)",lineHeight:1.6}}>
+            Checks every 30s via Bankr API. Executes automatically when condition is met.
+          </div>
+        </div>
+
+        {/* Right — Live Logs */}
+        <div style={{background:"#050709",border:"1px solid rgba(26,79,255,.15)",borderRadius:"12px",overflow:"hidden",display:"flex",flexDirection:"column"}}>
+          <div style={{padding:".5rem .9rem",borderBottom:"1px solid rgba(26,79,255,.1)",display:"flex",alignItems:"center",gap:".4rem",background:"#0a0f1a"}}>
+            <div style={{width:"8px",height:"8px",borderRadius:"50%",background:"#ff5f57"}}/>
+            <div style={{width:"8px",height:"8px",borderRadius:"50%",background:"#febc2e"}}/>
+            <div style={{width:"8px",height:"8px",borderRadius:"50%",background:"#28c840"}}/>
+            <span style={{marginLeft:".4rem",fontSize:".55rem",color:"rgba(77,133,255,.4)",fontFamily:"'IBM Plex Mono',monospace",letterSpacing:".06em"}}>auto-agent — live</span>
+            {running&&<span style={{marginLeft:"auto",display:"flex",alignItems:"center",gap:".3rem",fontSize:".5rem",color:"#4d85ff"}}>
+              <span style={{width:"4px",height:"4px",borderRadius:"50%",background:"#4d85ff",animation:"pulse 1s infinite",display:"inline-block"}}/>LIVE
+            </span>}
+          </div>
+          <div style={{flex:1,padding:".8rem",fontFamily:"'IBM Plex Mono',monospace",fontSize:".64rem",overflowY:"auto",maxHeight:"320px",display:"flex",flexDirection:"column",gap:".35rem"}}>
+            {logs.length===0&&(
+              <span style={{color:"rgba(77,133,255,.3)"}}>{">"} Configure and start agent…</span>
+            )}
+            {logs.map((l,i)=>(
+              <div key={i} style={{display:"flex",gap:".6rem",animation:"stepIn .15s ease both"}}>
+                <span style={{color:"rgba(77,133,255,.3)",flexShrink:0,fontSize:".58rem"}}>{l.ts}</span>
+                <span style={{color:l.type==="success"?"#4d85ff":l.type==="error"?"#f87171":l.type==="warn"?"#f97316":"rgba(180,200,255,.75)",lineHeight:1.5}}>{l.msg}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function AgentPlayground({ sendMessage, bankrAsk, getTokenPrice, getRecentTrades, getTrendingBase, getAlphaBankr, getPortfolio, swapTokens, getBalance, setLimitOrder, claimFees, getSmartMoney, setupDCA, deployToken, runAlphaAgent, walletAddress, authenticated, login }) {
+  const [pgTab, setPgTab] = useState("agents"); // "agents" | "cli"
+  const [activeAgent, setActiveAgent] = useState(null);
+  const [steps, setSteps]             = useState([]);
+  const [output, setOutput]           = useState(null);
+  const [running, setRunning]         = useState(false);
+  const [threadId, setThreadId]       = useState(null);
+  const [tokenInput, setTokenInput]   = useState("");
+  const [swapFrom, setSwapFrom]       = useState("ETH");
+  const [swapTo, setSwapTo]           = useState("USDC");
+  const [swapAmt, setSwapAmt]         = useState("0.01");
+  const [limitAction, setLimitAction] = useState("buy");
+  const [limitToken, setLimitToken]   = useState("ETH");
+  const [limitAmt, setLimitAmt]       = useState("0.1");
+  const [limitPrice, setLimitPrice]   = useState("");
+  const [deployName, setDeployName]   = useState("");
+  const [deploySymbol, setDeploySymbol] = useState("");
+  const [deploySupply, setDeploySupply] = useState("1000000000");
+  const [chatInput, setChatInput]     = useState("");
+  const [chatHistory, setChatHistory] = useState([]);
+  const [chatBusy, setChatBusy]       = useState(false);
+  const chatEndRef = useRef(null);
+  const termRef    = useRef(null);
+
+  // Scroll to top when playground mounts
+  useEffect(()=>{ window.scrollTo({top:0,behavior:"instant"}); },[]);
+
+  useEffect(()=>{
+    if(chatHistory.length > 0) chatEndRef.current?.scrollIntoView({behavior:"smooth"});
+  },[chatHistory,chatBusy]);
+  // termRef scroll removed — was causing page jump on agent run
+
+  const sleep = ms => new Promise(r=>setTimeout(r,ms));
+  const token = tokenInput.trim() || "ETH";
+  const wallet = walletAddress || undefined;
+
+  const addStep = (label, status="active") =>
+    setSteps(prev=>{
+      const idx=prev.findIndex(s=>s.label===label);
+      if(idx>=0){const n=[...prev];n[idx]={label,status};return n;}
+      return [...prev,{label,status}];
+    });
+
+  const doneStep = (label) => addStep(label,"done");
+  const errStep  = (label) => addStep(label,"error");
+
+  const runAgent = async (agentId) => {
+    setActiveAgent(agentId);
+    setSteps([]);
+    setOutput(null);
+    setRunning(true);
+    const execAgents = ["swap","limit","fees","deploy"];
+    if(execAgents.includes(agentId) && !authenticated){
+      setOutput({type:"warn",color:"#f97316",label:"Wallet Required",data:"Connect your wallet to execute on-chain actions via Bankr."});
+      setRunning(false);
+      return;
+    }
+    try{
+      if(agentId==="alpha"){
+        addStep("Initializing Bankr Alpha Agent");
+        await sleep(300);
+        addStep("Fetching on-chain signals");
+        const res = await getAlphaBankr({token});
+        if(res.threadId) setThreadId(res.threadId);
+        doneStep("Initializing Bankr Alpha Agent");
+        doneStep("Fetching on-chain signals");
+        addStep("Analysis complete","done");
+        setOutput({type:"text",label:"⚡ Alpha Analysis",color:"#4d85ff",data:res.response});
+      } else if(agentId==="price"){
+        addStep("Connecting to Bankr API");
+        addStep(`Querying ${token} price`);
+        const res = await getTokenPrice({token});
+        if(res.threadId) setThreadId(res.threadId);
+        doneStep("Connecting to Bankr API");
+        doneStep(`Querying ${token} price`);
+        setOutput({type:"text",label:"💲 Price Data",color:"#4d85ff",data:res.response});
+      } else if(agentId==="trades"){
+        addStep("Connecting to Bankr API");
+        addStep(`Fetching trades for ${token}`);
+        const res = await getRecentTrades({token});
+        if(res.threadId) setThreadId(res.threadId);
+        doneStep("Connecting to Bankr API");
+        doneStep(`Fetching trades for ${token}`);
+        setOutput({type:"text",label:"🔄 Trade Feed",color:"#4d85ff",data:res.response});
+      } else if(agentId==="trending"){
+        addStep("Connecting to Bankr API");
+        addStep("Fetching trending Base tokens");
+        const res = await getTrendingBase({});
+        if(res.threadId) setThreadId(res.threadId);
+        doneStep("Connecting to Bankr API");
+        doneStep("Fetching trending Base tokens");
+        setOutput({type:"trending",label:"📈 Trending",color:"#f97316",data:res.raw,boosted:res.boosted});
+      } else if(agentId==="smartmoney"){
+        addStep("Connecting to Bankr API");
+        addStep("Scanning smart money wallets");
+        const res = await getSmartMoney({token:tokenInput.trim()||undefined});
+        if(res.threadId) setThreadId(res.threadId);
+        doneStep("Connecting to Bankr API");
+        doneStep("Scanning smart money wallets");
+        setOutput({type:"text",label:"🧠 Smart Money",color:"#a78bfa",data:res.response});
+      } else if(agentId==="balance"){
+        addStep("Connecting to Bankr API");
+        addStep("Fetching wallet balances");
+        const res = await getBalance({wallet,token:tokenInput.trim()||undefined});
+        if(res.threadId) setThreadId(res.threadId);
+        doneStep("Connecting to Bankr API");
+        doneStep("Fetching wallet balances");
+        setOutput({type:"text",label:"💼 Balance",color:"#4d85ff",data:res.response});
+      } else if(agentId==="swap"){
+        addStep("Preparing swap");
+        addStep(`${swapAmt} ${swapFrom} → ${swapTo} via Bankr`);
+        const res = await swapTokens({fromToken:swapFrom,toToken:swapTo,amount:swapAmt,walletAddress:wallet});
+        if(res.threadId) setThreadId(res.threadId);
+        doneStep("Preparing swap");
+        doneStep(`${swapAmt} ${swapFrom} → ${swapTo} via Bankr`);
+        addStep("Confirmed on Base","done");
+        setOutput({type:"tx",label:"🔁 Swap",color:"#4d85ff",data:res.response,transactions:res.transactions});
+      } else if(agentId==="limit"){
+        addStep("Preparing limit order");
+        addStep(`${limitAction} ${limitAmt} ${limitToken} at $${limitPrice}`);
+        const res = await setLimitOrder({token:limitToken,action:limitAction,amount:limitAmt,targetPrice:limitPrice});
+        if(res.threadId) setThreadId(res.threadId);
+        doneStep("Preparing limit order");
+        doneStep(`${limitAction} ${limitAmt} ${limitToken} at $${limitPrice}`);
+        addStep("Order active","done");
+        setOutput({type:"tx",label:"📋 Limit Order",color:"#f97316",data:res.response,transactions:res.transactions});
+      } else if(agentId==="fees"){
+        addStep("Checking claimable fees");
+        addStep("Claiming via Bankr");
+        const res = await claimFees({token:tokenInput.trim()||"NOELCLAW"});
+        if(res.threadId) setThreadId(res.threadId);
+        doneStep("Checking claimable fees");
+        doneStep("Claiming via Bankr");
+        addStep("Fees claimed","done");
+        setOutput({type:"tx",label:"💰 Fees",color:"#4d85ff",data:res.response,transactions:res.transactions});
+      } else if(agentId==="deploy"){
+        addStep("Preparing deployment");
+        addStep(`Deploying $${deploySymbol} on Base`);
+        const res = await deployToken({name:deployName,symbol:deploySymbol,supply:deploySupply});
+        if(res.threadId) setThreadId(res.threadId);
+        doneStep("Preparing deployment");
+        doneStep(`Deploying $${deploySymbol} on Base`);
+        addStep("Token live on Base","done");
+        setOutput({type:"tx",label:"🚀 Deployed",color:"#c084fc",data:res.response,transactions:res.transactions});
+      }
+      addStep("Done","done");
+    } catch(e){
+      setSteps(p=>p.map(s=>s.status==="active"?{...s,status:"error"}:s));
+      setOutput({type:"error",label:"Error",color:"#f87171",data:e.message});
+    }
+    setRunning(false);
+  };
+
+  const sendChat = async () => {
+    const q=chatInput.trim();
+    if(!q||chatBusy) return;
+    setChatInput("");
+    setChatHistory(p=>[...p,{role:"user",content:q}]);
+    setChatBusy(true);
+    try{
+      const res = await bankrAsk({prompt:q,threadId:threadId||undefined});
+      if(res.threadId) setThreadId(res.threadId);
+      setChatHistory(p=>[...p,{role:"assistant",content:res.response,txs:res.transactions}]);
+    } catch(e){
+      setChatHistory(p=>[...p,{role:"assistant",content:"Error: "+e.message}]);
+    }
+    setChatBusy(false);
+  };
+
+  // ── CSS ──────────────────────────────────────────────────────────────────
+  const PG_CSS = `
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+    .pg-wrap { font-family:'DM Sans',sans-serif; }
+
+    /* Dashboard cards */
+    .pg-card {
+      background:#0d1117;
+      border-radius:20px;
+      border:1px solid rgba(255,255,255,.07);
+      overflow:hidden;
+      transition:border-color .2s, transform .2s, box-shadow .2s;
+      position:relative;
+    }
+    .pg-card:hover { border-color:rgba(77,133,255,.25); transform:translateY(-2px); box-shadow:0 12px 40px rgba(0,0,0,.4); }
+    .pg-card.active { border-color:rgba(77,133,255,.5); box-shadow:0 0 0 1px rgba(77,133,255,.2), 0 12px 40px rgba(26,79,255,.15); }
+    .pg-card.exec-card { border-color:rgba(249,115,22,.12); }
+    .pg-card.exec-card:hover { border-color:rgba(249,115,22,.3); }
+
+    .pg-card-icon {
+      width:42px; height:42px; border-radius:12px;
+      display:flex; align-items:center; justify-content:center;
+      font-size:1.15rem; flex-shrink:0;
+      background:rgba(255,255,255,.06);
+    }
+
+    /* Terminal */
+    .pg-terminal {
+      background:#050709;
+      border-radius:16px;
+      border:1px solid rgba(26,79,255,.2);
+      font-family:'IBM Plex Mono', monospace;
+      overflow:hidden;
+      box-shadow:0 0 0 1px rgba(26,79,255,.08), inset 0 0 60px rgba(26,79,255,.03);
+    }
+    .pg-term-bar {
+      background:#0a0f1a;
+      border-bottom:1px solid rgba(26,79,255,.15);
+      padding:.6rem 1rem;
+      display:flex; align-items:center; gap:.5rem;
+    }
+    .pg-term-dot { width:10px; height:10px; border-radius:50%; }
+    .pg-term-body {
+      padding:1.1rem 1.3rem;
+      min-height:200px;
+      max-height:280px;
+      overflow-y:auto;
+      scrollbar-width:thin;
+      scrollbar-color:rgba(26,79,255,.3) transparent;
+    }
+    .pg-step {
+      display:flex; align-items:flex-start; gap:.65rem;
+      padding:.22rem 0; font-size:.7rem;
+      animation: stepIn .15s ease both;
+      line-height:1.5;
+    }
+    @keyframes stepIn { from{opacity:0;transform:translateX(-6px)} to{opacity:1;transform:translateX(0)} }
+    .pg-step-icon {
+      width:16px; height:16px; border-radius:4px; flex-shrink:0;
+      display:flex; align-items:center; justify-content:center;
+      font-size:.6rem; margin-top:1px;
+    }
+    .pg-prompt { color:rgba(77,133,255,.5); margin-right:.3rem; }
+    .pg-caret {
+      display:inline-block; width:7px; height:14px;
+      background:rgba(77,133,255,.7);
+      animation:caretBlink .8s step-end infinite;
+      vertical-align:middle; border-radius:1px;
+    }
+    @keyframes caretBlink{0%,100%{opacity:1}50%{opacity:0}}
+
+    /* Output */
+    .pg-output {
+      background:#0d1117;
+      border-radius:16px;
+      border:1px solid rgba(255,255,255,.07);
+      overflow:hidden;
+    }
+    .pg-output-body {
+      padding:1.2rem 1.4rem;
+      max-height:300px;
+      overflow-y:auto;
+      font-size:.78rem;
+      line-height:1.85;
+      color:rgba(220,230,255,.85);
+      white-space:pre-wrap;
+      font-family:'DM Sans',sans-serif;
+      font-weight:300;
+    }
+
+    /* Token input */
+    .pg-input {
+      background:rgba(255,255,255,.04);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:10px;
+      padding:.5rem .85rem;
+      color:#dde4ff;
+      font-size:.78rem;
+      font-family:'DM Sans',sans-serif;
+      font-weight:300;
+      outline:none;
+      transition:border-color .2s;
+      width:100%;
+    }
+    .pg-input:focus { border-color:rgba(77,133,255,.45); }
+    .pg-input::placeholder { color:rgba(255,255,255,.2); }
+    select.pg-input { cursor:pointer; }
+
+    /* Chat */
+    .pg-chat-wrap {
+      background:#0d1117;
+      border-radius:20px;
+      border:1px solid rgba(77,133,255,.1);
+      overflow:hidden;
+    }
+    .pg-chat-header {
+      background:linear-gradient(90deg, rgba(77,133,255,.07), transparent);
+      border-bottom:1px solid rgba(77,133,255,.1);
+      padding:1rem 1.4rem;
+      display:flex; align-items:center; gap:.7rem;
+    }
+    .pg-chat-avatar {
+      width:32px; height:32px; border-radius:10px;
+      background:rgba(77,133,255,.12);
+      border:1px solid rgba(77,133,255,.25);
+      display:flex; align-items:center; justify-content:center;
+      font-family:'IBM Plex Mono',monospace;
+      font-size:.65rem; font-weight:500; color:#4d85ff; flex-shrink:0;
+    }
+    .pg-chip {
+      font-size:.48rem; font-weight:600; letter-spacing:.1em;
+      border-radius:6px; padding:.12rem .5rem;
+    }
+    .pg-bubble-user {
+      background:rgba(26,79,255,.18);
+      border:1px solid rgba(77,133,255,.2);
+      border-radius:14px 14px 4px 14px;
+      padding:.65rem 1rem;
+      font-size:.78rem; line-height:1.75; color:#dde4ff;
+    }
+    .pg-bubble-bot {
+      background:#151c2c;
+      border:1px solid rgba(77,133,255,.12);
+      border-radius:4px 14px 14px 14px;
+      padding:.65rem 1rem;
+      font-size:.78rem; line-height:1.75; color:#dde4ff;
+      font-weight:300;
+    }
+    .pg-send-btn {
+      background:rgba(77,133,255,.14);
+      border:1px solid rgba(77,133,255,.3);
+      border-radius:10px;
+      padding:.55rem 1.3rem;
+      color:#4d85ff;
+      font-size:.75rem; font-family:'DM Sans',sans-serif; font-weight:500;
+      cursor:pointer; transition:all .2s; white-space:nowrap; flex-shrink:0;
+    }
+    .pg-send-btn:disabled { background:rgba(255,255,255,.04); border-color:rgba(255,255,255,.07); color:rgba(255,255,255,.2); cursor:not-allowed; }
+    .pg-send-btn:not(:disabled):hover { background:rgba(77,133,255,.22); border-color:rgba(77,133,255,.5); }
+
+    .pg-suggest {
+      background:#0d1117;
+      border:1px solid rgba(255,255,255,.07);
+      border-radius:20px;
+      padding:.3rem .8rem;
+      font-size:.65rem; color:rgba(180,195,230,.7);
+      cursor:pointer; font-family:'DM Sans',sans-serif;
+      transition:all .15s; white-space:nowrap;
+    }
+    .pg-suggest:hover { border-color:rgba(77,133,255,.3); color:#4d85ff; background:rgba(77,133,255,.05); }
+
+    .pg-run-btn {
+      width:100%;
+      background:transparent;
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:10px;
+      padding:.5rem;
+      font-size:.68rem; font-family:'DM Sans',sans-serif; font-weight:500;
+      cursor:pointer; transition:all .2s; margin-top:.5rem;
+    }
+    .pg-exec-btn {
+      width:100%;
+      border-radius:10px;
+      padding:.5rem;
+      font-size:.68rem; font-family:'DM Sans',sans-serif; font-weight:500;
+      cursor:pointer; transition:all .2s; border:1px solid;
+    }
+
+    .pg-section-label {
+      font-size:.58rem; font-weight:600; letter-spacing:.22em;
+      text-transform:uppercase; display:flex; align-items:center; gap:.7rem;
+      margin-bottom:1rem;
+    }
+    .pg-section-line { flex:1; height:1px; background:rgba(255,255,255,.06); }
+    .pg-wallet-card {
+      background:#0d1117;
+      border-radius:20px;
+      border:1px solid rgba(77,133,255,.12);
+      padding:1.2rem 1.4rem;
+    }
+    .pg-token-card {
+      background:#0d1117;
+      border-radius:20px;
+      border:1px solid rgba(255,255,255,.07);
+      padding:1.2rem 1.4rem;
+    }
+    .pg-pill {
+      background:rgba(255,255,255,.04);
+      border:1px solid rgba(255,255,255,.07);
+      border-radius:8px;
+      padding:.22rem .6rem;
+      font-size:.6rem;
+      cursor:pointer; font-family:'DM Sans',sans-serif;
+      transition:all .15s; white-space:nowrap;
+    }
+    .pg-pill.active { background:rgba(26,79,255,.2); border-color:rgba(77,133,255,.45); color:#4d85ff; }
+    .pg-pill:not(.active):hover { background:rgba(255,255,255,.07); border-color:rgba(255,255,255,.14); }
+
+  /* ── Playground Responsive ── */
+  @media(max-width:900px){
+    .pg-read-grid { grid-template-columns:repeat(2,1fr) !important; }
+    .pg-top-row { grid-template-columns:1fr !important; }
+    .pg-steps-grid { grid-template-columns:1fr !important; }
+  }
+  @media(max-width:600px){
+    .pg-wrap { padding:1rem 1rem 4rem !important; }
+    .pg-read-grid { grid-template-columns:1fr !important; }
+    .pg-exec-grid { grid-template-columns:1fr !important; }
+    .pg-top-row { grid-template-columns:1fr !important; }
+    .pg-steps-grid { grid-template-columns:1fr !important; }
+    .pg-card { padding:1rem 1.1rem !important; }
+    .pg-term-body { min-height:140px !important; max-height:200px !important; }
+    .pg-output-body { max-height:220px !important; }
+    .pg-chat-header { flex-wrap:wrap; gap:.4rem !important; }
+    .pg-section-label { font-size:.5rem !important; }
+    .pg-input { font-size:.72rem !important; }
+    .pg-bubble-user,.pg-bubble-bot { font-size:.72rem !important; }
+  }
+  `;
+
+  const READ_AGENTS = [
+    {id:"alpha",      icon:"⚡", label:"Alpha Analysis",  sub:"AI conviction signals",        color:"#4d85ff", iconBg:"rgba(77,133,255,.12)"},
+    {id:"price",      icon:"💲", label:"Token Price",      sub:"Live price & market data",     color:"#4d85ff", iconBg:"rgba(77,133,255,.1)"},
+    {id:"trades",     icon:"🔄", label:"Trade Activity",   sub:"Recent buys, sells & volume",  color:"#4d85ff", iconBg:"rgba(77,133,255,.1)"},
+    {id:"trending",   icon:"📈", label:"Trending Base",    sub:"Top tokens by momentum",       color:"#f97316", iconBg:"rgba(249,115,22,.1)"},
+    {id:"smartmoney", icon:"🧠", label:"Smart Money",      sub:"Whale wallet tracking",        color:"#a78bfa", iconBg:"rgba(167,139,250,.1)"},
+    {id:"balance",    icon:"💼", label:"Wallet Balance",   sub:"Your Base chain portfolio",    color:"#4d85ff", iconBg:"rgba(77,133,255,.1)"},
+  ];
+
+  const EXEC_AGENTS = [
+    {id:"swap",   icon:"🔁", label:"Swap Tokens",  color:"#4d85ff"},
+    {id:"limit",  icon:"📋", label:"Limit Order",  color:"#f97316"},
+    {id:"fees",   icon:"💰", label:"Claim Fees",   color:"#a78bfa"},
+    {id:"deploy", icon:"🚀", label:"Deploy Token", color:"#c084fc"},
+  ];
+
+  return (
+    <div className="pg-wrap" style={{padding:"1.5rem 3.5rem 5rem"}}>
+      <style>{PG_CSS}</style>
+
+      {/* ── TAB SWITCHER ── */}
+      <div style={{display:"flex",gap:".5rem",marginBottom:"1.5rem",background:"rgba(255,255,255,.03)",border:"1px solid rgba(255,255,255,.07)",borderRadius:"12px",padding:".3rem"}}>
+        {[{id:"agents",icon:"⚡",label:"Agent Playground"},{id:"cli",icon:"$_",label:"CLI Terminal"},{id:"auto",icon:"🤖",label:"Auto-Agent"}].map(t=>(
+          <button key={t.id} onClick={()=>setPgTab(t.id)}
+            style={{flex:1,background:pgTab===t.id?"rgba(26,79,255,.2)":"transparent",border:"1px solid",borderColor:pgTab===t.id?"rgba(77,133,255,.4)":"transparent",borderRadius:"9px",padding:".5rem .8rem",color:pgTab===t.id?"#4d85ff":"rgba(180,200,255,.4)",fontSize:".72rem",cursor:"pointer",fontFamily:"'DM Sans',sans-serif",fontWeight:pgTab===t.id?600:400,transition:"all .2s",display:"flex",alignItems:"center",justifyContent:"center",gap:".4rem",letterSpacing:pgTab===t.id?".02em":"0"}}>
+            <span style={{fontFamily:"'IBM Plex Mono',monospace",fontSize:".65rem"}}>{t.icon}</span>
+            {t.label}
+          </button>
+        ))}
+      </div>
+
+      {/* ── AUTO-AGENT TAB ── */}
+      {pgTab==="auto"&&(
+        <AutoAgent bankrAsk={bankrAsk} swapTokens={swapTokens} walletAddress={walletAddress} authenticated={authenticated} login={login}/>
+      )}
+
+      {/* ── CLI TERMINAL TAB ── */}
+      {pgTab==="cli"&&(
+        <CliTerminal bankrAsk={bankrAsk} walletAddress={walletAddress} authenticated={authenticated} login={login}/>
+      )}
+
+      {/* ── AGENTS TAB ── */}
+      {pgTab==="agents"&&(<>
+
+      {/* ── TOP ROW: Token input + Wallet ── */}
+      <div className="pg-top-row" style={{display:"grid",gridTemplateColumns:"1fr 340px",gap:"1rem",marginBottom:"2rem"}}>
+        <div className="pg-token-card">
+          <div style={{fontSize:".55rem",color:"rgba(255,255,255,.3)",letterSpacing:".22em",textTransform:"uppercase",marginBottom:".7rem",fontFamily:"'IBM Plex Mono',monospace"}}>target token</div>
+          <input className="pg-input" value={tokenInput} onChange={e=>setTokenInput(e.target.value)}
+            placeholder="ETH · USDC · BRETT · or contract address…"
+            style={{fontSize:".85rem",padding:".6rem .9rem",marginBottom:".7rem"}}
+            onFocus={e=>e.target.style.borderColor="rgba(77,133,255,.5)"}
+            onBlur={e=>e.target.style.borderColor="rgba(255,255,255,.08)"}
+          />
+          <div style={{display:"flex",gap:".4rem",flexWrap:"wrap"}}>
+            {["ETH","USDC","BRETT","DEGEN","HIGHER","NOELCLAW"].map(t=>(
+              <button key={t} className={"pg-pill"+(tokenInput===t?" active":"")} onClick={()=>setTokenInput(t)}
+                style={{color:tokenInput===t?"#4d85ff":"rgba(180,195,230,.6)"}}>{t}</button>
+            ))}
+          </div>
+        </div>
+
+        <div className="pg-wallet-card">
+          <div style={{fontSize:".55rem",color:"rgba(77,133,255,.5)",letterSpacing:".22em",textTransform:"uppercase",marginBottom:".8rem",fontFamily:"'IBM Plex Mono',monospace"}}>wallet</div>
+          {authenticated && walletAddress ? (
+            <div>
+              <div style={{display:"flex",alignItems:"center",gap:".5rem",marginBottom:".5rem"}}>
+                <div style={{width:"8px",height:"8px",borderRadius:"50%",background:"#4d85ff",boxShadow:"0 0 6px #4d85ff",flexShrink:0}}/>
+                <span style={{fontSize:".76rem",color:"#dde4ff",fontFamily:"'IBM Plex Mono',monospace"}}>{walletAddress.slice(0,10)}…{walletAddress.slice(-8)}</span>
+              </div>
+              <div style={{fontSize:".62rem",color:"rgba(77,133,255,.6)",marginBottom:".6rem"}}>Connected · ready for on-chain actions</div>
+              {threadId && (
+                <div style={{display:"inline-flex",alignItems:"center",gap:".4rem",fontSize:".55rem",color:"#4d85ff",background:"rgba(26,79,255,.1)",border:"1px solid rgba(77,133,255,.2)",borderRadius:"6px",padding:".2rem .55rem"}}>
+                  <span style={{width:"4px",height:"4px",borderRadius:"50%",background:"#4d85ff",animation:"pulse 1.5s infinite",display:"inline-block"}}/>
+                  Bankr thread active
+                  <button onClick={()=>setThreadId(null)} style={{background:"none",border:"none",color:"rgba(255,255,255,.3)",cursor:"pointer",fontSize:".6rem",padding:"0 0 0 .2rem",lineHeight:1}}>✕</button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div>
+              <div style={{fontSize:".73rem",color:"rgba(220,230,255,.5)",lineHeight:1.6,marginBottom:"1rem",fontWeight:300}}>Connect to execute swaps, limit orders & token deployments on Base.</div>
+              <button onClick={login}
+                style={{background:"rgba(255,255,255,.06)",border:"1px solid rgba(255,255,255,.12)",borderRadius:"10px",padding:".55rem 1.1rem",color:"#dde4ff",fontSize:".73rem",cursor:"pointer",fontFamily:"'DM Sans',sans-serif",fontWeight:500,transition:"all .2s",width:"100%"}}
+                onMouseEnter={e=>{e.currentTarget.style.background="rgba(255,255,255,.1)";e.currentTarget.style.borderColor="rgba(255,255,255,.22)";}}
+                onMouseLeave={e=>{e.currentTarget.style.background="rgba(255,255,255,.06)";e.currentTarget.style.borderColor="rgba(255,255,255,.12)";}}
+              >
+                🔗  Connect Wallet
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* ── READ AGENTS ── */}
+      <div className="pg-section-label" style={{color:"rgba(180,195,230,.5)"}}>
+        Read
+        <div className="pg-section-line"/>
+        <span style={{fontSize:".52rem",color:"rgba(255,255,255,.2)",fontWeight:300,letterSpacing:".06em",textTransform:"none"}}>Query live data from Bankr</span>
+      </div>
+      <div className="pg-read-grid" style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:"1rem",marginBottom:"2rem"}}>
+        {READ_AGENTS.map(a=>(
+          <div key={a.id} className={"pg-card"+(activeAgent===a.id?" active":"")}
+            onClick={()=>!running&&runAgent(a.id)}
+            style={{padding:"1.3rem 1.5rem",cursor:running?"not-allowed":"pointer",backdropFilter:"blur(12px)",background:activeAgent===a.id?"rgba(26,79,255,.08)":"rgba(10,18,40,.5)"}}>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:"1rem"}}>
+              <div className="pg-card-icon" style={{background:a.iconBg,fontSize:"1.1rem"}}>{a.icon}</div>
+              <div style={{width:"28px",height:"28px",borderRadius:"50%",background:a.color+"18",border:`1px solid ${a.color}33`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,opacity:activeAgent===a.id?1:.4,transition:"opacity .2s"}}>
+                <span style={{width:"7px",height:"7px",borderRadius:"50%",background:activeAgent===a.id&&running?a.color:"transparent",animation:activeAgent===a.id&&running?"pulse 1s infinite":"none",display:"inline-block",border:activeAgent===a.id&&!running?`1.5px solid ${a.color}`:"none"}}/>
+              </div>
+            </div>
+            <div style={{fontSize:".85rem",fontWeight:500,color:"#dde4ff",marginBottom:".25rem",letterSpacing:"-.01em"}}>{a.label}</div>
+            <div style={{fontSize:".65rem",color:"rgba(180,195,230,.45)",marginBottom:"1rem",fontWeight:300}}>{a.sub}</div>
+            <div style={{fontSize:".6rem",color:activeAgent===a.id?"#4d85ff":"rgba(180,195,230,.25)",fontFamily:"'IBM Plex Mono',monospace",transition:"color .2s"}}>
+              {running&&activeAgent===a.id ? <span style={{color:a.color}}>running<span style={{animation:"pulse 1s infinite"}}>…</span></span>
+               : activeAgent===a.id ? "✓ done · click to re-run"
+               : "▶ run agent"}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* ── EXECUTE AGENTS ── */}
+      <div className="pg-section-label" style={{color:"rgba(249,115,22,.6)"}}>
+        Execute
+        <div className="pg-section-line"/>
+        <span style={{fontSize:".52rem",color:"rgba(255,255,255,.2)",fontWeight:300,letterSpacing:".06em",textTransform:"none"}}>On-chain actions via Bankr · wallet required</span>
+      </div>
+      <div className="pg-exec-grid" style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:"1rem",marginBottom:"2rem"}}>
+
+        {/* Swap */}
+        <div className="pg-card exec-card" style={{padding:"1.3rem 1.5rem"}}>
+          <div style={{display:"flex",alignItems:"center",gap:".7rem",marginBottom:"1.1rem"}}>
+            <div className="pg-card-icon" style={{background:"rgba(77,133,255,.1)"}}>{EXEC_AGENTS[0].icon}</div>
+            <div>
+              <div style={{fontSize:".82rem",fontWeight:500,color:"#dde4ff"}}>{EXEC_AGENTS[0].label}</div>
+              <div style={{fontSize:".62rem",color:"rgba(180,195,230,.4)",fontWeight:300}}>Execute instantly on Base</div>
+            </div>
+          </div>
+          <div style={{display:"flex",gap:".5rem",alignItems:"center",marginBottom:".5rem"}}>
+            <input className="pg-input" value={swapAmt} onChange={e=>setSwapAmt(e.target.value)} placeholder="0.01" style={{width:"70px",flexShrink:0}}/>
+            <input className="pg-input" value={swapFrom} onChange={e=>setSwapFrom(e.target.value)} placeholder="ETH" style={{flex:1}}/>
+            <span style={{color:"rgba(255,255,255,.25)",fontSize:"1rem",flexShrink:0}}>→</span>
+            <input className="pg-input" value={swapTo} onChange={e=>setSwapTo(e.target.value)} placeholder="USDC" style={{flex:1}}/>
+          </div>
+          <button className="pg-exec-btn"
+            onClick={()=>!running&&runAgent("swap")} disabled={running||!authenticated}
+            style={{background:authenticated?"rgba(77,133,255,.1)":"rgba(255,255,255,.03)",borderColor:authenticated?"rgba(77,133,255,.3)":"rgba(255,255,255,.07)",color:authenticated?"#4d85ff":"rgba(255,255,255,.2)"}}>
+            {running&&activeAgent==="swap"?"Executing via Bankr…":"Swap"}
+          </button>
+          {!authenticated && <div style={{fontSize:".58rem",color:"rgba(255,255,255,.25)",textAlign:"center",marginTop:".35rem"}}>Connect wallet to execute</div>}
+        </div>
+
+        {/* Limit Order */}
+        <div className="pg-card exec-card" style={{padding:"1.3rem 1.5rem"}}>
+          <div style={{display:"flex",alignItems:"center",gap:".7rem",marginBottom:"1.1rem"}}>
+            <div className="pg-card-icon" style={{background:"rgba(249,115,22,.1)"}}>{EXEC_AGENTS[1].icon}</div>
+            <div>
+              <div style={{fontSize:".82rem",fontWeight:500,color:"#dde4ff"}}>{EXEC_AGENTS[1].label}</div>
+              <div style={{fontSize:".62rem",color:"rgba(180,195,230,.4)",fontWeight:300}}>Trigger at your target price</div>
+            </div>
+          </div>
+          <div style={{display:"flex",gap:".5rem",marginBottom:".5rem"}}>
+            <select className="pg-input" value={limitAction} onChange={e=>setLimitAction(e.target.value)} style={{flex:1}}>
+              <option value="buy">Buy</option><option value="sell">Sell</option>
+            </select>
+            <input className="pg-input" value={limitAmt} onChange={e=>setLimitAmt(e.target.value)} placeholder="0.1" style={{width:"65px",flexShrink:0}}/>
+            <input className="pg-input" value={limitToken} onChange={e=>setLimitToken(e.target.value)} placeholder="ETH" style={{flex:1}}/>
+          </div>
+          <input className="pg-input" value={limitPrice} onChange={e=>setLimitPrice(e.target.value)} placeholder="Target price $…" style={{marginBottom:".5rem"}}/>
+          <button className="pg-exec-btn"
+            onClick={()=>!running&&runAgent("limit")} disabled={running||!authenticated||!limitPrice}
+            style={{background:authenticated&&limitPrice?"rgba(249,115,22,.1)":"rgba(255,255,255,.03)",borderColor:authenticated&&limitPrice?"rgba(249,115,22,.3)":"rgba(255,255,255,.07)",color:authenticated&&limitPrice?"#f97316":"rgba(255,255,255,.2)"}}>
+            {running&&activeAgent==="limit"?"Setting order…":"Set Limit Order"}
+          </button>
+          {!authenticated && <div style={{fontSize:".58rem",color:"rgba(255,255,255,.25)",textAlign:"center",marginTop:".35rem"}}>Connect wallet to execute</div>}
+        </div>
+
+        {/* Claim Fees */}
+        <div className="pg-card exec-card" style={{padding:"1.3rem 1.5rem"}}>
+          <div style={{display:"flex",alignItems:"center",gap:".7rem",marginBottom:"1rem"}}>
+            <div className="pg-card-icon" style={{background:"rgba(167,139,250,.1)"}}>{EXEC_AGENTS[2].icon}</div>
+            <div>
+              <div style={{fontSize:".82rem",fontWeight:500,color:"#dde4ff"}}>{EXEC_AGENTS[2].label}</div>
+              <div style={{fontSize:".62rem",color:"rgba(180,195,230,.4)",fontWeight:300}}>From {tokenInput||"NOELCLAW"} token or LP position</div>
+            </div>
+          </div>
+          <div style={{fontSize:".68rem",color:"rgba(180,195,230,.4)",lineHeight:1.6,marginBottom:"1rem",fontWeight:300}}>
+            Checks claimable trading fees and executes claim transaction via Bankr in one step.
+          </div>
+          <button className="pg-exec-btn"
+            onClick={()=>!running&&runAgent("fees")} disabled={running||!authenticated}
+            style={{background:authenticated?"rgba(167,139,250,.1)":"rgba(255,255,255,.03)",borderColor:authenticated?"rgba(167,139,250,.3)":"rgba(255,255,255,.07)",color:authenticated?"#a78bfa":"rgba(255,255,255,.2)"}}>
+            {running&&activeAgent==="fees"?"Claiming…":"Claim Fees"}
+          </button>
+          {!authenticated && <div style={{fontSize:".58rem",color:"rgba(255,255,255,.25)",textAlign:"center",marginTop:".35rem"}}>Connect wallet to execute</div>}
+        </div>
+
+        {/* Deploy Token */}
+        <div className="pg-card exec-card" style={{padding:"1.3rem 1.5rem"}}>
+          <div style={{display:"flex",alignItems:"center",gap:".7rem",marginBottom:"1.1rem"}}>
+            <div className="pg-card-icon" style={{background:"rgba(192,132,252,.1)"}}>{EXEC_AGENTS[3].icon}</div>
+            <div>
+              <div style={{fontSize:".82rem",fontWeight:500,color:"#dde4ff"}}>{EXEC_AGENTS[3].label}</div>
+              <div style={{fontSize:".62rem",color:"rgba(180,195,230,.4)",fontWeight:300}}>Launch a token on Base chain</div>
+            </div>
+          </div>
+          <div style={{display:"flex",gap:".5rem",marginBottom:".5rem"}}>
+            <input className="pg-input" value={deployName} onChange={e=>setDeployName(e.target.value)} placeholder="Token name" style={{flex:2}}/>
+            <input className="pg-input" value={deploySymbol} onChange={e=>setDeploySymbol(e.target.value)} placeholder="SYM" style={{flex:1}}/>
+          </div>
+          <input className="pg-input" value={deploySupply} onChange={e=>setDeploySupply(e.target.value)} placeholder="Supply (default: 1,000,000,000)" style={{marginBottom:".5rem"}}/>
+          <button className="pg-exec-btn"
+            onClick={()=>!running&&runAgent("deploy")} disabled={running||!authenticated||!deployName||!deploySymbol}
+            style={{background:authenticated&&deployName&&deploySymbol?"rgba(192,132,252,.1)":"rgba(255,255,255,.03)",borderColor:authenticated&&deployName&&deploySymbol?"rgba(192,132,252,.3)":"rgba(255,255,255,.07)",color:authenticated&&deployName&&deploySymbol?"#c084fc":"rgba(255,255,255,.2)"}}>
+            {running&&activeAgent==="deploy"?"Deploying on Base…":"Deploy on Base"}
+          </button>
+          {!authenticated && <div style={{fontSize:".58rem",color:"rgba(255,255,255,.25)",textAlign:"center",marginTop:".35rem"}}>Connect wallet to execute</div>}
+        </div>
+      </div>
+
+      {/* ── TERMINAL + OUTPUT ── */}
+      {(steps.length>0||output) && (
+        <div className="pg-steps-grid" style={{display:"grid",gridTemplateColumns:"300px 1fr",gap:"1rem",marginBottom:"2rem",overflowAnchor:"none"}}>
+          {/* Blue retro terminal */}
+          <div className="pg-terminal">
+            <div className="pg-term-bar">
+              <div className="pg-term-dot" style={{background:"#ff5f57"}}/>
+              <div className="pg-term-dot" style={{background:"#febc2e"}}/>
+              <div className="pg-term-dot" style={{background:"#28c840"}}/>
+              <span style={{marginLeft:".6rem",fontSize:".58rem",color:"rgba(77,133,255,.4)",letterSpacing:".08em"}}>bankr-agent</span>
+              {running&&<span style={{marginLeft:"auto",fontSize:".5rem",color:"#4d85ff",display:"flex",alignItems:"center",gap:".3rem"}}>
+                <span style={{width:"4px",height:"4px",borderRadius:"50%",background:"#4d85ff",animation:"pulse 1s infinite",display:"inline-block"}}/>LIVE
+              </span>}
+            </div>
+            <div className="pg-term-body">
+              {steps.length===0 && <div style={{color:"rgba(77,133,255,.3)",fontSize:".68rem"}}><span className="pg-prompt">{`>`}</span>waiting…<span className="pg-caret"/></div>}
+              {steps.map((s,i)=>(
+                <div key={i} className="pg-step">
+                  <div className="pg-step-icon" style={{
+                    background:s.status==="done"?"rgba(77,133,255,.12)":s.status==="active"?"rgba(26,79,255,.15)":s.status==="error"?"rgba(248,113,113,.12)":"rgba(255,255,255,.04)",
+                    border:`1px solid ${s.status==="done"?"rgba(77,133,255,.25)":s.status==="active"?"rgba(77,133,255,.35)":s.status==="error"?"rgba(248,113,113,.25)":"rgba(255,255,255,.08)"}`,
+                  }}>
+                    {s.status==="done"?<span style={{color:"#4d85ff",fontSize:".55rem"}}>✓</span>
+                    :s.status==="error"?<span style={{color:"#f87171",fontSize:".55rem"}}>✕</span>
+                    :s.status==="active"?<span style={{width:"5px",height:"5px",borderRadius:"50%",background:"#4d85ff",animation:"pulse .8s infinite",display:"block"}}/>
+                    :<span style={{color:"rgba(255,255,255,.2)",fontSize:".55rem"}}>·</span>}
+                  </div>
+                  <span style={{
+                    color:s.status==="done"?"rgba(77,133,255,.8)":s.status==="active"?"rgba(220,230,255,.9)":s.status==="error"?"rgba(248,113,113,.8)":"rgba(255,255,255,.3)",
+                    fontWeight:s.status==="active"?400:300,
+                  }}>{s.label}</span>
+                </div>
+              ))}
+              {running&&<div style={{fontSize:".65rem",color:"rgba(77,133,255,.4)",paddingLeft:"1.5rem",paddingTop:".2rem"}}>
+                <span className="pg-prompt">{`>`}</span>waiting for Bankr<span className="pg-caret"/>
+              </div>}
+              <div ref={termRef}/>
+            </div>
+          </div>
+
+          {/* Output */}
+          <div className="pg-output">
+            <div style={{padding:".75rem 1.2rem",borderBottom:"1px solid rgba(255,255,255,.06)",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+              <div style={{display:"flex",alignItems:"center",gap:".5rem"}}>
+                {output?.label&&<span className="pg-chip" style={{color:output.color,background:output.color+"15",border:`1px solid ${output.color}30`}}>{output.label}</span>}
+                {threadId&&<span className="pg-chip" style={{color:"#4d85ff",background:"rgba(26,79,255,.1)",border:"1px solid rgba(77,133,255,.2)"}}>⚡ thread</span>}
+              </div>
+              <button onClick={()=>{setOutput(null);setSteps([]);setActiveAgent(null);}}
+                style={{background:"none",border:"1px solid rgba(255,255,255,.07)",borderRadius:"6px",padding:".15rem .55rem",fontSize:".55rem",color:"rgba(255,255,255,.3)",cursor:"pointer",fontFamily:"inherit",transition:"all .15s"}}
+                onMouseEnter={e=>{e.currentTarget.style.borderColor="rgba(255,255,255,.15)";e.currentTarget.style.color="rgba(255,255,255,.6)";}}
+                onMouseLeave={e=>{e.currentTarget.style.borderColor="rgba(255,255,255,.07)";e.currentTarget.style.color="rgba(255,255,255,.3)";}}>
+                Clear
+              </button>
+            </div>
+            <div className="pg-output-body">
+              {output?.type==="warn"&&(
+                <div style={{display:"flex",gap:".8rem",padding:".9rem 1.1rem",background:"rgba(249,115,22,.06)",border:"1px solid rgba(249,115,22,.15)",borderRadius:"10px"}}>
+                  <span style={{fontSize:"1.3rem",flexShrink:0}}>🔗</span>
+                  <div>
+                    <div style={{fontSize:".75rem",fontWeight:500,color:"#f97316",marginBottom:".35rem"}}>Wallet required</div>
+                    <div style={{fontSize:".7rem",color:"rgba(220,230,255,.55)",lineHeight:1.65}}>{output.data}</div>
+                    <button onClick={login} style={{marginTop:".7rem",background:"rgba(255,255,255,.07)",border:"1px solid rgba(255,255,255,.12)",borderRadius:"8px",padding:".4rem .9rem",color:"#dde4ff",fontSize:".68rem",cursor:"pointer",fontFamily:"inherit",fontWeight:500}}>Connect Wallet →</button>
+                  </div>
+                </div>
+              )}
+              {output?.transactions?.length>0&&(
+                <div style={{display:"flex",gap:".6rem",padding:".7rem .9rem",background:"rgba(77,133,255,.05)",border:"1px solid rgba(77,133,255,.15)",borderRadius:"10px",marginBottom:"1rem",alignItems:"center"}}>
+                  <span style={{fontSize:"1.1rem"}}>✅</span>
+                  <div>
+                    <div style={{fontSize:".65rem",color:"#4d85ff",fontWeight:500,marginBottom:".15rem"}}>Transaction confirmed on Base</div>
+                    {output.transactions.slice(0,1).map((tx,i)=>(
+                      <div key={i} style={{fontSize:".58rem",color:"rgba(77,133,255,.5)",fontFamily:"'IBM Plex Mono',monospace"}}>{tx.hash?`${tx.hash.slice(0,22)}…`:"Confirming on-chain…"}</div>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {output?.type==="trending"&&output.boosted?.length>0&&(
+                <div style={{marginBottom:"1rem"}}>
+                  {output.boosted.slice(0,6).map((t,i)=>(
+                    <div key={i} style={{display:"flex",alignItems:"center",gap:".8rem",padding:".45rem .2rem",borderBottom:"1px solid rgba(255,255,255,.04)"}}>
+                      <span style={{fontSize:".6rem",color:"rgba(77,133,255,.4)",fontFamily:"'IBM Plex Mono',monospace",minWidth:"20px"}}>#{i+1}</span>
+                      <span style={{fontSize:".72rem",fontWeight:500,color:"#dde4ff",fontFamily:"'IBM Plex Mono',monospace",minWidth:"80px"}}>{t.tokenSymbol}</span>
+                      <span style={{fontSize:".62rem",color:"rgba(180,195,230,.4)",flex:1,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{t.description?.replace(t.tokenSymbol||"","").trim().slice(0,70)}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+              {output?.data&&output.type!=="warn"&&(
+                <div style={{fontSize:".77rem",color:"rgba(210,225,255,.8)",lineHeight:1.9,whiteSpace:"pre-wrap",fontWeight:300}}>{output.data}</div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── BANKR CHAT AGENT ── */}
+      <div className="pg-chat-wrap">
+        <div className="pg-chat-header">
+          <div className="pg-chat-avatar">BKR</div>
+          <div style={{flex:1}}>
+            <div style={{fontSize:".8rem",fontWeight:500,color:"#dde4ff",letterSpacing:"-.01em"}}>Noel Agent Chat</div>
+            <div style={{fontSize:".58rem",color:"rgba(77,133,255,.5)",marginTop:".1rem"}}>Ask anything · price · swap · deploy · portfolio · signals</div>
+          </div>
+          <span className="pg-chip" style={{color:"#4d85ff",background:"rgba(77,133,255,.08)",border:"1px solid rgba(77,133,255,.18)"}}>POWERED BY BANKR</span>
+          {threadId&&<span className="pg-chip" style={{color:"#4d85ff",background:"rgba(26,79,255,.08)",border:"1px solid rgba(77,133,255,.18)"}}>⚡ thread active</span>}
+          {chatHistory.length>0&&<button onClick={()=>{setChatHistory([]);setThreadId(null);}}
+            style={{background:"none",border:"1px solid rgba(255,255,255,.07)",borderRadius:"6px",padding:".15rem .5rem",fontSize:".55rem",color:"rgba(255,255,255,.3)",cursor:"pointer",fontFamily:"inherit",marginLeft:".2rem"}}>Clear</button>}
+        </div>
+
+        <div style={{padding:".9rem 1.4rem",minHeight:"130px",maxHeight:"320px",overflowY:"auto",display:"flex",flexDirection:"column",gap:".6rem"}}>
+          {chatHistory.length===0&&(
+            <div style={{display:"flex",gap:".4rem",flexWrap:"wrap"}}>
+              {["What is the price of ETH?","Top trending tokens on Base?","Analyze BRETT — buy or sell?","What's my wallet balance?","Swap 0.01 ETH to USDC","Who are the smart money wallets?"].map(s=>(
+                <button key={s} className="pg-suggest" onClick={()=>setChatInput(s)}>{s}</button>
+              ))}
+            </div>
+          )}
+          {chatHistory.map((m,i)=>(
+            <div key={i} style={{display:"flex",gap:".6rem",justifyContent:m.role==="user"?"flex-end":"flex-start",alignItems:"flex-end"}}>
+              {m.role==="assistant"&&<div className="pg-chat-avatar" style={{width:"26px",height:"26px",borderRadius:"8px",fontSize:".55rem"}}>B</div>}
+              <div style={{maxWidth:"80%",display:"flex",flexDirection:"column",gap:".2rem",alignItems:m.role==="user"?"flex-end":"flex-start"}}>
+                {m.role==="assistant"&&<span style={{fontSize:".48rem",color:"rgba(77,133,255,.5)",letterSpacing:".1em",fontFamily:"'IBM Plex Mono',monospace"}}>BANKR</span>}
+                <div className={m.role==="user"?"pg-bubble-user":"pg-bubble-bot"}>{m.content}</div>
+                {m.txs?.length>0&&<div style={{fontSize:".58rem",color:"#4d85ff",background:"rgba(77,133,255,.06)",border:"1px solid rgba(77,133,255,.18)",borderRadius:"6px",padding:".28rem .65rem",display:"flex",alignItems:"center",gap:".35rem"}}>✅ {m.txs.length} tx confirmed on Base</div>}
+              </div>
+            </div>
+          ))}
+          {chatBusy&&(
+            <div style={{display:"flex",gap:".6rem",alignItems:"flex-end"}}>
+              <div className="pg-chat-avatar" style={{width:"26px",height:"26px",borderRadius:"8px",fontSize:".55rem"}}>B</div>
+              <div className="pg-bubble-bot" style={{padding:".5rem .9rem",display:"flex",gap:".3rem",alignItems:"center"}}>
+                {[0,1,2].map(i=><span key={i} style={{width:"5px",height:"5px",borderRadius:"50%",background:"#4d85ff",animation:`pulse ${1+i*0.25}s infinite`,display:"inline-block"}}/>)}
+              </div>
+            </div>
+          )}
+          <div ref={chatEndRef}/>
+        </div>
+
+        <div style={{padding:".85rem 1.4rem",borderTop:"1px solid rgba(77,133,255,.08)",display:"flex",gap:".6rem",alignItems:"flex-end",background:"rgba(0,0,0,.2)"}}>
+          <textarea value={chatInput} onChange={e=>setChatInput(e.target.value)}
+            onKeyDown={e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();sendChat();}}}
+            placeholder={tokenInput?`Ask about ${tokenInput} or any on-chain action…`:"Ask anything: price, swap, analysis, deploy…"}
+            rows={1}
+            style={{flex:1,background:"rgba(255,255,255,.04)",border:"1px solid rgba(255,255,255,.08)",borderRadius:"10px",padding:".6rem .95rem",color:"#dde4ff",fontSize:".78rem",fontFamily:"'DM Sans',sans-serif",fontWeight:300,resize:"none",outline:"none",lineHeight:1.55,transition:"border-color .2s"}}
+            onFocus={e=>e.target.style.borderColor="rgba(77,133,255,.35)"}
+            onBlur={e=>e.target.style.borderColor="rgba(255,255,255,.08)"}
+          />
+          <button className="pg-send-btn" onClick={sendChat} disabled={!chatInput.trim()||chatBusy}>
+            Send →
+          </button>
+        </div>
+      </div>
+      </>)}
+    </div>
+  );
+}
+
+/* ══════════════════════════════
+   ROLLING TEXT COMPONENT
+══════════════════════════════ */
+function RollingText({ words, className, style }) {
+  const [idx, setIdx] = useState(0);
+  const [visible, setVisible] = useState(true);
+  useEffect(()=>{
+    const iv = setInterval(()=>{
+      setVisible(false);
+      setTimeout(()=>{ setIdx(i=>(i+1)%words.length); setVisible(true); }, 350);
+    }, 2200);
+    return ()=>clearInterval(iv);
+  },[words]);
+  return (
+    <span className={className} style={{
+      display:"inline-block",
+      transition:"opacity .35s ease, transform .35s ease",
+      opacity: visible?1:0,
+      transform: visible?"translateY(0)":"translateY(-12px)",
+      ...style
+    }}>
+      {words[idx]}
+    </span>
+  );
+}
+
+/* ══════════════════════════════
+   ANIMATED COUNTER COMPONENT
+══════════════════════════════ */
+function AnimatedCounter({ target, suffix="", prefix="" }) {
+  const [count, setCount] = useState(0);
+  const ref = useRef(null);
+  const started = useRef(false);
+  useEffect(()=>{
+    const obs = new IntersectionObserver(([e])=>{
+      if(e.isIntersecting && !started.current){
+        started.current = true;
+        const duration = 1800;
+        const steps = 60;
+        const inc = target / steps;
+        let cur = 0;
+        const iv = setInterval(()=>{
+          cur += inc;
+          if(cur >= target){ setCount(target); clearInterval(iv); }
+          else setCount(Math.floor(cur));
+        }, duration/steps);
+      }
+    },{ threshold:0.5 });
+    if(ref.current) obs.observe(ref.current);
+    return ()=>obs.disconnect();
+  },[target]);
+  return <span ref={ref}>{prefix}{count.toLocaleString()}{suffix}</span>;
+}
+
+/* ══════════════════════════════
+   SCROLL REVEAL HOOK
+══════════════════════════════ */
+function useScrollReveal(threshold=0.15) {
+  const ref = useRef(null);
+  const [visible, setVisible] = useState(false);
+  useEffect(()=>{
+    const obs = new IntersectionObserver(([e])=>{
+      if(e.isIntersecting){ setVisible(true); obs.disconnect(); }
+    },{ threshold });
+    if(ref.current) obs.observe(ref.current);
+    return ()=>obs.disconnect();
+  },[threshold]);
+  return [ref, visible];
+}
+
+/* ══════════════════════════════
+   SCROLL REVEAL WRAPPER
+══════════════════════════════ */
+function Reveal({ children, delay=0, direction="up" }) {
+  const [ref, visible] = useScrollReveal(0.08);
+  const cinClass = {up:"cin-up",left:"cin-left",right:"cin-right",scale:"cin-scale"}[direction]||"cin-up";
+  return (
+    <div ref={ref}
+      className={`cin-section ${cinClass}${visible?" cin-visible":""}`}
+      style={{transitionDelay:`${delay}ms`}}>
+      {children}
+    </div>
+  );
+}
+
+/* ══════════════════════════════
+   CANVAS — Flying Stars (overlay on space bg)
+══════════════════════════════ */
+function HeroCanvas() {
+  const canvasRef = useRef(null);
+  useEffect(()=>{
+    const canvas = canvasRef.current;
+    if(!canvas) return;
+    const ctx = canvas.getContext("2d");
+    let raf, W, H;
+    const stars = [];
+
+    const resize = ()=>{
+      W = canvas.width = canvas.offsetWidth;
+      H = canvas.height = canvas.offsetHeight;
+    };
+    resize();
+    window.addEventListener("resize", resize);
+
+    for(let i=0;i<200;i++){
+      const speed = Math.random()*0.35+0.04;
+      const angle = Math.random()*Math.PI*2;
+      stars.push({
+        x: Math.random()*W, y: Math.random()*H,
+        r: Math.random()*(i<20?2.2:1.1)+0.15,
+        vx: Math.cos(angle)*speed, vy: Math.sin(angle)*speed,
+        base_a: Math.random()*0.55+0.1,
+        a: 0, pulse: Math.random()*Math.PI*2,
+        pulse_speed: Math.random()*0.018+0.005,
+        big: i < 20,
+        color: i%4===0?"140,200,255":i%4===1?"100,160,255":i%4===2?"220,235,255":"80,140,255",
+      });
+    }
+
+    const draw = ()=>{
+      ctx.clearRect(0,0,W,H);
+      stars.forEach(s=>{
+        s.pulse += s.pulse_speed;
+        s.a = Math.max(0.05, Math.min(0.9, s.base_a + Math.sin(s.pulse)*s.base_a*0.5));
+        if(s.big){
+          const gr = ctx.createRadialGradient(s.x,s.y,0,s.x,s.y,s.r*8);
+          gr.addColorStop(0,`rgba(${s.color},${s.a*0.6})`);
+          gr.addColorStop(0.3,`rgba(${s.color},${s.a*0.15})`);
+          gr.addColorStop(1,"rgba(0,0,0,0)");
+          ctx.beginPath(); ctx.arc(s.x,s.y,s.r*8,0,Math.PI*2);
+          ctx.fillStyle=gr; ctx.fill();
+        }
+        ctx.beginPath();
+        ctx.arc(s.x,s.y,s.r*(s.big?1+Math.sin(s.pulse)*0.25:1),0,Math.PI*2);
+        ctx.fillStyle=`rgba(${s.color},${s.a})`;
+        ctx.fill();
+        s.x+=s.vx; s.y+=s.vy;
+        if(s.x<-5)s.x=W+5; if(s.x>W+5)s.x=-5;
+        if(s.y<-5)s.y=H+5; if(s.y>H+5)s.y=-5;
+      });
+      raf = requestAnimationFrame(draw);
+    };
+    draw();
+    return()=>{ cancelAnimationFrame(raf); window.removeEventListener("resize",resize); };
+  },[]);
+  return <canvas ref={canvasRef} style={{position:"absolute",inset:0,width:"100%",height:"100%",zIndex:2,pointerEvents:"none"}}/>;
+}
+
+/* ══════════════════════════════
+   NetworkCanvas — True Markets geometric network BG
+══════════════════════════════ */
+function NetworkCanvas() {
+  const ref = useRef(null);
+  useEffect(()=>{
+    const canvas = ref.current;
+    if(!canvas) return;
+    const ctx = canvas.getContext("2d");
+    let raf, W, H;
+    const pts = [];
+
+    const resize = ()=>{
+      W = canvas.width = canvas.offsetWidth;
+      H = canvas.height = canvas.offsetHeight;
+    };
+    resize();
+    window.addEventListener("resize", resize);
+
+    // Scattered points that form a network
+    for(let i=0;i<80;i++){
+      pts.push({
+        x: Math.random()*W, y: Math.random()*H,
+        vx:(Math.random()-.5)*0.3, vy:(Math.random()-.5)*0.3,
+        r: Math.random()*1.5+0.4,
+      });
+    }
+
+    const draw = ()=>{
+      ctx.clearRect(0,0,W,H);
+      // Draw connections
+      for(let i=0;i<pts.length;i++){
+        for(let j=i+1;j<pts.length;j++){
+          const dx=pts[i].x-pts[j].x, dy=pts[i].y-pts[j].y;
+          const d=Math.sqrt(dx*dx+dy*dy);
+          if(d<120){
+            const alpha=(1-d/120)*0.18;
+            ctx.beginPath();
+            ctx.strokeStyle=`rgba(77,133,255,${alpha})`;
+            ctx.lineWidth=0.5;
+            ctx.moveTo(pts[i].x,pts[i].y);
+            ctx.lineTo(pts[j].x,pts[j].y);
+            ctx.stroke();
+          }
+        }
+      }
+      // Draw dots
+      pts.forEach(p=>{
+        ctx.beginPath();
+        ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+        ctx.fillStyle="rgba(100,160,255,0.45)";
+        ctx.fill();
+        p.x+=p.vx; p.y+=p.vy;
+        if(p.x<0||p.x>W) p.vx*=-1;
+        if(p.y<0||p.y>H) p.vy*=-1;
+      });
+      raf = requestAnimationFrame(draw);
+    };
+    draw();
+    return()=>{ cancelAnimationFrame(raf); window.removeEventListener("resize",resize); };
+  },[]);
+  return <canvas ref={ref} style={{position:"absolute",inset:0,width:"100%",height:"100%",pointerEvents:"none",zIndex:0}}/>;
+}
+
+
+/* Character reveal component */
+function CharReveal({ text, className, style, delay=0 }) {
+  const [ref, visible] = useScrollReveal(0.05);
+  return (
+    <span ref={ref} className={className} style={style}>
+      {text.split("").map((ch,i)=>(
+        <span key={i} className="char-wrap">
+          <span className="char" style={{
+            animationDelay: visible ? `${delay + i*28}ms` : "9999s",
+            animationPlayState: visible ? "running" : "paused",
+          }}>{ch === " " ? " " : ch}</span>
+        </span>
+      ))}
+    </span>
+  );
+}
+
+/* Magnetic button wrapper */
+function MagBtn({ children, strength=0.3, className, style, onClick }) {
+  const ref = useRef(null);
+  const handleMove = e => {
+    if(!ref.current) return;
+    const r = ref.current.getBoundingClientRect();
+    const x = (e.clientX - r.left - r.width/2) * strength;
+    const y = (e.clientY - r.top - r.height/2) * strength;
+    ref.current.style.transform = `translate(${x}px,${y}px)`;
+  };
+  const handleLeave = () => { if(ref.current) ref.current.style.transform = "translate(0,0)"; };
+  return (
+    <div ref={ref} className={"mag-btn "+(className||"")} style={{transition:"transform .4s cubic-bezier(.23,1,.32,1)",...style}}
+      onMouseMove={handleMove} onMouseLeave={handleLeave} onClick={onClick}>
+      {children}
+    </div>
+  );
+}
+
+/* 3D Tilt card */
+function TiltCard({ children, className, style, intensity=8 }) {
+  const ref = useRef(null);
+  const handleMove = e => {
+    if(!ref.current) return;
+    const r = ref.current.getBoundingClientRect();
+    const x = (e.clientY - r.top - r.height/2) / r.height;
+    const y = (e.clientX - r.left - r.width/2) / r.width;
+    ref.current.style.transform = `perspective(800px) rotateX(${-x*intensity}deg) rotateY(${y*intensity}deg) translateZ(8px)`;
+    ref.current.style.boxShadow = `${-y*12}px ${x*12}px 40px rgba(0,0,0,.4), 0 0 0 1px rgba(77,133,255,.12)`;
+  };
+  const handleLeave = () => {
+    if(!ref.current) return;
+    ref.current.style.transform = "perspective(800px) rotateX(0) rotateY(0) translateZ(0)";
+    ref.current.style.boxShadow = "";
+  };
+  return (
+    <div ref={ref} className={"tilt-card "+(className||"")} style={style}
+      onMouseMove={handleMove} onMouseLeave={handleLeave}>
+      {children}
     </div>
   );
 }
@@ -1258,25 +3214,33 @@ export default function App(){
   const { ready, authenticated, login, logout, user } = usePrivy();
   const { wallets } = useWallets();
   const walletAddress = wallets?.[0]?.address ?? null;
-  const [walletTier, setWalletTier] = useState(null); // null | "free" | "premium"
-  const [walletBalance, setWalletBalance] = useState(0);
-  const [verifyingWallet, setVerifyingWallet] = useState(false);
+  const [walletTier] = useState("premium"); // open access — no token gating
+  const [walletBalance] = useState(0);
+  const [verifyingWallet] = useState(false);
 
   const convexArticles = useQuery(api.articles.list);
   const sendMessage = useAction(api.chat.chat);
   const postToMoltbook = useAction(api.moltbook.postArticle);
-  const getTokenPrice = useAction(api.bankr.getTokenPrice);
+  const getTokenPrice   = useAction(api.bankr.getTokenPrice);
   const getRecentTrades = useAction(api.bankr.getRecentTrades);
   const getTrendingBase = useAction(api.bankr.getTrendingBase);
-  const getSmartMoney   = useAction(api.gmgn.getSmartMoney);
-  const getSniperTokens = useAction(api.gmgn.getSniperTokens);
+  const bankrAsk        = useAction(api.bankr.bankrAsk);
+  const getAlphaBankr   = useAction(api.bankr.getAlphaBankr);
+  const getPortfolio    = useAction(api.bankr.getPortfolio);
+  const swapTokens      = useAction(api.bankr.swapTokens);
+  const getBalance      = useAction(api.bankr.getBalance);
+  const setLimitOrder   = useAction(api.bankr.setLimitOrder);
+  const claimFees       = useAction(api.bankr.claimFees);
+  const getSmartMoney   = useAction(api.bankr.getSmartMoney);
+  const setupDCA        = useAction(api.bankr.setupDCA);
+  const deployToken     = useAction(api.bankr.deployToken);
   const runAlphaAgent   = useAction(api.alphaagent.runAlphaAgent);
   const getCryptoNews = useAction(api.news.getCryptoNews);
   const getMessariMetrics = useAction(api.news.getMessariMetrics);
   const getArticleContent = useAction(api.news.getArticleContent);
   const getTrendingAI = useAction(api.coingecko.getTrendingAI);
   const getTokenMarket = useAction(api.coingecko.getTokenMarket);
-  const getTokenHolders = useAction(api.moralis.getTokenHolders);
+  // const getTokenHolders = useAction(api.moralis.getTokenHolders); // moralis not deployed
   const verifyHolder = useAction(api.privy.verifyHolder);
   const postArticleToX = useAction(api.twitter.postArticleToX);
   const generateTweetDraft = useAction(api.twitter.generateTweetDraft);
@@ -1307,7 +3271,7 @@ export default function App(){
   const [agentSignals, setAgentSignals]           = useState([]);
   const [agentLoading, setAgentLoading]           = useState(false);
   const [agentLastRun, setAgentLastRun]           = useState(null);
-  const [tradeStats, setTradeStats] = useState(null);
+  const [tradeStats, setTradeStats] = useState({buys5m:0,sells5m:0,buys1h:0,sells1h:0,buys24h:0,sells24h:0,volume24h:0});
   const [cryptoNews, setCryptoNews] = useState([]);
   const [risingNews, setRisingNews] = useState([]);
   const [messariGlobal, setMessariGlobal] = useState(null);
@@ -1315,6 +3279,8 @@ export default function App(){
   const [newsArtLoading, setNewsArtLoading] = useState(false);
   const [newsArtContent, setNewsArtContent] = useState(null);
   const [newsLoading, setNewsLoading] = useState(false);
+  const [newsLastUpdated, setNewsLastUpdated] = useState(null);
+  const [newsCountdown, setNewsCountdown] = useState(90);
   const [marketBrief, setMarketBrief] = useState(null);
   const [briefLoading, setBriefLoading] = useState(false);
   const [briefGenerated, setBriefGenerated] = useState(false);
@@ -1353,12 +3319,95 @@ export default function App(){
     try {
       const trendBase = await getTrendingBase({});
       if (trendBase?.boosted) setTrendingBase(trendBase.boosted.slice(0,6));
-    } catch(e) { console.error("TrendingBase:", e.message); }
+    } catch(e) {}
     try {
-      const [trendRes, mktRes] = await Promise.all([getTrendingAI({}), getTokenMarket({})]);
-      if (trendRes?.aiTokens) setAiTokens(trendRes.aiTokens.slice(0, 10));
-      if (mktRes) setMarketData(mktRes);
-    } catch(e) { console.error("CoinGecko:", e.message); }
+      // Known top Base token addresses for reliable data
+      const BASE_TOKENS = [
+        "0x532f27101965dd16442E59d40670FaF5eBB142E4", // BRETT
+        "0x4ed4E862860beD51a9570b96d89aF5E1B0Efefed", // DEGEN
+        "0x0b3e328455c4059EEb9e3f84b5543F74E24e7020", // VIRTUAL
+        "0x077487c868125dc6e24b5426abafef5b81b5dc4a", // HIGHER
+        "0x940181a94A35A4569E4529A3CDfB74e38FD98631", // AERO
+        "0xBA5E05cb26b78eda3A2f8e3b3814726305dcAc83", // MORPHO
+        "0xa57d8ce207c7daaeeed4e3a491bdf51d89233af3", // NOELCLAW
+        "0xAC1Bd2486aAf3B5C0fc3Fd868558b082a531B2B4", // TOSHI
+        "0x22af33fe49fd1fa80c7149773dde5890d3c76f3b", // BNKR
+        "0x4200000000000000000000000000000000000006", // WETH (for price ref)
+      ];
+
+      // Fetch all at once from DexScreener
+      const addrs = BASE_TOKENS.join(",");
+      const res = await fetch(
+        `https://api.dexscreener.com/latest/dex/tokens/${addrs}`,
+        {signal: AbortSignal.timeout(10000)}
+      ).catch(()=>null);
+
+      if(res?.ok){
+        const data = await res.json().catch(()=>null);
+        const seen = new Set();
+        const tokens = [];
+
+        // Sort pairs by volume, pick best pair per token
+        const pairs = (data?.pairs||[])
+          .filter(p=>p.chainId==="base")
+          .sort((a,b)=>parseFloat(b.volume?.h24||0)-parseFloat(a.volume?.h24||0));
+
+        for(const p of pairs){
+          const sym = (p.baseToken?.symbol||"?").toUpperCase();
+          if(seen.has(sym)) continue;
+          if(["RETH","CBBTC","WETH","USDC","USDT"].includes(sym)) continue;
+          seen.add(sym);
+          tokens.push({
+            id: p.baseToken?.address||sym,
+            symbol: sym,
+            name: p.baseToken?.name||sym,
+            current_price: parseFloat(p.priceUsd||0)||0,
+            market_cap: parseFloat(p.marketCap||p.fdv||0)||0,
+            total_volume: parseFloat(p.volume?.h24||0)||0,
+            price_change_percentage_24h: parseFloat(p.priceChange?.h24||0)||0,
+            image: null,
+            pairAddress: p.pairAddress||"",
+            url: `https://dexscreener.com/base/${p.pairAddress}`,
+          });
+          if(tokens.length>=10) break;
+        }
+
+        if(tokens.length>=3){
+          setAiTokens(tokens);
+          setAiTokensLoading(false);
+          return;
+        }
+      }
+
+      // Fallback: search multiple queries
+      const queries = ["BRETT DEGEN BASE", "VIRTUAL HIGHER BASE", "AERODROME MORPHO BASE"];
+      const allTokens = [];
+      const seenFb = new Set();
+      for(const q of queries){
+        const r = await fetch(
+          `https://api.dexscreener.com/latest/dex/search?q=${encodeURIComponent(q)}`,
+          {signal:AbortSignal.timeout(6000)}
+        ).catch(()=>null);
+        if(!r?.ok) continue;
+        const d = await r.json().catch(()=>null);
+        for(const p of (d?.pairs||[])){
+          if(p.chainId!=="base") continue;
+          const sym=(p.baseToken?.symbol||"?").toUpperCase();
+          if(seenFb.has(sym)||["USDC","WETH","USDT","WBTC","DAI"].includes(sym)) continue;
+          seenFb.add(sym);
+          allTokens.push({
+            id:p.baseToken?.address||sym, symbol:sym, name:p.baseToken?.name||sym,
+            current_price:parseFloat(p.priceUsd||0)||0,
+            market_cap:parseFloat(p.marketCap||p.fdv||0)||0,
+            total_volume:parseFloat(p.volume?.h24||0)||0,
+            price_change_percentage_24h:parseFloat(p.priceChange?.h24||0)||0,
+            image:null, url:`https://dexscreener.com/base/${p.pairAddress}`,
+          });
+        }
+        if(allTokens.length>=10) break;
+      }
+      if(allTokens.length) setAiTokens(allTokens.slice(0,12));
+    } catch(e) { console.error("fetchAlphaFeed:", e); }
     setAiTokensLoading(false);
   };
 
@@ -1372,11 +3421,7 @@ export default function App(){
   };
 
   const fetchSniperTokens = async () => {
-    setSniperLoading(true);
-    try {
-      const res = await getSniperTokens({});
-      if (res?.tokens) setSniperTokens(res.tokens);
-    } catch(e) { console.error("Sniper:", e.message); }
+    // getSniperTokens not available - skip silently
     setSniperLoading(false);
   };
 
@@ -1392,39 +3437,113 @@ export default function App(){
 
   const fetchRecentTrades = async () => {
     try {
-      const res = await getRecentTrades({});
-      if (res?.trades) setRecentTrades(res.trades.slice(0,15));
-      setTradeStats({ buys5m: res.buys5m, sells5m: res.sells5m, buys1h: res.buys1h, sells1h: res.sells1h, buys24h: res.buys24h, sells24h: res.sells24h, volume24h: res.volume24h });
-    } catch(e) { console.error("Trades:", e.message); }
+      // Try Convex first
+      const res = await getRecentTrades({}).catch(()=>null);
+      if (res?.trades?.length) {
+        setRecentTrades(res.trades.slice(0,15));
+        if(res.buys24h !== undefined) {
+          setTradeStats({ buys5m:res.buys5m, sells5m:res.sells5m, buys1h:res.buys1h, sells1h:res.sells1h, buys24h:res.buys24h, sells24h:res.sells24h, volume24h:res.volume24h });
+        }
+        return;
+      }
+      // DexScreener fallback — no CORS issues
+      const dsRes = await fetch(
+        "https://api.dexscreener.com/latest/dex/tokens/0xa57d8ce207c7daaeeed4e3a491bdf51d89233af3",
+        {signal:AbortSignal.timeout(8000)}
+      ).catch(()=>null);
+      if(dsRes?.ok){
+        const dsData = await dsRes.json().catch(()=>null);
+        const pairs = dsData?.pairs||[];
+        const basePair = pairs.find((p)=>p.chainId==="base")||pairs[0];
+        if(basePair){
+          // DexScreener gives txns, not individual trades
+          // Show pair stats instead
+          setTradeStats({
+            buys5m: parseInt(basePair.txns?.m5?.buys||0),
+            sells5m: parseInt(basePair.txns?.m5?.sells||0),
+            buys1h: parseInt(basePair.txns?.h1?.buys||0),
+            sells1h: parseInt(basePair.txns?.h1?.sells||0),
+            buys24h: parseInt(basePair.txns?.h24?.buys||0),
+            sells24h: parseInt(basePair.txns?.h24?.sells||0),
+            volume24h: parseFloat(basePair.volume?.h24||0),
+          });
+        }
+      }
+    } catch(e) { console.error("Trades error:", e); }
   };
 
   const fetchNews = async () => {
     setNewsLoading(true);
     try {
-      const [newsRes, messariRes] = await Promise.all([
-        getCryptoNews({}),
-        getMessariMetrics({}),
-      ]);
-      if (newsRes?.hot) setCryptoNews(newsRes.hot.slice(0,6));
-      if (newsRes?.rising) setRisingNews(newsRes.rising.slice(0,4));
+      const newsRes = await getCryptoNews({}).catch(()=>null);
+      const messariRes = await getMessariMetrics({}).catch(()=>null);
+
+      if (newsRes?.hot?.length) {
+        setCryptoNews(newsRes.hot.slice(0,8));
+        setRisingNews(newsRes.rising?.slice(0,4)||[]);
+      } else {
+        // RSS via allorigins proxy — multiple sources
+        const RSS_FEEDS = [
+          {url:'https://www.coindesk.com/arc/outboundfeeds/rss/', source:'CoinDesk'},
+          {url:'https://cointelegraph.com/rss', source:'Cointelegraph'},
+          {url:'https://decrypt.co/feed', source:'Decrypt'},
+          {url:'https://cryptonews.com/news/feed/', source:'CryptoNews'},
+        ];
+        let newsItems = [];
+        for(const feed of RSS_FEEDS){
+          if(newsItems.length >= 10) break;
+          try {
+            const res = await fetch(
+              `https://api.allorigins.win/get?url=${encodeURIComponent(feed.url)}`,
+              {signal:AbortSignal.timeout(7000)}
+            ).catch(()=>null);
+            if(!res?.ok) continue;
+            const wrapper = await res.json().catch(()=>null);
+            const xml = wrapper?.contents||'';
+            if(!xml) continue;
+            const items = [...xml.matchAll(/<item>([\s\S]*?)<\/item>/g)];
+            const parsed = items.slice(0,6).map((m,idx)=>{
+              const item = m[1];
+              const title = (item.match(/<title>(?:<!\[CDATA\[)?(.*?)(?:\]\]>)?<\/title>/)?.[1]||'')
+                .trim().replace(/&amp;/g,'&').replace(/&#39;/g,"'").replace(/&quot;/g,'"');
+              const link = (item.match(/<link>(.*?)<\/link>/)?.[1]||item.match(/<guid[^>]*>(.*?)<\/guid>/)?.[1]||'#').trim();
+              const pubDate = item.match(/<pubDate>(.*?)<\/pubDate>/)?.[1]||new Date().toISOString();
+              const desc = (item.match(/<description>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/description>/)?.[1]||'')
+                .replace(/<[^>]+>/g,'').replace(/&amp;/g,'&').slice(0,200).trim();
+              if(!title) return null;
+              const tickers = [...new Set(((title+' '+desc).toUpperCase().match(/\b(BTC|ETH|SOL|XRP|BNB|DOGE|ADA|AVAX|ARB|OP|BASE|BRETT|DEGEN|LINK|UNI)\b/g)||[]))].slice(0,2);
+              const txt = title.toLowerCase();
+              const bull = ["surge","rally","gain","rise","bull","pump","ath","high","record","boost","jump","approve","positive"].filter(w=>txt.includes(w)).length;
+              const bear = ["drop","fall","crash","bear","dump","fear","hack","ban","risk","loss","decline","plunge","warn","negative"].filter(w=>txt.includes(w)).length;
+              return {
+                id: link||String(newsItems.length+idx),
+                title, url:link, source:feed.source,
+                published_at: pubDate,
+                sentiment: bull>bear?"bullish":bear>bull?"bearish":"neutral",
+                currencies: tickers,
+                summary: desc,
+                votes:{positive:0,negative:0,important:0},
+              };
+            }).filter(Boolean);
+            newsItems = [...newsItems, ...parsed];
+          } catch(e) { console.log('RSS skip:', feed.source); }
+        }
+        if(newsItems.length > 0){
+          setCryptoNews(newsItems.slice(0,8));
+          setRisingNews(newsItems.slice(8,12));
+        }
+      }
       if (messariRes?.global) setMessariGlobal(messariRes.global);
-    } catch(e) { console.error("News:", e.message); }
+    } catch(e) { console.error("News fetch error:", e); }
     setNewsLoading(false);
+    setNewsLastUpdated(new Date());
+    setNewsCountdown(90);
   };
 
-  const openNewsArticle = async (n) => {
+  const openNewsArticle = (n) => {
     setNewsArt(n);
     setNewsArtContent(null);
-    setNewsArtLoading(true);
     window.scrollTo({ top: 0, behavior: "instant" });
-    try {
-      const res = await getArticleContent({ url: n.url });
-      setNewsArtContent(res);
-    } catch(e) {
-      console.error("Article fetch failed:", e.message);
-      setNewsArtContent({ success: false, body: [], title: n.title, error: e.message });
-    }
-    setNewsArtLoading(false);
   };
 
   const generateMarketBrief = async () => {
@@ -1460,7 +3579,8 @@ Live data:
   const fetchHolders = async () => {
     setHoldersLoading(true);
     try {
-      const res = await getTokenHolders({});
+      // getTokenHolders disabled - moralis not deployed
+      const res = null;
       setHoldersData(res);
     } catch(e) { console.error("Holders:", e.message); }
     setHoldersLoading(false);
@@ -1468,51 +3588,37 @@ Live data:
 
 
 
-  const verifyWalletHolder = async (address) => {
-    if (!address) return;
-    setVerifyingWallet(true);
-    try {
-      const res = await verifyHolder({ walletAddress: address });
-      setWalletTier(res.tier);
-      setWalletBalance(res.balance);
-    } catch(e) {
-      setWalletTier("free");
-    }
-    setVerifyingWallet(false);
-  };
-
-  // Auto-verify when wallet connects
-  useEffect(() => {
-    if (authenticated && walletAddress) {
-      verifyWalletHolder(walletAddress);
-    } else if (!authenticated) {
-      setWalletTier(null);
-      setWalletBalance(0);
-    }
-  }, [authenticated, walletAddress]);
+  // Wallet tier is open — no holder verification needed
 
   useEffect(() => {
-    if (walletTier === "premium") {
-      fetchAlphaFeed();
-      fetchHolders();
-      fetchRecentTrades();
-      fetchNews();
-      fetchSmartMoney();
-      fetchSniperTokens();
-    }
-  }, [walletTier]);
+    // Load all data for everyone
+    fetchAlphaFeed();
+    fetchRecentTrades();
+    fetchNews();
+    fetchHolders();
+    fetchSmartMoney();
+    fetchSniperTokens();
+  }, []);
 
-  // Auto-refresh: trades 15s, price 30s, alpha 60s, news 3min, smart money 1h, sniper 2h
+  // Auto-refresh for all users: trades 15s, alpha 60s, news 3min | premium: price 30s, smartmoney 1h, sniper 2h
   useEffect(() => {
-    if (walletTier !== "premium") return;
-    const tradesId     = setInterval(() => { fetchRecentTrades();  }, 15000);
-    const priceId      = setInterval(() => { fetchTokenPrice();    }, 30000);
-    const alphaId      = setInterval(() => { fetchAlphaFeed();     }, 60000);
-    const newsId       = setInterval(() => { fetchNews();          }, 180000);
-    const smartMoneyId = setInterval(() => { fetchSmartMoney();    }, 3600000);
-    const sniperId     = setInterval(() => { fetchSniperTokens();  }, 7200000);
-    return () => { clearInterval(tradesId); clearInterval(priceId); clearInterval(alphaId); clearInterval(newsId); clearInterval(smartMoneyId); clearInterval(sniperId); };
-  }, [walletTier]);
+    const tradesId = setInterval(() => { fetchRecentTrades(); }, 60000); // 1 min to save Bankr quota
+    const alphaId  = setInterval(() => { fetchAlphaFeed();    }, 60000);
+    const newsId   = setInterval(() => { fetchNews(); }, 90000); // 90s realtime refresh
+    const countdownId = setInterval(() => {
+      setNewsCountdown(p => {
+        if(p<=1){ return 90; }
+        return p-1;
+      });
+    }, 1000);
+    const priceId  = setInterval(() => { fetchTokenPrice();   }, 30000);
+    const smartMoneyId = setInterval(() => { fetchSmartMoney();   }, 3600000);
+    const sniperId     = setInterval(() => { fetchSniperTokens(); }, 7200000);
+    return () => {
+      clearInterval(tradesId); clearInterval(alphaId); clearInterval(newsId); clearInterval(priceId);
+      clearInterval(smartMoneyId); clearInterval(sniperId); clearInterval(countdownId);
+    };
+  }, []);
 
   const handleGenerateTweet = async () => {
     if (!art) return;
@@ -1567,23 +3673,66 @@ Live data:
   const articlesLoading = convexArticles === undefined;
   const endRef=useRef(null), crRef=useRef(null), crrRef=useRef(null);
 
+  // Giulio-style cursor trail
   useEffect(()=>{
-    const mv=e=>{
+    const TRAIL = 12;
+    const dots = [];
+    const mouse = {x:0, y:0};
+    const pos = Array.from({length:TRAIL},()=>({x:0,y:0}));
+
+    // Create trail dots
+    for(let i=0;i<TRAIL;i++){
+      const el = document.createElement("div");
+      el.className = "trail-dot";
+      const size = Math.max(2, 6 - i*0.4);
+      const alpha = (1 - i/TRAIL) * 0.45;
+      el.style.cssText = `width:${size}px;height:${size}px;background:rgba(77,133,255,${alpha});`;
+      document.body.appendChild(el);
+      dots.push(el);
+    }
+
+    let raf;
+    const mv = e => { mouse.x = e.clientX; mouse.y = e.clientY;
       if(crRef.current){crRef.current.style.left=e.clientX+"px";crRef.current.style.top=e.clientY+"px";}
       if(crrRef.current){crrRef.current.style.left=e.clientX+"px";crrRef.current.style.top=e.clientY+"px";}
     };
-    window.addEventListener("mousemove",mv);
-    return()=>window.removeEventListener("mousemove",mv);
+
+    const animate = () => {
+      let x = mouse.x, y = mouse.y;
+      pos.forEach((p,i) => {
+        const prev = i===0 ? {x:mouse.x,y:mouse.y} : pos[i-1];
+        p.x += (prev.x - p.x) * (0.35 - i*0.02);
+        p.y += (prev.y - p.y) * (0.35 - i*0.02);
+        if(dots[i]){
+          dots[i].style.left = p.x + "px";
+          dots[i].style.top  = p.y + "px";
+        }
+      });
+      raf = requestAnimationFrame(animate);
+    };
+    animate();
+    window.addEventListener("mousemove", mv);
+    return()=>{
+      window.removeEventListener("mousemove",mv);
+      cancelAnimationFrame(raf);
+      dots.forEach(d=>d.parentNode&&d.parentNode.removeChild(d));
+    };
   },[]);
 
   useEffect(()=>{endRef.current?.scrollIntoView({behavior:"smooth"});},[msgs,busy]);
 
-  const navTo=p=>{setPage(p);setArt(null);window.scrollTo({top:0,behavior:"instant"});setMenuOpen(false);if(p==="dashboard"){fetchTokenPrice();fetchAlphaFeed();fetchHolders();fetchRecentTrades();fetchNews();fetchSmartMoney();fetchSniperTokens();}};
-  useEffect(()=>{
-    const handler=()=>{ if(menuOpen) setMenuOpen(false); };
-    window.addEventListener('scroll',handler,{passive:true});
-    return()=>window.removeEventListener('scroll',handler);
-  },[menuOpen]);
+  const navTo=p=>{
+    setPage(p);
+    setArt(null);
+    setMenuOpen(false);
+    window.scrollTo({top:0,behavior:"instant"});
+    
+  };
+  // Menu stays open on scroll (better UX on mobile)
+  // Close only when tapping overlay or navigating
+
+  // Chat bubble — full Bankr LLM with thread memory
+  const [chatThreadId, setChatThreadId] = useState(null);
 
   const send=useCallback(async(text)=>{
     const q=text??val.trim();
@@ -1592,12 +3741,19 @@ Live data:
     const next=[...msgs,{r:"u",t:q}];
     setMsgs(next);setBusy(true);
     try{
-      const h=next.map(m=>({role:m.r==="a"?"assistant":"user",content:m.t}));
-      const reply=await sendMessage({messages:h});
+      const res = await bankrAsk({
+        prompt: q,
+        threadId: chatThreadId||undefined,
+      });
+      if(res?.threadId) setChatThreadId(res.threadId);
+      const reply = res?.response || "No response from Bankr.";
       setMsgs(p=>[...p,{r:"a",t:reply}]);
-    }catch{setMsgs(p=>[...p,{r:"a",t:"Can't connect right now. Try again?"}]);}
+    }catch(e){
+      console.error("Bankr chat error:",e);
+      setMsgs(p=>[...p,{r:"a",t:"Bankr is busy right now. Try again in a moment."}]);
+    }
     finally{setBusy(false);}
-  },[msgs,val,busy]);
+  },[msgs,val,busy,chatThreadId,bankrAsk]);
 
   return(
     <>
@@ -1611,11 +3767,11 @@ Live data:
         <div className={`sidebar${sidebarOpen?" open":""}`} onMouseLeave={()=>setSidebarOpen(false)}>
           <div className="sb-logo" style={{cursor:"pointer"}} onClick={()=>{navTo("home");setSidebarOpen(false);}}>
             <div className="sb-logo-name"><em>Noel</em>Claw</div>
-            <div className="sb-logo-sub">Personal AI OS</div>
+            <div className="sb-logo-sub">AI Agent Platform</div>
           </div>
           <div className="sb-section">
             <span className="sb-label">Navigate</span>
-            {[["home","⌂","Home"],["articles","✦","Articles"],["dashboard","⚡","Dashboard"],["analytics","📊","Analytics"],["about","◎","About"]].map(([p,icon,label])=>(
+            {[["home","⌂","Home"],["articles","⚡","Noel Agent"],["howto","◈","How It Works"],["about","◎","About"],["docs","◈","Docs"]].map(([p,icon,label])=>(
               <button key={p} className={`sb-item${page===p&&!art?" active":""}`} onClick={()=>{navTo(p);setSidebarOpen(false);}}>
                 <span className="sb-icon">{icon}</span>{label}
               </button>
@@ -1632,42 +3788,12 @@ Live data:
             </a>
           </div>
           <div className="sb-footer">
-            {walletTier==="premium"?<span style={{color:"var(--green)"}}>✦ Premium Holder</span>
-            :authenticated?<span>{walletAddress?.slice(0,6)}…{walletAddress?.slice(-4)}</span>
-            :<button onClick={()=>{login();setSidebarOpen(false);}} style={{background:"none",border:"none",color:"var(--blue-hi)",cursor:"pointer",fontSize:".62rem",fontFamily:"inherit",padding:0}}>🔗 Connect Wallet</button>}
+            {authenticated
+              ? <span style={{color:"var(--blue-hi)"}}>⚡ Bankr Agent</span>
+              : <button onClick={()=>{login();setSidebarOpen(false);}} style={{background:"none",border:"none",color:"var(--blue-hi)",cursor:"pointer",fontSize:".62rem",fontFamily:"inherit",padding:0}}>🔗 Connect Wallet</button>}
           </div>
         </div>
 
-        {/* ── TICKER BAR ── */}
-        <div style={{width:"100%",background:"#03050c",borderBottom:"1px solid rgba(255,255,255,0.07)",padding:".35rem 0",display:"flex",alignItems:"center",overflow:"hidden",position:"sticky",top:0,zIndex:201}}>
-          <div style={{display:"flex",alignItems:"center",gap:"1.8rem",animation:"ca-scroll 28s linear infinite",whiteSpace:"nowrap",willChange:"transform",fontSize:".75rem",letterSpacing:".07em",color:"rgba(180,190,220,0.8)"}}>
-            {[0,1].map(i=>(
-              <span key={i} style={{display:"flex",alignItems:"center",gap:"1.8rem"}}>
-                <span style={{display:"flex",alignItems:"center",gap:".45rem"}}>
-                  <span style={{width:"8px",height:"8px",borderRadius:"50%",background:"var(--green)",display:"inline-block",flexShrink:0}}/>
-                  <span style={{color:"#4d85ff",fontWeight:600,letterSpacing:".14em"}}>$NOELCLAW</span>
-                </span>
-                <span style={{width:3,height:3,borderRadius:"50%",background:"#4d85ff",display:"inline-block",opacity:.4,flexShrink:0}}/>
-                <span style={{fontFamily:"monospace",cursor:"pointer"}} onClick={()=>navigator.clipboard.writeText("0xa57d8ce207c7daaeeed4e3a491bdf51d89233af3")} title="Copy CA">
-                  CA: 0xa57d8ce207c7daaeeed4e3a491bdf51d89233af3
-                </span>
-                <span style={{opacity:.4}}>·</span>
-                <a href="https://takeover.fun/coin/0xa57d8ce207c7daaeeed4e3a491bdf51d89233af3" target="_blank" rel="noopener noreferrer" style={{color:"#22d3a5",textDecoration:"none"}}>Mint Tiles ↗</a>
-                <span style={{opacity:.4}}>·</span>
-                <a href="https://x.com/noelclawfun" target="_blank" rel="noopener noreferrer" style={{display:"flex",alignItems:"center",gap:".35rem",color:"rgba(180,190,220,0.7)",textDecoration:"none"}}>
-                  <svg width="11" height="11" viewBox="0 0 1200 1227" fill="currentColor"><path d="M714.163 519.284L1160.89 0H1055.03L667.137 450.887L357.328 0H0L468.492 681.821L0 1226.37H105.866L515.491 750.218L842.672 1226.37H1200L714.163 519.284ZM569.165 687.828L521.697 619.934L144.011 79.6944H306.615L611.412 515.685L658.88 583.579L1055.08 1150.3H892.476L569.165 687.854V687.828Z"/></svg>
-                  @noelclawfun
-                </a>
-                <span style={{opacity:.4}}>·</span>
-                <a href="https://dexscreener.com/base/0x9eebf6143b61a651ae4b1c9c57257510d0feb4743550fefbb9470898e5e26ac7" target="_blank" rel="noopener noreferrer" style={{display:"flex",alignItems:"center",gap:".35rem",color:"rgba(180,190,220,0.7)",textDecoration:"none"}}>
-                  <img src="https://dexscreener.com/favicon.ico" style={{width:"11px",height:"11px",borderRadius:"2px",objectFit:"cover",flexShrink:0}} alt=""/>
-                  DexScreener
-                </a>
-                <span style={{opacity:.4}}>·</span>
-              </span>
-            ))}
-          </div>
-        </div>
 
         {/* ── NAV ── */}
         <nav className="nav">
@@ -1676,9 +3802,9 @@ Live data:
           </div>
           <div className="nav-right">
             <div className="nav-links">
-              {["home","articles","dashboard","analytics","about"].map(p=>(
+              {[["home","Home"],["articles","Noel Agent"],["howto","How It Works"],["about","About"],["docs","Docs"]].map(([p,label])=>(
                 <button key={p} className={`nav-item${page===p&&!art?" active":""}`} onClick={()=>navTo(p)}>
-                  {p[0].toUpperCase()+p.slice(1)}
+                  {label}
                 </button>
               ))}
             </div>
@@ -1693,17 +3819,9 @@ Live data:
                 </button>
               ) : (
                 <div style={{display:"flex",alignItems:"center",gap:".5rem"}}>
-                  {verifyingWallet ? (
-                    <span style={{fontSize:".6rem",color:"var(--text3)",letterSpacing:".08em"}}>Verifying…</span>
-                  ) : walletTier === "premium" ? (
-                    <span style={{display:"flex",alignItems:"center",gap:".3rem",fontSize:".62rem",color:"var(--green)",background:"rgba(34,211,165,.1)",border:"1px solid rgba(34,211,165,.2)",borderRadius:"5px",padding:".25rem .6rem",letterSpacing:".08em",fontWeight:500}}>
-                      ✦ Premium
-                    </span>
-                  ) : (
-                    <span style={{fontSize:".62rem",color:"var(--text3)",background:"var(--surface)",border:"1px solid var(--border)",borderRadius:"5px",padding:".25rem .6rem",letterSpacing:".06em"}}>
-                      {walletAddress?.slice(0,4)}…{walletAddress?.slice(-4)}
-                    </span>
-                  )}
+                  <span style={{display:"flex",alignItems:"center",gap:".3rem",fontSize:".62rem",color:"var(--blue-hi)",background:"rgba(26,79,255,.1)",border:"1px solid rgba(77,133,255,.25)",borderRadius:"5px",padding:".25rem .6rem",letterSpacing:".06em",fontWeight:500}}>
+                    ⚡ {walletAddress?.slice(0,4)}…{walletAddress?.slice(-4)}
+                  </span>
                   <button onClick={logout} style={{background:"none",border:"1px solid var(--border)",borderRadius:"5px",padding:".25rem .55rem",color:"var(--text3)",fontSize:".6rem",cursor:"pointer",fontFamily:"inherit",transition:"all .2s",letterSpacing:".06em"}}
                     onMouseEnter={e=>{e.currentTarget.style.borderColor="var(--border2)";e.currentTarget.style.color="var(--text)";}}
                     onMouseLeave={e=>{e.currentTarget.style.borderColor="var(--border)";e.currentTarget.style.color="var(--text3)";}}
@@ -1720,9 +3838,9 @@ Live data:
           <>
           <div className="mob-overlay" onClick={()=>setMenuOpen(false)}/>
           <div className="mob-menu">
-            {["home","articles","dashboard","analytics","about"].map(p=>(
+            {[["home","Home"],["articles","Noel Agent"],["howto","How It Works"],["about","About"],["docs","Docs"]].map(([p,label])=>(
               <button key={p} className={`mob-item${page===p&&!art?" active":""}`} onClick={()=>{navTo(p);setMenuOpen(false);}}>
-                {p[0].toUpperCase()+p.slice(1)}
+                {label}
               </button>
             ))}
           </div>
@@ -1760,7 +3878,7 @@ Live data:
                 <div className="rfooter">
                   <span className="rfooter-t">Thanks for reading — NoelClaw</span>
                   <div style={{display:"flex",alignItems:"center",gap:".8rem",flexWrap:"wrap"}}>
-                    {moltStatus && <span style={{fontSize:".72rem",color:"var(--green)"}}>{moltStatus}</span>}
+                    {moltStatus && <span style={{fontSize:".72rem",color:"var(--blue-hi)"}}>{moltStatus}</span>}
                     <button onClick={handleMoltPost} disabled={moltPosting} style={{display:"inline-flex",alignItems:"center",gap:".4rem",background:"none",border:"1px solid var(--border)",borderRadius:"6px",padding:".4rem .9rem",fontSize:".72rem",color:"var(--text2)",cursor:"pointer",transition:"all .2s",fontFamily:"inherit"}}
                     onMouseEnter={e=>{e.target.style.borderColor="var(--border2)";e.target.style.color="var(--white)";}}
                     onMouseLeave={e=>{e.target.style.borderColor="var(--border)";e.target.style.color="var(--text2)";}}>
@@ -1812,7 +3930,7 @@ Live data:
                     </div>
                   )}
                   {tweetStatus && (
-                    <div style={{marginTop:".6rem",fontSize:".7rem",color:tweetStatus.startsWith("Failed")?"#ff4d4d":"var(--green)",lineHeight:1.5}}>{tweetStatus}</div>
+                    <div style={{marginTop:".6rem",fontSize:".7rem",color:tweetStatus.startsWith("Failed")?"#ff4d4d":"var(--blue-hi)",lineHeight:1.5}}>{tweetStatus}</div>
                   )}
                 </div>
 
@@ -1820,9 +3938,9 @@ Live data:
                   <div className="comment-title">Comments ({comments.length})</div>
                   <div className="comment-input-wrap">
                     <textarea className="comment-inp" rows={2} placeholder="Share your thoughts..." value={commentVal} onChange={e=>setCommentVal(e.target.value)}
-                      onKeyDown={e=>{if(e.key==="Enter"&&!e.shiftKey&&commentVal.trim()){e.preventDefault();setComments(c=>[...c,{id:Date.now(),name:"You",initial:"Y",text:commentVal.trim(),time:"just now",color:"#22d3a5"}]);setCommentVal("");}}}
+                      onKeyDown={e=>{if(e.key==="Enter"&&!e.shiftKey&&commentVal.trim()){e.preventDefault();setComments(c=>[...c,{id:Date.now(),name:"You",initial:"Y",text:commentVal.trim(),time:"just now",color:"#4d85ff"}]);setCommentVal("");}}}
                     />
-                    <button className="comment-submit" onClick={()=>{if(commentVal.trim()){setComments(c=>[...c,{id:Date.now(),name:"You",initial:"Y",text:commentVal.trim(),time:"just now",color:"#22d3a5"}]);setCommentVal("");}}} disabled={!commentVal.trim()}>Post</button>
+                    <button className="comment-submit" onClick={()=>{if(commentVal.trim()){setComments(c=>[...c,{id:Date.now(),name:"You",initial:"Y",text:commentVal.trim(),time:"just now",color:"#4d85ff"}]);setCommentVal("");}}} disabled={!commentVal.trim()}>Post</button>
                   </div>
                   <div className="comment-list">
                     {comments.map(c=>(
@@ -1861,7 +3979,7 @@ Live data:
                 </div>
                 <div className="rsb-card" style={{background:"linear-gradient(135deg,rgba(26,79,255,.08),rgba(77,133,255,.04))"}}>
                   <div className="rsb-title">Enjoying NoelClaw?</div>
-                  <p style={{fontSize:".73rem",color:"var(--text2)",lineHeight:1.65,marginBottom:"1rem"}}>Follow on X for real-time updates as we build in public.</p>
+                  <p style={{fontSize:".73rem",color:"var(--text2)",lineHeight:1.65,marginBottom:"1rem"}}>Follow on X for agent updates, new features, and Base chain alpha.</p>
                   <a href="https://x.com/noelclawfun" target="_blank" rel="noopener noreferrer"
                     style={{display:"inline-flex",alignItems:"center",gap:".4rem",background:"#000",border:"1px solid var(--border)",borderRadius:"6px",padding:".45rem .9rem",fontSize:".72rem",color:"var(--white)",textDecoration:"none"}}>
                     𝕏 Follow @noelclawfun
@@ -1871,126 +3989,175 @@ Live data:
             </div>
           )}
 
-          {/* NEWS ARTICLE READER */}
+          {/* NEWS ARTICLE READER — Summary + redirect */}
           {newsArt&&!art&&(
-            <div className="page" style={{maxWidth:"820px",margin:"0 auto",padding:"2rem 3.5rem"}}>
-              <button className="rback" onClick={()=>{setNewsArt(null);setNewsArtContent(null);}} style={{marginBottom:"1.5rem"}}>← Back to Dashboard</button>
+            <div className="page" style={{background:"#000",minHeight:"100vh"}}>
+              <div style={{maxWidth:"760px",margin:"0 auto",padding:"2.5rem 5vw 5rem"}}>
 
-              {/* Hero image */}
-              {(newsArtContent?.image||newsArt.avatar)&&(
-                <div style={{width:"100%",height:"320px",borderRadius:"12px",overflow:"hidden",marginBottom:"1.8rem",background:"var(--surface)"}}>
-                  <img src={newsArtContent?.image||newsArt.avatar} alt={newsArt.title} style={{width:"100%",height:"100%",objectFit:"cover"}} onError={e=>{e.target.style.display="none";}}/>
-                </div>
-              )}
+                {/* Back button */}
+                <button onClick={()=>{setNewsArt(null);setNewsArtContent(null);}}
+                  style={{display:"inline-flex",alignItems:"center",gap:".5rem",background:"none",border:"1px solid rgba(255,255,255,.1)",borderRadius:"8px",padding:".4rem .9rem",fontSize:".72rem",color:"rgba(180,200,255,.6)",cursor:"pointer",marginBottom:"2.5rem",transition:"all .2s"}}
+                  onMouseEnter={e=>{e.currentTarget.style.borderColor="rgba(77,133,255,.4)";e.currentTarget.style.color="#fff";}}
+                  onMouseLeave={e=>{e.currentTarget.style.borderColor="rgba(255,255,255,.1)";e.currentTarget.style.color="rgba(180,200,255,.6)";}}>
+                  ← Back
+                </button>
 
-              {/* Meta */}
-              <div style={{display:"flex",alignItems:"center",gap:".6rem",marginBottom:"1rem",flexWrap:"wrap"}}>
-                <span style={{fontSize:".52rem",color:"var(--blue-hi)",fontWeight:600,letterSpacing:".1em",textTransform:"uppercase"}}>Cointelegraph</span>
-                <span style={{color:"var(--border)",fontSize:".5rem"}}>·</span>
-                <span style={{fontSize:".52rem",color:"var(--text3)"}}>{new Date(newsArt.publishedAt).toLocaleString("en-US",{weekday:"long",year:"numeric",month:"long",day:"numeric",hour:"2-digit",minute:"2-digit"})}</span>
-                {(newsArt.currencies||[]).map((c,i)=>(
-                  <span key={i} style={{fontSize:".44rem",color:"var(--blue-hi)",background:"rgba(26,79,255,.1)",border:"1px solid rgba(77,133,255,.2)",borderRadius:"3px",padding:".05rem .3rem",fontWeight:600}}>{c}</span>
-                ))}
-                <span style={{fontSize:".5rem",padding:".12rem .4rem",borderRadius:"20px",fontWeight:700,letterSpacing:".06em",
-                  background:newsArt.sentiment==="bullish"?"rgba(34,211,165,.12)":newsArt.sentiment==="bearish"?"rgba(255,107,107,.12)":"rgba(255,255,255,.06)",
-                  color:newsArt.sentiment==="bullish"?"var(--green)":newsArt.sentiment==="bearish"?"#ff6b6b":"var(--text3)",
-                  border:`1px solid ${newsArt.sentiment==="bullish"?"rgba(34,211,165,.25)":newsArt.sentiment==="bearish"?"rgba(255,107,107,.25)":"var(--border)"}`}}>
-                  {newsArt.sentiment==="bullish"?"↑ BULLISH":newsArt.sentiment==="bearish"?"↓ BEARISH":"– NEUTRAL"}
-                </span>
-              </div>
-
-              {/* Title */}
-              <h1 style={{fontFamily:"'Inter',sans-serif",fontSize:"clamp(1.6rem,3.5vw,2.4rem)",fontWeight:200,lineHeight:1.15,color:"var(--white)",letterSpacing:"-.02em",marginBottom:"1.2rem"}}>{newsArt.title}</h1>
-
-              {/* Summary */}
-              {newsArt.summary&&(
-                <p style={{fontSize:"1rem",color:"var(--text2)",lineHeight:1.8,fontWeight:300,borderLeft:"2px solid var(--blue)",paddingLeft:"1.2rem",marginBottom:"2rem",fontStyle:"italic"}}>{newsArt.summary}</p>
-              )}
-
-              {/* Loading */}
-              {newsArtLoading&&(
-                <div style={{display:"flex",flexDirection:"column",gap:"1rem",marginBottom:"2rem"}}>
-                  {[1,.85,.9,.7,.95,.6].map((w,i)=>(
-                    <div key={i} style={{height:"14px",borderRadius:"4px",background:"var(--surface)",width:`${w*100}%`,animation:"pulse 1.5s infinite",animationDelay:`${i*0.1}s`}}/>
+                {/* Source + meta */}
+                <div style={{display:"flex",alignItems:"center",gap:".7rem",marginBottom:"1.2rem",flexWrap:"wrap"}}>
+                  <span style={{fontSize:".6rem",fontWeight:700,color:"#4d85ff",letterSpacing:".15em",textTransform:"uppercase",fontFamily:"'IBM Plex Mono',monospace"}}>
+                    {newsArt.source||"Crypto News"}
+                  </span>
+                  <span style={{color:"rgba(255,255,255,.15)"}}>·</span>
+                  <span style={{fontSize:".65rem",color:"rgba(180,200,255,.4)"}}>
+                    {newsArt.published_at||newsArt.publishedAt
+                      ? new Date(newsArt.published_at||newsArt.publishedAt).toLocaleDateString("en-US",{year:"numeric",month:"long",day:"numeric"})
+                      : ""}
+                  </span>
+                  {(newsArt.currencies||[]).length>0&&(newsArt.currencies||[]).map((c,i)=>(
+                    <span key={i} style={{fontSize:".52rem",color:"#4d85ff",background:"rgba(26,79,255,.1)",border:"1px solid rgba(77,133,255,.2)",borderRadius:"4px",padding:".1rem .4rem",fontWeight:600,fontFamily:"'IBM Plex Mono',monospace"}}>{c}</span>
                   ))}
-                  <div style={{marginTop:".5rem",fontSize:".72rem",color:"var(--text3)",display:"flex",alignItems:"center",gap:".5rem"}}>
-                    <span style={{width:"6px",height:"6px",borderRadius:"50%",background:"var(--blue-hi)",display:"inline-block",animation:"pulse 1s infinite"}}/>
-                    Loading full article…
+                  <span style={{fontSize:".52rem",padding:".15rem .5rem",borderRadius:"20px",fontWeight:700,letterSpacing:".06em",
+                    background:newsArt.sentiment==="bullish"?"rgba(77,133,255,.12)":newsArt.sentiment==="bearish"?"rgba(255,100,100,.12)":"rgba(255,255,255,.06)",
+                    color:newsArt.sentiment==="bullish"?"#4d85ff":newsArt.sentiment==="bearish"?"#ff6b6b":"rgba(180,200,255,.4)",
+                    border:`1px solid ${newsArt.sentiment==="bullish"?"rgba(77,133,255,.3)":newsArt.sentiment==="bearish"?"rgba(255,100,100,.3)":"rgba(255,255,255,.1)"}`}}>
+                    {newsArt.sentiment==="bullish"?"↑ Bullish":newsArt.sentiment==="bearish"?"↓ Bearish":"— Neutral"}
+                  </span>
+                </div>
+
+                {/* Title */}
+                <h1 style={{fontSize:"clamp(1.8rem,4vw,2.8rem)",fontWeight:700,lineHeight:1.1,color:"#fff",letterSpacing:"-.03em",marginBottom:"1.5rem"}}>
+                  {newsArt.title}
+                </h1>
+
+                {/* Summary card — main content */}
+                {newsArt.summary ? (
+                  <div style={{background:"rgba(255,255,255,.03)",border:"1px solid rgba(255,255,255,.08)",borderRadius:"12px",padding:"1.8rem",marginBottom:"2rem",position:"relative",overflow:"hidden"}}>
+                    <div style={{position:"absolute",top:0,left:0,width:"3px",height:"100%",background:"linear-gradient(to bottom,#4d85ff,rgba(77,133,255,.2))",borderRadius:"2px"}}/>
+                    <div style={{paddingLeft:"1rem"}}>
+                      <div style={{fontSize:".55rem",color:"rgba(77,133,255,.6)",letterSpacing:".2em",textTransform:"uppercase",marginBottom:".8rem",fontFamily:"'IBM Plex Mono',monospace"}}>Summary</div>
+                      <p style={{fontSize:"1rem",color:"rgba(210,225,255,.85)",lineHeight:1.85,fontWeight:300}}>
+                        {newsArt.summary.replace(/<[^>]+>/g,"")}
+                      </p>
+                    </div>
+                  </div>
+                ) : (
+                  <div style={{background:"rgba(255,255,255,.03)",border:"1px solid rgba(255,255,255,.08)",borderRadius:"12px",padding:"2rem",marginBottom:"2rem",textAlign:"center"}}>
+                    <div style={{fontSize:".85rem",color:"rgba(180,200,255,.4)",marginBottom:".5rem"}}>No preview available</div>
+                  </div>
+                )}
+
+                {/* Why no full content explanation */}
+                <div style={{background:"rgba(26,79,255,.05)",border:"1px solid rgba(77,133,255,.12)",borderRadius:"10px",padding:"1rem 1.2rem",marginBottom:"2rem",display:"flex",alignItems:"flex-start",gap:".8rem"}}>
+                  <span style={{fontSize:"1rem",flexShrink:0}}>💡</span>
+                  <div>
+                    <div style={{fontSize:".75rem",fontWeight:500,color:"rgba(140,180,255,.8)",marginBottom:".3rem"}}>Full article on {newsArt.source||"source"}</div>
+                    <div style={{fontSize:".7rem",color:"rgba(140,180,255,.5)",lineHeight:1.6}}>
+                      News sites protect their full content. We show you the summary here — click below to read the full story on their site.
+                    </div>
                   </div>
                 </div>
-              )}
 
-              {/* Article body */}
-              {newsArtContent?.body?.length>0&&(
-                <div style={{marginBottom:"2rem"}}>
-                  {newsArtContent.body.map((para,i)=>(
-                    <p key={i} style={{fontSize:".92rem",color:i===0?"var(--text)":"var(--text2)",lineHeight:1.9,fontWeight:300,marginBottom:"1.2rem",letterSpacing:".01em"}}>{para}</p>
-                  ))}
-                </div>
-              )}
+                {/* CTA — Read full article */}
+                <a href={newsArt.url} target="_blank" rel="noopener noreferrer"
+                  style={{display:"flex",alignItems:"center",justifyContent:"center",gap:".6rem",background:"#2952ff",borderRadius:"12px",padding:"1rem 2rem",fontSize:".88rem",fontWeight:600,color:"#fff",textDecoration:"none",marginBottom:"1.2rem",transition:"all .25s",boxShadow:"0 0 30px rgba(41,82,255,.3)"}}
+                  onMouseEnter={e=>{e.currentTarget.style.background="#3b6fff";e.currentTarget.style.transform="translateY(-2px)";e.currentTarget.style.boxShadow="0 8px 30px rgba(41,82,255,.4)";}}
+                  onMouseLeave={e=>{e.currentTarget.style.background="#2952ff";e.currentTarget.style.transform="none";e.currentTarget.style.boxShadow="0 0 30px rgba(41,82,255,.3)";}}>
+                  Read Full Article on {newsArt.source||"Source"} ↗
+                </a>
 
-              {/* No content fallback */}
-              {!newsArtLoading&&newsArtContent&&(!newsArtContent.body||newsArtContent.body.length===0)&&(
-                <div style={{padding:"2rem",background:"var(--surface)",border:"1px solid var(--border)",borderRadius:"10px",textAlign:"center",marginBottom:"2rem"}}>
-                  <div style={{fontSize:"1.5rem",marginBottom:".8rem"}}>📄</div>
-                  <div style={{fontSize:".8rem",color:"var(--text2)",marginBottom:"1rem"}}>Could not extract full article content.</div>
-                  <a href={newsArt.url} target="_blank" rel="noopener noreferrer"
-                    style={{display:"inline-flex",alignItems:"center",gap:".4rem",background:"var(--blue)",borderRadius:"6px",padding:".5rem 1.2rem",fontSize:".75rem",color:"var(--white)",textDecoration:"none",fontWeight:500}}>
-                    Read on Cointelegraph →
+                {/* Share row */}
+                <div style={{display:"flex",gap:".6rem",justifyContent:"center",flexWrap:"wrap"}}>
+                  <a href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(newsArt.title)}&url=${encodeURIComponent(newsArt.url)}&via=noelclawfun`}
+                    target="_blank" rel="noopener noreferrer"
+                    style={{display:"inline-flex",alignItems:"center",gap:".4rem",background:"rgba(255,255,255,.06)",border:"1px solid rgba(255,255,255,.1)",borderRadius:"8px",padding:".45rem 1rem",fontSize:".7rem",color:"rgba(200,220,255,.8)",textDecoration:"none",transition:"all .2s"}}
+                    onMouseEnter={e=>{e.currentTarget.style.background="rgba(255,255,255,.1)";}}
+                    onMouseLeave={e=>{e.currentTarget.style.background="rgba(255,255,255,.06)";}}>
+                    𝕏 Share
                   </a>
+                  <button onClick={()=>{navigator.clipboard?.writeText(newsArt.url);}}
+                    style={{display:"inline-flex",alignItems:"center",gap:".4rem",background:"rgba(255,255,255,.06)",border:"1px solid rgba(255,255,255,.1)",borderRadius:"8px",padding:".45rem 1rem",fontSize:".7rem",color:"rgba(200,220,255,.8)",cursor:"pointer",transition:"all .2s"}}
+                    onMouseEnter={e=>{e.currentTarget.style.background="rgba(255,255,255,.1)";}}
+                    onMouseLeave={e=>{e.currentTarget.style.background="rgba(255,255,255,.06)";}}>
+                    🔗 Copy Link
+                  </button>
                 </div>
-              )}
 
-              {/* Footer */}
-              {newsArtContent&&(
-                <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:"1rem",padding:"1.2rem",background:"var(--surface)",border:"1px solid var(--border)",borderRadius:"10px",marginBottom:"2rem"}}>
-                  <div style={{fontSize:".75rem",color:"var(--text2)"}}>Source: <a href={newsArt.url} target="_blank" rel="noopener noreferrer" style={{color:"var(--blue-hi)",textDecoration:"none"}}>Cointelegraph ↗</a></div>
-                  <div style={{display:"flex",gap:".5rem"}}>
-                    <a href={`https://twitter.com/intent/tweet?text=${encodeURIComponent(newsArt.title+" — noelclaw.fun @noelclawfun")}`} target="_blank" rel="noopener noreferrer"
-                      style={{display:"inline-flex",alignItems:"center",gap:".35rem",background:"#000",border:"1px solid var(--border)",borderRadius:"6px",padding:".38rem .8rem",fontSize:".68rem",color:"var(--white)",textDecoration:"none"}}>𝕏 Share</a>
-                    <button onClick={()=>navigator.clipboard.writeText(newsArt.url)}
-                      style={{background:"none",border:"1px solid var(--border)",borderRadius:"6px",padding:".38rem .8rem",fontSize:".68rem",color:"var(--text2)",cursor:"pointer",fontFamily:"inherit"}}>🔗 Copy</button>
+                {/* Related — other news */}
+                {cryptoNews.filter(n=>n.url!==newsArt.url).length>0&&(
+                  <div style={{marginTop:"3rem",borderTop:"1px solid rgba(255,255,255,.06)",paddingTop:"2rem"}}>
+                    <div style={{fontSize:".58rem",color:"rgba(120,160,255,.5)",letterSpacing:".2em",textTransform:"uppercase",marginBottom:"1.2rem",fontFamily:"'IBM Plex Mono',monospace"}}>More News</div>
+                    <div style={{display:"flex",flexDirection:"column",gap:".6rem"}}>
+                      {cryptoNews.filter(n=>n.url!==newsArt.url).slice(0,4).map((n,i)=>(
+                        <div key={i} onClick={()=>openNewsArticle(n)}
+                          style={{display:"flex",alignItems:"flex-start",gap:"1rem",padding:".9rem 1rem",background:"rgba(255,255,255,.02)",border:"1px solid rgba(255,255,255,.06)",borderRadius:"10px",cursor:"pointer",transition:"all .2s"}}
+                          onMouseEnter={e=>{e.currentTarget.style.background="rgba(255,255,255,.05)";e.currentTarget.style.borderColor="rgba(77,133,255,.2)";}}
+                          onMouseLeave={e=>{e.currentTarget.style.background="rgba(255,255,255,.02)";e.currentTarget.style.borderColor="rgba(255,255,255,.06)";}}>
+                          <span style={{fontSize:".55rem",fontWeight:700,color:"rgba(77,133,255,.6)",textTransform:"uppercase",letterSpacing:".1em",flexShrink:0,marginTop:".15rem",fontFamily:"'IBM Plex Mono',monospace"}}>{n.source}</span>
+                          <span style={{fontSize:".78rem",color:"rgba(200,220,255,.8)",lineHeight:1.4,fontWeight:300}}>{n.title}</span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
+
+              </div>
             </div>
           )}
 
           {/* HOME */}
           {!art&&!newsArt&&page==="home"&&(
             <div className="page">
-              {/* HERO — updated with new tagline */}
+              {/* HERO — Canvas + Rolling text */}
               <section className="hero">
                 <div className="hero-bg"/>
-                <div className="hero-curve-left"/>
+                <HeroCanvas/>
+                <div className="hero-stars"/>
+                <div className="hero-beam"/>
+                <div className="hero-arc-left"/>
+                <div className="hero-arc-left-2"/>
+                <div className="hero-arc-right"/>
+                <div className="hero-arc-right-2"/>
+                <div className="hero-glow-point"/>
                 <div className="hero-vignette"/>
                 <div className="hero-content">
-                  <div className="hero-eyebrow">Personal AI Operating System</div>
-                  <h1 className="hero-h1">
-                    Your AI.<br/>
-                    Your system.<br/>
-                    <em>Your data.</em>
+                  <div className="hero-eyebrow">Powered by Bankr · Built on Base</div>
+                  <h1 className="hero-h1" style={{animation:"pin .7s .15s both"}}>
+                    <span style={{
+                      display:"block",
+                      fontWeight:300,
+                      fontSize:"clamp(1rem,2vw,1.6rem)",
+                      letterSpacing:".25em",
+                      textTransform:"uppercase",
+                      color:"rgba(140,180,255,.65)",
+                      marginBottom:".5rem",
+                    }}>Your Personal</span>
+                    <span style={{
+                      display:"block",
+                      fontWeight:800,
+                      letterSpacing:"-.04em",
+                      lineHeight:.92,
+                      color:"#fff",
+                    }}>AI Agent.</span>
                   </h1>
                   <p className="hero-tagline">
-                    NoelClaw lets your personal AI <strong>operate real software systems</strong> — not just chat. An autonomous AI node that runs agents across your infrastructure.
+                    Analyze any token. Execute real swaps. Deploy contracts. Set limit orders — all via <strong>natural language</strong>. Powered by Bankr. No code required.
                   </p>
-                  <div className="hero-bottom">
-                    <p className="hero-desc">Building composable agents, documenting every decision, shipping in public on Base.</p>
-                    <div className="hero-ctas">
-                      <button className="cta-solid" onClick={()=>navTo("articles")}>Read Articles</button>
-                      <a className="cta-outline" href="https://x.com/noelclawfun" target="_blank" rel="noopener noreferrer">𝕏 Follow</a>
-                      <a href="https://flaunch.gg/base/coin/0xa57d8ce207c7daaeeed4e3a491bdf51d89233af3" target="_blank" rel="noopener noreferrer" className="cta-outline" style={{boxShadow:"0 0 20px rgba(26,79,255,.2)"}}>
-                        Buy $NOELCLAW
-                      </a>
-                    </div>
+                  <div className="hero-ctas">
+                    <MagBtn><button className="cta-solid" onClick={()=>navTo("articles")}>Open Noel Agent →</button></MagBtn>
+                    <MagBtn><a className="cta-outline" href="https://x.com/noelclawfun" target="_blank" rel="noopener noreferrer">𝕏 Follow</a></MagBtn>
+                    <MagBtn><a href="https://flaunch.gg/base/coin/0xa57d8ce207c7daaeeed4e3a491bdf51d89233af3" target="_blank" rel="noopener noreferrer" className="cta-outline">Buy $NOELCLAW</a></MagBtn>
                   </div>
                 </div>
                 <div className="hero-scroll"><span>Scroll</span><div className="scroll-line"/></div>
               </section>
 
-              {/* STATS */}
+              {/* STATS — Animated counters */}
               <div className="stats-row">
-                {[["12+","Articles Published"],["3","AI Systems Built"],["Live","Deployment Status"]].map(([n,l])=>(
+                {[
+                  {n:<><AnimatedCounter target={10} suffix="+"/></>, l:"Agents Available"},
+                  {n:<AnimatedCounter target={184} suffix=" txs"/>, l:"Swaps Executed"},
+                  {n:<AnimatedCounter target={82} suffix=" wallets"/>, l:"Users on Base"},
+                ].map(({n,l})=>(
                   <div className="stat-box" key={l}><div className="stat-n">{n}</div><div className="stat-l">{l}</div></div>
                 ))}
               </div>
@@ -2004,1125 +4171,655 @@ Live data:
                   {/* ── PUBLIC SECTIONS ───────────────────────────── */}
                   <div>
 
-                      {/* Alpha Feed — PUBLIC */}
-                      <div style={{marginBottom:"1rem"}}>
-                        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:"1rem"}}>
-                          {/* Alpha Feed panel */}
-  {/* Alpha Feed - 10 AI tokens + NOELCLAW */}
-                        <div style={{background:"var(--surface)",border:"1px solid var(--border)",borderRadius:"12px",overflow:"hidden"}}>
-                          <div style={{padding:".8rem 1rem",borderBottom:"1px solid var(--border)",background:"rgba(255,255,255,.015)",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-                            <div style={{display:"flex",alignItems:"center",gap:".5rem"}}>
-                              <span style={{fontSize:".75rem",lineHeight:1}}>📡</span>
-                              <span style={{fontSize:".68rem",color:"var(--white)",fontWeight:500}}>Alpha Feed</span>
-                            </div>
-                            <div style={{display:"flex",gap:".3rem"}}>
-                              <span style={{fontSize:".4rem",background:"rgba(34,211,165,.1)",color:"var(--green)",border:"1px solid rgba(34,211,165,.2)",borderRadius:"20px",padding:".08rem .35rem",fontWeight:600,letterSpacing:".06em"}}>CG</span>
-                              <span style={{fontSize:".4rem",background:"rgba(26,79,255,.12)",color:"var(--blue-hi)",border:"1px solid rgba(77,133,255,.25)",borderRadius:"20px",padding:".08rem .35rem",fontWeight:600,letterSpacing:".06em"}}>DEX</span>
-                            </div>
+                      {/* ── TOKEN RADAR ───────────────────────────────── */}
+                      <div style={{background:"var(--surface)",border:"1px solid var(--border)",borderRadius:"16px",overflow:"hidden",marginBottom:"1rem"}}>
+                        {/* Header */}
+                        <div style={{padding:".75rem 1.2rem",borderBottom:"1px solid var(--border)",display:"flex",justifyContent:"space-between",alignItems:"center",background:"rgba(255,255,255,.012)"}}>
+                          <div style={{display:"flex",alignItems:"center",gap:".6rem"}}>
+                            <span style={{fontSize:".95rem"}}>📡</span>
+                            <span style={{fontSize:".75rem",color:"var(--white)",fontWeight:700,letterSpacing:".02em"}}>Top Trending on Base</span>
+                            <span style={{fontSize:".38rem",background:"rgba(77,133,255,.12)",color:"var(--blue-hi)",border:"1px solid rgba(77,133,255,.25)",borderRadius:"20px",padding:".12rem .5rem",fontWeight:700,letterSpacing:".1em"}}>LIVE</span>
+                            <span style={{fontSize:".38rem",background:"rgba(26,79,255,.12)",color:"var(--blue-hi)",border:"1px solid rgba(26,79,255,.25)",borderRadius:"20px",padding:".12rem .5rem",fontWeight:700,letterSpacing:".1em"}}>BASE CHAIN</span>
                           </div>
-
-                          {/* NOELCLAW row — always first */}
-                          {tokenData&&(
-                            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:".45rem 1rem",borderBottom:"1px solid rgba(77,133,255,.15)",background:"rgba(26,79,255,.06)"}}>
-                              <div style={{display:"flex",alignItems:"center",gap:".55rem"}}>
-                                <img src="/logo.png" alt="NOELCLAW" style={{width:"20px",height:"20px",borderRadius:"50%",objectFit:"cover",flexShrink:0}}
-                                  onError={e=>{e.target.style.display="none";}}/>
-                                <div>
-                                  <div style={{fontSize:".68rem",color:"var(--blue-hi)",fontWeight:600,lineHeight:1,letterSpacing:".04em"}}>$NOELCLAW</div>
-                                  <div style={{fontSize:".5rem",color:"var(--text3)",marginTop:".1rem"}}>
-                                    {(()=>{
-                                      const p = parseFloat(tokenData.price||0);
-                                      if(p<=0) return "—";
-                                      const s = p.toFixed(12);
-                                      const m = s.match(/^0\.(0+)([1-9]\d*)/);
-                                      if(m && m[1].length>=2) return "$0.0 "+m[2].slice(0,4);
-                                      return "$"+p.toFixed(6);
-                                    })()}
-                                  </div>
-                                </div>
-                              </div>
-                              <div style={{textAlign:"right"}}>
-                                <div style={{fontSize:".68rem",fontWeight:600,color:(parseFloat(tokenData.priceChange24h||0))>=0?"var(--green)":"#ff6b6b"}}>
-                                  {(parseFloat(tokenData.priceChange24h||0))>=0?"+":""}{parseFloat(tokenData.priceChange24h||0).toFixed(1)}%
-                                </div>
-                                <div style={{fontSize:".48rem",color:"var(--text3)"}}>24h</div>
-                              </div>
-                            </div>
-                          )}
-
-                          {/* AI token rows */}
-                          {aiTokens.slice(0,10).map((t,i)=>(
-                            <div key={i} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:".4rem 1rem",borderBottom:i<9?"1px solid rgba(255,255,255,.04)":"none",transition:"background .15s",cursor:"default"}}
-                              onMouseEnter={e=>e.currentTarget.style.background="rgba(255,255,255,.025)"}
-                              onMouseLeave={e=>e.currentTarget.style.background="transparent"}>
-                              <div style={{display:"flex",alignItems:"center",gap:".5rem"}}>
-                                {t.image ? (
-                                  <img src={t.image} alt={t.symbol} style={{width:"18px",height:"18px",borderRadius:"50%",objectFit:"cover",flexShrink:0}} onError={e=>{e.target.style.display="none";}}/>
-                                ) : (
-                                  <div style={{width:"18px",height:"18px",borderRadius:"50%",background:"rgba(77,133,255,.18)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:".48rem",color:"var(--blue-hi)",fontWeight:700,flexShrink:0}}>{t.symbol?.slice(0,2)}</div>
-                                )}
-                                <div>
-                                  <div style={{fontSize:".66rem",color:"var(--text)",fontWeight:500,lineHeight:1}}>{t.symbol}</div>
-                                  <div style={{fontSize:".5rem",color:"var(--text3)",marginTop:".1rem"}}>
-                                    {t.price ? "$"+parseFloat(t.price).toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:4}) : <span style={{opacity:.4}}>—</span>}
-                                  </div>
-                                </div>
-                              </div>
-                              <div style={{textAlign:"right"}}>
-                                <div style={{fontSize:".66rem",fontWeight:500,color:(t.priceChange24h||0)>=0?"var(--green)":"#ff6b6b"}}>
-                                  {(t.priceChange24h||0)>=0?"+":""}{(t.priceChange24h||0).toFixed(1)}%
-                                </div>
-                                <div style={{fontSize:".48rem",color:"var(--text3)",marginTop:".1rem"}}>
-                                  ${((t.volume24h||0)/1e6).toFixed(1)}M vol
-                                </div>
-                              </div>
-                            </div>
+                          {aiTokensLoading&&<span style={{fontSize:".55rem",color:"var(--text3)",display:"flex",alignItems:"center",gap:".4rem"}}><span style={{width:"5px",height:"5px",borderRadius:"50%",background:"var(--blue-hi)",display:"inline-block",animation:"pulse 1.2s infinite"}}/>Updating…</span>}
+                        </div>
+                        {/* Column headers */}
+                        <div style={{display:"grid",gridTemplateColumns:"2fr 1fr 1fr 80px",padding:".4rem 1.2rem",borderBottom:"1px solid var(--border)",background:"rgba(255,255,255,.005)"}}>
+                          {["TOKEN","PRICE","MARKET CAP","24H %"].map((h,i)=>(
+                            <span key={h} style={{fontSize:".42rem",color:"var(--text3)",letterSpacing:".12em",fontWeight:700,textAlign:i>0?"right":"left"}}>{h}</span>
                           ))}
-                          {aiTokens.length===0&&(
-                            <div style={{padding:"1.5rem 1rem",display:"flex",alignItems:"center",gap:".5rem"}}>
-                              <span style={{width:"5px",height:"5px",borderRadius:"50%",background:"var(--green)",animation:"pulse 1.5s infinite",display:"inline-block",flexShrink:0}}/>
-                              <span style={{fontSize:".68rem",color:"var(--text3)"}}>Loading AI tokens…</span>
-                            </div>
-                          )}
                         </div>
-                          {/* Smart Money — PREMIUM LOCKED */}
-                          {walletTier==="premium" ? (
-                        <div style={{background:"var(--surface)",border:"1px solid var(--border)",borderRadius:"12px",overflow:"hidden"}}>
-                          <div style={{padding:".8rem 1rem",borderBottom:"1px solid var(--border)",background:"rgba(255,255,255,.015)",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-                            <div style={{display:"flex",alignItems:"center",gap:".5rem"}}>
-                              <span style={{fontSize:".75rem",lineHeight:1}}>🧠</span>
-                              <span style={{fontSize:".68rem",color:"var(--white)",fontWeight:500}}>Smart Money</span>
-                            </div>
-                            <span style={{fontSize:".44rem",background:"rgba(34,211,165,.08)",color:"var(--green)",border:"1px solid rgba(34,211,165,.2)",borderRadius:"20px",padding:".1rem .45rem",fontWeight:600,letterSpacing:".06em"}}>LIVE</span>
-                          </div>
-
-                          {/* Derived from recent trades — top unique wallets by volume */}
-                          {(()=>{
-                            // Build smart money from recentTrades tx hashes as proxy wallets
-                            const walletMap = {};
-                            recentTrades.forEach((t)=>{
-                              const key = t.txHash ? t.txHash.slice(2,10).toUpperCase() : null;
-                              if(!key) return;
-                              if(!walletMap[key]) walletMap[key]={buys:0,sells:0,vol:0,lastType:t.type,lastTime:t.timestamp||0,txHash:t.txHash};
-                              if(t.type==="buy") walletMap[key].buys++;
-                              else walletMap[key].sells++;
-                              walletMap[key].vol += parseFloat(t.amountUsd||0);
-                              if((t.timestamp||0) > walletMap[key].lastTime){
-                                walletMap[key].lastTime = t.timestamp||0;
-                                walletMap[key].lastType = t.type;
-                              }
-                            });
-                            const wallets = Object.entries(walletMap)
-                              .map(([addr,d])=>({addr,...d}))
-                              .sort((a,b)=>b.vol-a.vol)
-                              .slice(0,8);
-
-                            if(wallets.length===0) return (
-                              <div style={{padding:"1.5rem 1rem",display:"flex",alignItems:"center",gap:".5rem"}}>
-                                <span style={{width:"5px",height:"5px",borderRadius:"50%",background:"var(--blue-hi)",animation:"pulse 1.5s infinite",display:"inline-block",flexShrink:0}}/>
-                                <span style={{fontSize:".68rem",color:"var(--text3)"}}>Loading wallet data…</span>
-                              </div>
-                            );
-
-                            return wallets.map((w,i)=>{
-                              const tier = w.vol > 500 ? {label:"🐋 WHALE",color:"#a78bfa"} : w.vol > 100 ? {label:"🦈 SHARK",color:"var(--blue-hi)"} : {label:"🐬 DOLPH",color:"var(--green)"};
-                              const ago = w.lastTime ? (()=>{
-                                const diff = Math.floor((Date.now()-w.lastTime)/1000);
-                                if(diff<60) return diff+"s ago";
-                                if(diff<3600) return Math.floor(diff/60)+"m ago";
-                                return Math.floor(diff/3600)+"h ago";
-                              })() : "—";
-                              const winRate = w.buys+w.sells > 0 ? Math.round((w.buys/(w.buys+w.sells))*100) : 0;
-                              return (
-                                <div key={i} style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:".5rem 1rem",borderBottom:i<7?"1px solid rgba(255,255,255,.04)":"none",transition:"background .15s"}}
-                                  onMouseEnter={e=>e.currentTarget.style.background="rgba(255,255,255,.025)"}
-                                  onMouseLeave={e=>e.currentTarget.style.background="transparent"}>
-                                  <div style={{display:"flex",alignItems:"center",gap:".55rem"}}>
-                                    <div style={{width:"28px",height:"28px",borderRadius:"50%",background:`rgba(255,255,255,.06)`,border:`1px solid ${tier.color}33`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
-                                      <span style={{fontSize:".7rem",lineHeight:1}}>{w.lastType==="buy"?"▲":"▼"}</span>
-                                    </div>
-                                    <div>
-                                      <div style={{display:"flex",alignItems:"center",gap:".3rem"}}>
-                                        <a href={`https://basescan.org/tx/${w.txHash}`} target="_blank" rel="noopener noreferrer"
-                                          style={{fontSize:".62rem",color:"var(--text)",fontFamily:"monospace",fontWeight:500,textDecoration:"none",letterSpacing:".04em"}}
-                                          onMouseEnter={e=>e.currentTarget.style.color="var(--blue-hi)"}
-                                          onMouseLeave={e=>e.currentTarget.style.color="var(--text)"}
-                                        >{w.addr}</a>
-                                        <span style={{fontSize:".44rem",color:tier.color,background:tier.color+"18",border:`1px solid ${tier.color}33`,borderRadius:"3px",padding:".05rem .28rem",fontWeight:700,letterSpacing:".06em"}}>{tier.label.split(" ")[1]}</span>
-                                      </div>
-                                      <div style={{display:"flex",gap:".5rem",marginTop:".15rem"}}>
-                                        <span style={{fontSize:".5rem",color:"var(--text3)"}}>{ago}</span>
-                                        <span style={{fontSize:".5rem",color:"var(--green)"}}>B:{w.buys}</span>
-                                        <span style={{fontSize:".5rem",color:"#ff6b6b"}}>S:{w.sells}</span>
-                                      </div>
-                                    </div>
-                                  </div>
-                                  <div style={{textAlign:"right"}}>
-                                    <div style={{fontSize:".65rem",color:"var(--white)",fontWeight:500,fontFamily:"monospace"}}>${w.vol.toFixed(0)}</div>
-                                    <div style={{fontSize:".48rem",color:w.lastType==="buy"?"var(--green)":"#ff6b6b",marginTop:".15rem",fontWeight:600}}>{w.lastType==="buy"?"↑ BUY":"↓ SELL"}</div>
-                                  </div>
+                        {/* NOELCLAW pinned row */}
+                        {tokenData&&(
+                          <div style={{display:"grid",gridTemplateColumns:"2fr 1fr 1fr 70px",padding:".65rem 1.2rem",borderBottom:"1px solid var(--border)",background:"rgba(26,79,255,.05)",alignItems:"center",cursor:"pointer",transition:"background .15s"}}
+                            onClick={()=>window.open("https://dexscreener.com/base/"+tokenData.address,"_blank")}
+                            onMouseEnter={e=>e.currentTarget.style.background="rgba(26,79,255,.1)"}
+                            onMouseLeave={e=>e.currentTarget.style.background="rgba(26,79,255,.05)"}>
+                            <div style={{display:"flex",alignItems:"center",gap:".6rem"}}>
+                              <img src="/logo.png" alt="NOELCLAW" style={{width:"22px",height:"22px",borderRadius:"50%",objectFit:"cover",flexShrink:0,border:"1px solid rgba(26,79,255,.4)"}} onError={e=>e.target.style.display="none"}/>
+                              <div>
+                                <div style={{display:"flex",alignItems:"center",gap:".4rem"}}>
+                                  <span style={{fontSize:".72rem",color:"var(--blue-hi)",fontWeight:700}}>$NOELCLAW</span>
+                                  <span style={{fontSize:".38rem",background:"rgba(26,79,255,.15)",color:"var(--blue-hi)",border:"1px solid rgba(26,79,255,.3)",borderRadius:"4px",padding:".06rem .3rem",fontWeight:700}}>BASE</span>
                                 </div>
-                              );
-                            });
-                          })()}
-                        </div>
-                          ) : (
-                            <div style={{background:"var(--surface)",border:"1px solid var(--border)",borderRadius:"12px",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:".6rem",padding:"2.5rem 1rem"}}>
-                              <span style={{fontSize:"1.8rem"}}>🧠</span>
-                              <span style={{fontSize:".7rem",color:"var(--white)",fontWeight:600}}>Smart Money</span>
-                              <span style={{fontSize:".58rem",color:"var(--text3)",textAlign:"center",maxWidth:"200px",lineHeight:1.6}}>Hold 20M $NOELCLAW to unlock real smart money wallet tracking via GMGN</span>
-                              <span style={{fontSize:".5rem",color:"#c084fc",background:"rgba(168,85,247,.1)",border:"1px solid rgba(168,85,247,.3)",borderRadius:"20px",padding:".15rem .55rem",fontWeight:700,letterSpacing:".08em"}}>PREMIUM</span>
+                                <span style={{fontSize:".5rem",color:"var(--text3)",fontFamily:"monospace"}}>
+                                  {(()=>{const p=parseFloat(tokenData.price||0);if(!p)return "—";const s=p.toFixed(12);const m=s.match(/^0\.(0+)([1-9]\d*)/);return m?"$0.0₍"+m[1].length+"₎"+m[2].slice(0,4):"$"+p.toFixed(6);})()}
+                                </span>
+                              </div>
                             </div>
-                          )}
-                        </div>
+                            <div style={{textAlign:"right"}}>
+                              <span style={{fontSize:".65rem",color:"var(--text2)",fontWeight:500}}>
+                                {tokenData.marketCap?(tokenData.marketCap>=1e9?"$"+(tokenData.marketCap/1e9).toFixed(2)+"B":tokenData.marketCap>=1e6?"$"+(tokenData.marketCap/1e6).toFixed(1)+"M":"$"+(tokenData.marketCap/1e3).toFixed(0)+"K"):"—"}
+                              </span>
+                            </div>
+                            <div style={{textAlign:"right"}}>
+                              <span style={{fontSize:".65rem",color:"var(--text2)",fontWeight:500}}>
+                                {tokenData.volume24h?(tokenData.volume24h>=1e6?"$"+(tokenData.volume24h/1e6).toFixed(1)+"M":"$"+(tokenData.volume24h/1e3).toFixed(0)+"K"):"—"}
+                              </span>
+                            </div>
+                            <div style={{textAlign:"right"}}>
+                              <span style={{fontSize:".72rem",fontWeight:700,color:parseFloat(tokenData.priceChange24h||0)>=0?"var(--blue-hi)":"#ff6b6b"}}>
+                                {(parseFloat(tokenData.priceChange24h||0)||0)>=0?"+":""}{(parseFloat(tokenData.priceChange24h||0)||0).toFixed(2)}%
+                              </span>
+                            </div>
+                          </div>
+                        )}
+                        {/* BNKR pinned row */}
+                        <BnkrRow/>
+                        {aiTokens.slice(0,12).map((t,idx)=>{
+                          const price=t.current_price||t.price||0;
+                          const mcap=parseFloat(t.market_cap||t.marketCap||0)||0;
+                          const vol=parseFloat(t.total_volume||t.volume24h||0)||0;
+                          const chg=parseFloat(t.price_change_percentage_24h??t.priceChange24h??0)||0;
+                          const sym=(t.symbol||"?").toUpperCase();
+                          const img=t.image||t.logo||null;
+                          const isPos=chg>=0;
+                          const fmt=n=>{const v=parseFloat(n)||0;return v>=1e9?"$"+(v/1e9).toFixed(2)+"B":v>=1e6?"$"+(v/1e6).toFixed(1)+"M":v>=1e3?"$"+(v/1e3).toFixed(1)+"K":v>0?"$"+v.toFixed(2):"—";};
+                          const fmtP=p=>{const v=parseFloat(p)||0;if(!v)return"—";if(v>=1)return"$"+v.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:4});const s=v.toFixed(10),m=s.match(/^0[.](0+)([1-9]\d*)/);return m?"$0.0("+m[1].length+")"+m[2].slice(0,3):"$"+v.toFixed(6);};
+                          return (
+                          <div key={idx} style={{display:"grid",gridTemplateColumns:"2fr 1fr 1fr 70px",padding:".6rem 1.2rem",borderBottom:"1px solid rgba(255,255,255,.03)",alignItems:"center",cursor:"pointer",transition:"background .15s"}}
+                            onClick={()=>t.url?window.open(t.url,'_blank'):t.id?window.open(`https://dexscreener.com/base/${t.id}`,'_blank'):null}
+                            onMouseEnter={e=>e.currentTarget.style.background="rgba(255,255,255,.028)"}
+                            onMouseLeave={e=>e.currentTarget.style.background="transparent"}>
+                            <div style={{display:"flex",alignItems:"center",gap:".6rem"}}>
+                              {t.id && t.id.startsWith("0x") ? (
+                                <img
+                                  src={`https://dd.dexscreener.com/ds-data/tokens/base/${t.id.toLowerCase()}.png`}
+                                  alt={sym}
+                                  style={{width:"24px",height:"24px",borderRadius:"50%",objectFit:"cover",flexShrink:0,background:"rgba(255,255,255,.05)"}}
+                                  onError={e=>{e.target.outerHTML=`<div style="width:24px;height:24px;border-radius:50%;background:hsl(${(sym.charCodeAt(0)*37)%360},60%,35%);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:.62rem;font-weight:700;color:#fff">${sym[0]}</div>`;}}
+                                />
+                              ) : (
+                                <div style={{width:"24px",height:"24px",borderRadius:"50%",background:`hsl(${(sym.charCodeAt(0)*37)%360},60%,35%)`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,fontSize:".62rem",fontWeight:700,color:"#fff"}}>{sym[0]}</div>
+                              )}
+                              <div>
+                                <div style={{fontSize:".72rem",color:"#fff",fontWeight:600}}>{sym}</div>
+                                <div style={{fontSize:".52rem",color:"rgba(140,170,210,.45)",fontFamily:"'IBM Plex Mono',monospace",marginTop:".1rem"}}>{fmtP(price)}</div>
+                              </div>
+                            </div>
+                            <div style={{textAlign:"right"}}><span style={{fontSize:".65rem",color:"rgba(180,200,255,.6)",fontFamily:"'IBM Plex Mono',monospace"}}>{mcap?fmt(mcap):"—"}</span></div>
+                            <div style={{textAlign:"right"}}><span style={{fontSize:".65rem",color:"rgba(180,200,255,.6)",fontFamily:"'IBM Plex Mono',monospace"}}>{vol?fmt(vol):"—"}</span></div>
+                            <div style={{textAlign:"right"}}><span style={{fontSize:".72rem",fontWeight:700,color:isPos?"#4d85ff":"#ff6b6b",fontFamily:"'IBM Plex Mono',monospace"}}>{isPos?"+":""}{chg.toFixed(2)}%</span></div>
+                          </div>
+                          );
+                        })}
+                        {aiTokens.length===0&&!aiTokensLoading&&(
+                          <div style={{padding:"1.5rem 1.2rem",display:"flex",alignItems:"center",gap:".6rem"}}>
+                            <span style={{width:"5px",height:"5px",borderRadius:"50%",background:"var(--blue-hi)",display:"inline-block",animation:"pulse 1.2s infinite",flexShrink:0}}/>
+                            <span style={{fontSize:".68rem",color:"var(--text3)"}}>Loading Base chain tokens…</span>
+                          </div>
+                        )}
+                        {aiTokens.length===0&&aiTokensLoading&&(
+                          <div style={{padding:"1.5rem 1.2rem",display:"flex",alignItems:"center",gap:".6rem"}}>
+                            <span style={{width:"5px",height:"5px",borderRadius:"50%",background:"var(--blue-hi)",display:"inline-block",animation:"pulse 1.2s infinite",flexShrink:0}}/>
+                            <span style={{fontSize:".68rem",color:"var(--text3)"}}>Fetching top AI tokens…</span>
+                          </div>
+                        )}
                       </div>
 
-                      {/* $NOELCLAW Activity — PUBLIC */}
-                      {/* Row 2: $NOELCLAW Activity — PUBLIC */}
-                      <div style={{background:"var(--surface)",border:"1px solid var(--border)",borderRadius:"12px",overflow:"hidden",marginBottom:"1rem"}}>
+                      {/* ── $NOELCLAW ACTIVITY ─────────────────────────── */}
+                      <div style={{background:"var(--surface)",border:"1px solid var(--border)",borderRadius:"16px",overflow:"hidden",marginBottom:"1rem"}}>
                         {/* Header */}
-                        <div style={{padding:".9rem 1.2rem",borderBottom:"1px solid var(--border)",display:"flex",justifyContent:"space-between",alignItems:"center",background:"rgba(255,255,255,.015)"}}>
+                        <div style={{padding:".75rem 1.2rem",borderBottom:"1px solid var(--border)",display:"flex",justifyContent:"space-between",alignItems:"center",background:"rgba(255,255,255,.012)"}}>
                           <div style={{display:"flex",alignItems:"center",gap:".6rem"}}>
-                            <img src="/logo.png" alt="NOELCLAW" style={{width:"18px",height:"18px",borderRadius:"50%",objectFit:"cover"}}/>
-                            <span style={{fontSize:".72rem",color:"var(--white)",fontWeight:500,letterSpacing:".04em"}}>$NOELCLAW Activity</span>
-                            <span style={{display:"flex",alignItems:"center",gap:".3rem",fontSize:".52rem",color:"var(--green)",letterSpacing:".06em",background:"rgba(34,211,165,.08)",border:"1px solid rgba(34,211,165,.2)",borderRadius:"20px",padding:".1rem .45rem"}}>
-                              <span style={{width:"5px",height:"5px",borderRadius:"50%",background:"var(--green)",display:"inline-block",animation:"pulse 2s ease-in-out infinite",flexShrink:0}}/>
-                              LIVE
+                            <img src="/logo.png" alt="" style={{width:"18px",height:"18px",borderRadius:"50%",objectFit:"cover"}} onError={e=>e.target.style.display="none"}/>
+                            <span style={{fontSize:".75rem",color:"var(--white)",fontWeight:700}}>$NOELCLAW Activity</span>
+                            <span style={{display:"flex",alignItems:"center",gap:".3rem",fontSize:".38rem",background:"rgba(77,133,255,.1)",color:"var(--blue-hi)",border:"1px solid rgba(77,133,255,.25)",borderRadius:"20px",padding:".12rem .5rem",fontWeight:700,letterSpacing:".1em"}}>
+                              <span style={{width:"5px",height:"5px",borderRadius:"50%",background:"var(--blue-hi)",display:"inline-block",animation:"pulse 1.2s infinite"}}/>LIVE
                             </span>
                           </div>
                           <div style={{display:"flex",alignItems:"center",gap:"1rem"}}>
                             {tradeStats&&(
-                              <div style={{display:"flex",gap:".8rem"}}>
+                              <div style={{display:"flex",gap:".6rem",alignItems:"center"}}>
                                 <div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:".1rem"}}>
-                                  <span style={{fontSize:".48rem",color:"var(--text3)",letterSpacing:".1em"}}>5M</span>
-                                  <div style={{display:"flex",gap:".3rem"}}>
-                                    <span style={{fontSize:".58rem",color:"var(--green)",fontWeight:600}}>{tradeStats.buys5m}</span>
-                                    <span style={{fontSize:".58rem",color:"#ff6b6b",fontWeight:600}}>{tradeStats.sells5m}</span>
+                                  <span style={{fontSize:".38rem",color:"var(--text3)",letterSpacing:".1em",fontWeight:600}}>5M</span>
+                                  <div style={{display:"flex",gap:".2rem"}}>
+                                    <span style={{fontSize:".55rem",color:"var(--blue-hi)",fontWeight:700}}>{tradeStats.buys5m||0}B</span>
+                                    <span style={{fontSize:".55rem",color:"#ff6b6b",fontWeight:700}}>{tradeStats.sells5m||0}S</span>
                                   </div>
                                 </div>
+                                <div style={{width:"1px",height:"20px",background:"var(--border)"}}/>
                                 <div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:".1rem"}}>
-                                  <span style={{fontSize:".48rem",color:"var(--text3)",letterSpacing:".1em"}}>1H</span>
-                                  <div style={{display:"flex",gap:".3rem"}}>
-                                    <span style={{fontSize:".58rem",color:"var(--green)",fontWeight:600}}>{tradeStats.buys1h}</span>
-                                    <span style={{fontSize:".58rem",color:"#ff6b6b",fontWeight:600}}>{tradeStats.sells1h}</span>
+                                  <span style={{fontSize:".38rem",color:"var(--text3)",letterSpacing:".1em",fontWeight:600}}>1H</span>
+                                  <div style={{display:"flex",gap:".2rem"}}>
+                                    <span style={{fontSize:".55rem",color:"var(--blue-hi)",fontWeight:700}}>{tradeStats.buys1h||0}B</span>
+                                    <span style={{fontSize:".55rem",color:"#ff6b6b",fontWeight:700}}>{tradeStats.sells1h||0}S</span>
                                   </div>
                                 </div>
+                                <div style={{width:"1px",height:"20px",background:"var(--border)"}}/>
                                 <div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:".1rem"}}>
-                                  <span style={{fontSize:".48rem",color:"var(--text3)",letterSpacing:".1em"}}>24H</span>
-                                  <div style={{display:"flex",gap:".3rem"}}>
-                                    <span style={{fontSize:".58rem",color:"var(--green)",fontWeight:600}}>{tradeStats.buys24h}</span>
-                                    <span style={{fontSize:".58rem",color:"#ff6b6b",fontWeight:600}}>{tradeStats.sells24h}</span>
-                                  </div>
-                                </div>
-                                <div style={{width:"1px",background:"var(--border)",alignSelf:"stretch"}}/>
-                                <div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:".1rem"}}>
-                                  <span style={{fontSize:".48rem",color:"var(--text3)",letterSpacing:".1em"}}>VOL 24H</span>
-                                  <span style={{fontSize:".58rem",color:"var(--text2)",fontWeight:500}}>${parseFloat(tradeStats.volume24h||0)>=1000 ? (parseFloat(tradeStats.volume24h||0)/1000).toFixed(1)+"k" : parseFloat(tradeStats.volume24h||0).toFixed(0)}</span>
+                                  <span style={{fontSize:".38rem",color:"var(--text3)",letterSpacing:".1em",fontWeight:600}}>PRICE</span>
+                                  <span style={{fontSize:".55rem",color:"var(--text2)",fontWeight:600,fontFamily:"monospace"}}>{tokenData?(()=>{const p=parseFloat(tokenData.price||0);const s=p.toFixed(12);const m=s.match(/^0\.(0+)([1-9]\d*)/);return m?"$0.0"+m[2].slice(0,3):"$"+p.toFixed(4);})():"—"}</span>
                                 </div>
                               </div>
                             )}
-                            <button onClick={fetchRecentTrades}
-                              style={{background:"none",border:"1px solid var(--border)",borderRadius:"5px",padding:".22rem .6rem",color:"var(--text3)",fontSize:".58rem",cursor:"pointer",fontFamily:"inherit",letterSpacing:".06em",display:"flex",alignItems:"center",gap:".3rem",transition:"all .18s"}}
-                              onMouseEnter={e=>{e.currentTarget.style.borderColor="var(--border2)";e.currentTarget.style.color="var(--text)";}}
-                              onMouseLeave={e=>{e.currentTarget.style.borderColor="var(--border)";e.currentTarget.style.color="var(--text3)";}}>
-                              ↻ Refresh
-                            </button>
+                            <button onClick={fetchRecentTrades} style={{background:"none",border:"1px solid var(--border)",borderRadius:"7px",padding:".22rem .65rem",color:"var(--text3)",fontSize:".55rem",cursor:"pointer",fontFamily:"inherit",transition:"all .18s"}}
+                              onMouseEnter={e=>{e.currentTarget.style.borderColor="var(--blue-hi)";e.currentTarget.style.color="var(--blue-hi)";}}
+                              onMouseLeave={e=>{e.currentTarget.style.borderColor="var(--border)";e.currentTarget.style.color="var(--text3)";}}>↻ Refresh</button>
                           </div>
                         </div>
-
                         {/* Column headers */}
-                        <div style={{display:"grid",gridTemplateColumns:"72px 68px 90px 110px 130px 80px 32px",gap:0,padding:".45rem 1.2rem",borderBottom:"1px solid var(--border)",background:"rgba(255,255,255,.008)"}}>
-                          {["DATE","TYPE","USD","NOELCLAW","PRICE","MAKER","TXN"].map(h=>(
-                            <span key={h} style={{fontSize:".45rem",color:"var(--text3)",letterSpacing:".12em",fontWeight:700,textTransform:"uppercase"}}>{h}</span>
+                        <div style={{display:"grid",gridTemplateColumns:"60px 64px 80px 1fr 110px 70px 28px",padding:".4rem 1.2rem",borderBottom:"1px solid var(--border)",background:"rgba(255,255,255,.005)"}}>
+                          {["TIME","TYPE","USD","NOELCLAW","PRICE","MAKER","TXN"].map((h,i)=>(
+                            <span key={h} style={{fontSize:".42rem",color:"var(--text3)",letterSpacing:".1em",fontWeight:700,textAlign:i>=2&&i<=4?"right":"left"}}>{h}</span>
                           ))}
                         </div>
-
                         {/* Trade rows */}
-                        {recentTrades.length>0 ? recentTrades.slice(0,15).map((t,i)=>{
-                          const isBuy = t.type==="buy";
-                          const price = parseFloat(t.priceUsd||0);
-                          const amtUsd = parseFloat(t.amountUsd||0);
-                          const noelclawAmt = price > 0 ? amtUsd / price : 0;
-                          const ago = t.timestamp ? (() => {
-                            const diff = Math.floor((Date.now()-t.timestamp)/1000);
-                            if(diff<60) return diff+"s ago";
-                            if(diff<3600) return Math.floor(diff/60)+"m ago";
-                            return Math.floor(diff/3600)+"h ago";
-                          })() : "—";
-                          const priceStr = price > 0
-                            ? "$0.0₆"+price.toFixed(10).replace(/^0\.0+/,"").slice(0,4)
-                            : "—";
-                          return (
-                            <div key={i} style={{
-                              display:"grid",gridTemplateColumns:"72px 68px 90px 110px 130px 80px 32px",
-                              gap:0, padding:".5rem 1.2rem",
-                              borderBottom:"1px solid rgba(255,255,255,.035)",
-                              background: isBuy ? "rgba(26,79,255,.04)" : "rgba(255,107,107,.025)",
-                              transition:"background .15s",
-                              alignItems:"center",
-                            }}
-                              onMouseEnter={e=>e.currentTarget.style.background=isBuy?"rgba(26,79,255,.09)":"rgba(255,107,107,.07)"}
-                              onMouseLeave={e=>e.currentTarget.style.background=isBuy?"rgba(26,79,255,.04)":"rgba(255,107,107,.025)"}
-                            >
-                              {/* DATE */}
-                              <span style={{fontSize:".58rem",color:"var(--text3)",fontFamily:"monospace"}}>{ago}</span>
-
-                              {/* TYPE — blue for buy, red for sell */}
-                              <div style={{display:"flex",alignItems:"center",gap:".3rem"}}>
-                                <span style={{
-                                  display:"inline-flex",alignItems:"center",justifyContent:"center",
-                                  width:"14px",height:"14px",borderRadius:"3px",flexShrink:0,
-                                  background: isBuy ? "rgba(26,79,255,.25)" : "rgba(255,107,107,.2)",
-                                  border: `1px solid ${isBuy?"rgba(77,133,255,.4)":"rgba(255,107,107,.4)"}`,
-                                  fontSize:".5rem",
-                                  color: isBuy ? "var(--blue-hi)" : "#ff6b6b",
-                                }}>{isBuy?"▲":"▼"}</span>
-                                <span style={{fontSize:".65rem",fontWeight:600,color:isBuy?"var(--blue-hi)":"#ff6b6b"}}>{isBuy?"Buy":"Sell"}</span>
+                        <div style={{overflowX:"auto"}}>
+                          <div style={{minWidth:"540px"}}>
+                            {recentTrades.length>0?recentTrades.slice(0,15).map((t,i)=>{
+                              const isBuy=t.type==="buy";
+                              const price=parseFloat(t.priceUsd||0);
+                              const amtUsd=parseFloat(t.amountUsd||t.usd||0);
+                              const noelAmt=price>0?amtUsd/price:parseFloat(t.noelclaw||0);
+                              const ago=t.timestamp?(()=>{const d=Math.floor((Date.now()-t.timestamp)/1000);return d<60?d+"s":d<3600?Math.floor(d/60)+"m":Math.floor(d/3600)+"h";})():"—";
+                              return(
+                                <div key={i} style={{display:"grid",gridTemplateColumns:"60px 64px 80px 1fr 110px 70px 28px",padding:".55rem 1.2rem",borderBottom:"1px solid rgba(255,255,255,.03)",alignItems:"center",background:isBuy?"rgba(77,133,255,.03)":"rgba(255,107,107,.025)",transition:"background .15s",cursor:"pointer"}}
+                                  onMouseEnter={e=>e.currentTarget.style.background=isBuy?"rgba(77,133,255,.07)":"rgba(255,107,107,.06)"}
+                                  onMouseLeave={e=>e.currentTarget.style.background=isBuy?"rgba(77,133,255,.03)":"rgba(255,107,107,.025)"}>
+                                  <span style={{fontSize:".58rem",color:"var(--text3)",fontFamily:"monospace"}}>{ago}</span>
+                                  <div style={{display:"flex",alignItems:"center",gap:".3rem"}}>
+                                    <span style={{display:"inline-flex",alignItems:"center",justifyContent:"center",width:"16px",height:"16px",borderRadius:"4px",background:isBuy?"rgba(77,133,255,.15)":"rgba(255,107,107,.15)",border:"1px solid "+(isBuy?"rgba(77,133,255,.3)":"rgba(255,107,107,.3)"),fontSize:".5rem",color:isBuy?"var(--blue-hi)":"#ff6b6b",flexShrink:0}}>{isBuy?"▲":"▼"}</span>
+                                    <span style={{fontSize:".65rem",fontWeight:700,color:isBuy?"var(--blue-hi)":"#ff6b6b"}}>{isBuy?"BUY":"SELL"}</span>
+                                  </div>
+                                  <span style={{fontSize:".65rem",color:"var(--white)",fontWeight:600,fontFamily:"monospace",textAlign:"right"}}>${amtUsd.toFixed(0)}</span>
+                                  <span style={{fontSize:".6rem",color:"var(--text2)",fontFamily:"monospace",textAlign:"right",paddingRight:".5rem"}}>
+                                    {noelAmt>1e6?(noelAmt/1e6).toFixed(2)+"M":noelAmt>1000?(noelAmt/1e3).toFixed(1)+"K":noelAmt.toFixed(0)}
+                                  </span>
+                                  <span style={{fontSize:".62rem",fontFamily:"monospace",color:isBuy?"var(--blue-hi)":"#ff6b6b",textAlign:"right"}}>
+                                    {price>0?(()=>{const s=price.toFixed(12);const m=s.match(/^0\.(0+)([1-9]\d*)/);return m?"$0.0₍"+m[1].length+"₎"+m[2].slice(0,3):"$"+price.toFixed(5);})():"—"}
+                                  </span>
+                                  <span>
+                                    {t.txHash?<a href={"https://basescan.org/address/0x"+t.txHash.slice(2,42)} target="_blank" rel="noopener noreferrer"
+                                      style={{fontSize:".58rem",color:"var(--text3)",fontFamily:"monospace",textDecoration:"none"}}
+                                      onMouseEnter={e=>e.currentTarget.style.color="var(--blue-hi)"}
+                                      onMouseLeave={e=>e.currentTarget.style.color="var(--text3)"}>{t.txHash.slice(2,8).toUpperCase()}</a>
+                                    :<span style={{fontSize:".58rem",color:"var(--text3)",opacity:.4}}>——</span>}
+                                  </span>
+                                  <span style={{display:"flex",justifyContent:"center"}}>
+                                    {t.txHash?<a href={"https://basescan.org/tx/"+t.txHash} target="_blank" rel="noopener noreferrer"
+                                      style={{display:"inline-flex",alignItems:"center",justifyContent:"center",width:"18px",height:"18px",borderRadius:"4px",background:"rgba(255,255,255,.05)",border:"1px solid var(--border)",color:"var(--text3)",fontSize:".55rem",textDecoration:"none",transition:"all .15s"}}
+                                      onMouseEnter={e=>{e.currentTarget.style.background="rgba(26,79,255,.15)";e.currentTarget.style.color="var(--blue-hi)";e.currentTarget.style.borderColor="rgba(26,79,255,.4)";}}
+                                      onMouseLeave={e=>{e.currentTarget.style.background="rgba(255,255,255,.05)";e.currentTarget.style.color="var(--text3)";e.currentTarget.style.borderColor="var(--border)";}}>↗</a>
+                                    :<span style={{opacity:.2,fontSize:".6rem",color:"var(--text3)"}}>—</span>}
+                                  </span>
+                                </div>
+                              );
+                            }):(
+                              <div style={{padding:"1.2rem 1.2rem",display:"flex",flexDirection:"column",gap:".8rem"}}>
+                                {/* Show DexScreener stats if available */}
+                                {(tradeStats?.buys24h>0||tradeStats?.sells24h>0) ? (
+                                  <div style={{display:"flex",flexDirection:"column",gap:"1rem"}}>
+                                    {/* Main stats row */}
+                                    <div style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:".5rem"}}>
+                                      {[
+                                        {label:"Buys 5m",val:tradeStats.buys5m||0,color:"#4d85ff",bg:"rgba(26,79,255,.08)"},
+                                        {label:"Sells 5m",val:tradeStats.sells5m||0,color:"#ff6b6b",bg:"rgba(255,107,107,.08)"},
+                                        {label:"Buys 1h",val:tradeStats.buys1h||0,color:"#4d85ff",bg:"rgba(26,79,255,.06)"},
+                                        {label:"Sells 1h",val:tradeStats.sells1h||0,color:"#ff6b6b",bg:"rgba(255,107,107,.06)"},
+                                        {label:"Vol 24h",val:tradeStats.volume24h>0?"$"+((tradeStats.volume24h>=1e6?(tradeStats.volume24h/1e6).toFixed(1)+"M":(tradeStats.volume24h/1e3).toFixed(0)+"K")):"—",color:"rgba(200,220,255,.8)",bg:"rgba(255,255,255,.04)",raw:true},
+                                      ].map(s=>(
+                                        <div key={s.label} style={{background:s.bg,borderRadius:"8px",padding:".6rem .7rem",display:"flex",flexDirection:"column",gap:".25rem",border:"1px solid rgba(255,255,255,.05)"}}>
+                                          <span style={{fontSize:".45rem",color:"rgba(180,200,255,.4)",letterSpacing:".1em",textTransform:"uppercase",fontFamily:"'IBM Plex Mono',monospace"}}>{s.label}</span>
+                                          <span style={{fontSize:".88rem",fontWeight:700,color:s.color,fontFamily:"'IBM Plex Mono',monospace",lineHeight:1}}>{s.raw?s.val:s.val}</span>
+                                        </div>
+                                      ))}
+                                    </div>
+                                    {/* Buy/Sell pressure bar */}
+                                    {(tradeStats.buys1h+tradeStats.sells1h)>0&&(
+                                      <div>
+                                        <div style={{display:"flex",justifyContent:"space-between",marginBottom:".3rem"}}>
+                                          <span style={{fontSize:".5rem",color:"#4d85ff",fontFamily:"'IBM Plex Mono',monospace"}}>BUY {Math.round((tradeStats.buys1h/(tradeStats.buys1h+tradeStats.sells1h))*100)}%</span>
+                                          <span style={{fontSize:".5rem",color:"rgba(180,200,255,.4)",fontFamily:"'IBM Plex Mono',monospace"}}>1h pressure</span>
+                                          <span style={{fontSize:".5rem",color:"#ff6b6b",fontFamily:"'IBM Plex Mono',monospace"}}>SELL {Math.round((tradeStats.sells1h/(tradeStats.buys1h+tradeStats.sells1h))*100)}%</span>
+                                        </div>
+                                        <div style={{height:"4px",borderRadius:"2px",background:"rgba(255,107,107,.3)",overflow:"hidden"}}>
+                                          <div style={{height:"100%",borderRadius:"2px",background:"linear-gradient(90deg,#4d85ff,#2952ff)",width:`${Math.round((tradeStats.buys1h/(tradeStats.buys1h+tradeStats.sells1h))*100)}%`,transition:"width .5s ease"}}/>
+                                        </div>
+                                      </div>
+                                    )}
+                                  </div>
+                                ) : (
+                                  <div style={{display:"flex",alignItems:"center",gap:".6rem"}}>
+                                    <span style={{width:"6px",height:"6px",borderRadius:"50%",background:"var(--blue-hi)",display:"inline-block",animation:"pulse 1.2s infinite",flexShrink:0}}/>
+                                    <span style={{fontSize:".7rem",color:"var(--text3)"}}>Fetching on-chain activity…</span>
+                                  </div>
+                                )}
+                                <div style={{display:"flex",gap:".6rem",flexWrap:"wrap"}}>
+                                  <a href="https://dexscreener.com/base/0xa57d8ce207c7daaeeed4e3a491bdf51d89233af3" target="_blank" rel="noopener noreferrer"
+                                    style={{fontSize:".62rem",color:"#4d85ff",background:"rgba(26,79,255,.08)",border:"1px solid rgba(77,133,255,.2)",borderRadius:"6px",padding:".3rem .7rem",textDecoration:"none",display:"inline-flex",alignItems:"center",gap:".3rem"}}>
+                                    View on DexScreener ↗
+                                  </a>
+                                  <a href="https://flaunch.gg/base/coin/0xa57d8ce207c7daaeeed4e3a491bdf51d89233af3" target="_blank" rel="noopener noreferrer"
+                                    style={{fontSize:".62rem",color:"rgba(180,200,255,.5)",background:"rgba(255,255,255,.04)",border:"1px solid rgba(255,255,255,.08)",borderRadius:"6px",padding:".3rem .7rem",textDecoration:"none"}}>
+                                    Trade on Flaunch ↗
+                                  </a>
+                                </div>
                               </div>
-
-                              {/* USD */}
-                              <span style={{fontSize:".65rem",color:"var(--white)",fontWeight:500,fontFamily:"monospace"}}>${amtUsd.toFixed(2)}</span>
-
-                              {/* NOELCLAW amount */}
-                              <span style={{fontSize:".62rem",color:"var(--text2)",fontFamily:"monospace"}}>
-                                {noelclawAmt > 1e6
-                                  ? (noelclawAmt/1e6).toFixed(2)+"M"
-                                  : noelclawAmt > 1000
-                                    ? (noelclawAmt/1000).toFixed(1)+"K"
-                                    : noelclawAmt.toFixed(0)}
-                              </span>
-
-                              {/* PRICE — bigger, clearer, colored */}
-                              <span style={{fontSize:".65rem",fontFamily:"monospace",color:isBuy?"rgba(120,160,255,.9)":"rgba(255,140,140,.9)",fontWeight:500}}>
-                                {price > 0 ? (()=>{
-                                  const s = price.toFixed(12);
-                                  const m = s.match(/^0\.(0+)([1-9]\d*)/);
-                                  if(m && m[1].length >= 2){
-                                    return <span>$0.0<sub style={{fontSize:".5rem",verticalAlign:"baseline",lineHeight:1}}>{m[1].length}</sub>{m[2].slice(0,4)}</span>;
-                                  }
-                                  return <span>${price.toFixed(6)}</span>;
-                                })() : "—"}
-                              </span>
-
-                              {/* MAKER — link to basescan */}
-                              <span>
-                                {t.txHash ? (
-                                  <a href={`https://basescan.org/address/0x${t.txHash.slice(2,42)}`} target="_blank" rel="noopener noreferrer"
-                                    style={{fontSize:".58rem",color:"var(--text3)",fontFamily:"monospace",textDecoration:"none",letterSpacing:".03em",transition:"color .15s"}}
-                                    onMouseEnter={e=>e.currentTarget.style.color="var(--blue-hi)"}
-                                    onMouseLeave={e=>e.currentTarget.style.color="var(--text3)"}
-                                  >{t.txHash.slice(2,8).toUpperCase()}</a>
-                                ) : <span style={{fontSize:".58rem",color:"var(--text3)",opacity:.4}}>—</span>}
-                              </span>
-
-                              {/* TXN — link to tx */}
-                              <span style={{display:"flex",justifyContent:"center"}}>
-                                {t.txHash ? (
-                                  <a href={`https://basescan.org/tx/${t.txHash}`} target="_blank" rel="noopener noreferrer"
-                                    style={{display:"inline-flex",alignItems:"center",justifyContent:"center",width:"18px",height:"18px",borderRadius:"4px",background:"rgba(255,255,255,.06)",border:"1px solid var(--border)",color:"var(--text3)",fontSize:".6rem",textDecoration:"none",transition:"all .15s",flexShrink:0}}
-                                    onMouseEnter={e=>{e.currentTarget.style.background="rgba(77,133,255,.2)";e.currentTarget.style.borderColor="rgba(77,133,255,.4)";e.currentTarget.style.color="var(--blue-hi)";}}
-                                    onMouseLeave={e=>{e.currentTarget.style.background="rgba(255,255,255,.06)";e.currentTarget.style.borderColor="var(--border)";e.currentTarget.style.color="var(--text3)";}}
-                                  >↗</a>
-                                ) : <span style={{opacity:.25,fontSize:".6rem",color:"var(--text3)"}}>—</span>}
-                              </span>
-                            </div>
-                          );
-                        }) : (
-                          <div style={{padding:"1.5rem 1.2rem",display:"flex",alignItems:"center",gap:".6rem"}}>
-                            <span style={{width:"6px",height:"6px",borderRadius:"50%",background:"var(--blue-hi)",display:"inline-block",animation:"pulse 1.5s infinite",flexShrink:0}}/>
-                            <span style={{fontSize:".72rem",color:"var(--text3)"}}>Loading trades from GeckoTerminal…</span>
+                            )}
                           </div>
-                        )}
+                        </div>
                       </div>
 
-                      {/* News — PUBLIC */}
-                      {/* Row 3: Crypto News — PUBLIC */}
-                      <div style={{background:"var(--surface)",border:"1px solid var(--border)",borderRadius:"12px",overflow:"hidden",marginBottom:"1rem"}}>
-
-                        {/* Header */}
-                        <div style={{padding:".9rem 1.2rem",borderBottom:"1px solid var(--border)",background:"rgba(255,255,255,.015)",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                      {/* ── CRYPTO NEWS ────────────────────────────────── */}
+                      <div style={{background:"var(--surface)",border:"1px solid var(--border)",borderRadius:"16px",overflow:"hidden",marginBottom:"1rem"}}>
+                        <div style={{padding:".75rem 1.2rem",borderBottom:"1px solid var(--border)",display:"flex",justifyContent:"space-between",alignItems:"center",background:"rgba(255,255,255,.012)"}}>
                           <div style={{display:"flex",alignItems:"center",gap:".6rem"}}>
-                            <span style={{fontSize:"1rem",lineHeight:1}}>📰</span>
-                            <span style={{fontSize:".72rem",color:"var(--white)",fontWeight:500,letterSpacing:".04em"}}>Crypto News</span>
-                            <span style={{fontSize:".44rem",background:cryptoNews[0]?.source==="Cointelegraph"?"rgba(26,79,255,.1)":"rgba(255,165,0,.1)",color:cryptoNews[0]?.source==="Cointelegraph"?"var(--blue-hi)":"#ffa500",border:`1px solid ${cryptoNews[0]?.source==="Cointelegraph"?"rgba(77,133,255,.25)":"rgba(255,165,0,.25)"}`,borderRadius:"20px",padding:".1rem .45rem",letterSpacing:".08em",fontWeight:600}}>{cryptoNews[0]?.source==="Cointelegraph"?"COINTELEGRAPH":"CRYPTOPANIC"}</span>
-                            {messariGlobal&&<span style={{fontSize:".44rem",background:"rgba(26,79,255,.1)",color:"var(--blue-hi)",border:"1px solid rgba(77,133,255,.25)",borderRadius:"20px",padding:".1rem .45rem",letterSpacing:".08em",fontWeight:600}}>MESSARI</span>}
+                            <span style={{fontSize:".95rem"}}>📰</span>
+                            <span style={{fontSize:".75rem",color:"var(--white)",fontWeight:700}}>Crypto News</span>
+                            <span style={{fontSize:".38rem",background:"rgba(26,79,255,.1)",color:"#4d85ff",border:"1px solid rgba(77,133,255,.2)",borderRadius:"20px",padding:".12rem .5rem",fontWeight:700,letterSpacing:".1em",display:"flex",alignItems:"center",gap:".25rem"}}><span style={{width:"3px",height:"3px",borderRadius:"50%",background:"#4d85ff",animation:"pulse 1.5s infinite",display:"inline-block"}}/>LIVE</span>
                           </div>
-                          <button onClick={fetchNews}
-                            style={{background:"none",border:"1px solid var(--border)",borderRadius:"5px",padding:".22rem .6rem",color:"var(--text3)",fontSize:".58rem",cursor:"pointer",fontFamily:"inherit",letterSpacing:".06em",transition:"all .18s"}}
-                            onMouseEnter={e=>{e.currentTarget.style.borderColor="var(--border2)";e.currentTarget.style.color="var(--text)";}}
-                            onMouseLeave={e=>{e.currentTarget.style.borderColor="var(--border)";e.currentTarget.style.color="var(--text3)";}}>
-                            ↻ Refresh
-                          </button>
+                          <div style={{display:"flex",alignItems:"center",gap:".5rem"}}>
+                            {newsLastUpdated&&(
+                              <span style={{fontSize:".52rem",color:"rgba(77,133,255,.4)",fontFamily:"'IBM Plex Mono',monospace"}}>
+                                {Math.floor(newsCountdown/60)}:{String(newsCountdown%60).padStart(2,"0")}
+                              </span>
+                            )}
+                            <button onClick={fetchNews} style={{background:"none",border:"1px solid var(--border)",borderRadius:"7px",padding:".22rem .65rem",color:"var(--text3)",fontSize:".55rem",cursor:"pointer",fontFamily:"inherit",transition:"all .18s"}}
+                              onMouseEnter={e=>{e.currentTarget.style.borderColor="var(--blue-hi)";e.currentTarget.style.color="var(--blue-hi)";}}
+                              onMouseLeave={e=>{e.currentTarget.style.borderColor="var(--border)";e.currentTarget.style.color="var(--text3)";}}>↻ Refresh</button>
+                          </div>
                         </div>
-
-                        {/* Market macro bar from Messari */}
-                        {messariGlobal&&(
-                          <div style={{display:"flex",gap:0,borderBottom:"1px solid var(--border)",background:"rgba(255,255,255,.008)"}}>
-                            {[
-                              {label:"TOTAL MCAP", val:"$"+((messariGlobal.totalMarketCapUsd||0)/1e12).toFixed(2)+"T"},
-                              {label:"24H VOL", val:"$"+((messariGlobal.totalVolume24h||0)/1e9).toFixed(1)+"B"},
-                              {label:"BTC DOM", val:(messariGlobal.btcDominance||0).toFixed(1)+"%"},
-                              {label:"ETH DOM", val:(messariGlobal.ethDominance||0).toFixed(1)+"%"},
-                              {label:"DEFI MCAP", val:"$"+((messariGlobal.defiMarketCapUsd||0)/1e9).toFixed(0)+"B"},
-                              {label:"ASSETS", val:(messariGlobal.activeCurrencies||0).toLocaleString()},
-                            ].map((m,i)=>(
-                              <div key={i} style={{flex:1,padding:".55rem .8rem",borderRight:i<5?"1px solid var(--border)":"none",display:"flex",flexDirection:"column",gap:".18rem"}}>
-                                <span style={{fontSize:".42rem",color:"var(--text3)",letterSpacing:".1em",fontWeight:600}}>{m.label}</span>
-                                <span style={{fontSize:".65rem",color:"var(--white)",fontWeight:500,fontFamily:"monospace"}}>{m.val}</span>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-
-                        {/* Loading */}
                         {newsLoading&&(
-                          <div style={{padding:"1.2rem",display:"flex",alignItems:"center",gap:".6rem"}}>
-                            <span style={{width:"6px",height:"6px",borderRadius:"50%",background:"#ffa500",display:"inline-block",animation:"pulse 1.5s infinite",flexShrink:0}}/>
-                            <span style={{fontSize:".72rem",color:"var(--text3)"}}>Fetching latest crypto news…</span>
+                          <div style={{padding:"1.5rem 1.2rem",display:"flex",alignItems:"center",gap:".6rem"}}>
+                            <span style={{width:"5px",height:"5px",borderRadius:"50%",background:"#4d85ff",display:"inline-block",animation:"pulse 1.2s infinite",flexShrink:0}}/>
+                            <span style={{fontSize:".68rem",color:"var(--text3)"}}>Fetching latest crypto news…</span>
                           </div>
                         )}
-
-                        {/* HOT News */}
                         {cryptoNews.length>0&&(
-                          <div>
-                            <div style={{padding:".5rem 1.2rem",background:"rgba(255,255,255,.008)",borderBottom:"1px solid var(--border)",display:"flex",alignItems:"center",gap:".5rem"}}>
-                              <span style={{width:"6px",height:"6px",borderRadius:"50%",background:"#ff6b35",display:"inline-block",animation:"pulse 2s infinite",flexShrink:0}}/>
-                              <span style={{fontSize:".48rem",color:"var(--text3)",letterSpacing:".12em",fontWeight:700}}>HOT</span>
-                            </div>
-                            {cryptoNews.slice(0,6).map((n,i)=>(
-                              <div key={i} onClick={()=>openNewsArticle(n)}
-                                style={{display:"flex",alignItems:"flex-start",justifyContent:"space-between",gap:"1rem",padding:".75rem 1.2rem",borderBottom:i<5?"1px solid rgba(255,255,255,.04)":"none",textDecoration:"none",background:"transparent",transition:"background .15s",cursor:"pointer"}}
-                                onMouseEnter={e=>e.currentTarget.style.background="rgba(255,255,255,.025)"}
-                                onMouseLeave={e=>e.currentTarget.style.background="transparent"}
-                              >
-                                <div style={{flex:1,minWidth:0}}>
-                                  <div style={{fontSize:".72rem",color:"var(--text)",fontWeight:400,lineHeight:1.5,marginBottom:".3rem"}}>{n.title}</div>
-                                  <div style={{display:"flex",alignItems:"center",gap:".6rem",flexWrap:"wrap"}}>
-                                    <span style={{fontSize:".52rem",color:"var(--text3)",fontWeight:500}}>{n.source}</span>
-                                    <span style={{color:"var(--border)",fontSize:".5rem"}}>·</span>
-                                    <span style={{fontSize:".52rem",color:"var(--text3)"}}>{new Date(n.publishedAt).toLocaleString("en-US",{month:"short",day:"numeric",hour:"2-digit",minute:"2-digit"})}</span>
-                                    {(n.currencies||[]).slice(0,3).map((c,j)=>(
-                                      <span key={j} style={{fontSize:".44rem",color:"var(--blue-hi)",background:"rgba(26,79,255,.1)",border:"1px solid rgba(77,133,255,.2)",borderRadius:"3px",padding:".05rem .3rem",fontWeight:600}}>{c}</span>
+                          <div style={{display:"flex",flexDirection:"column"}}>
+                            {cryptoNews.slice(0,6).map((n,i)=>{
+                              const pubDate = n.published_at||n.publishedAt||n.date||"";
+                              const timeAgo = pubDate ? (()=>{
+                                const diff = (Date.now() - new Date(pubDate).getTime()) / 1000;
+                                if(diff < 3600) return Math.floor(diff/60) + "m ago";
+                                if(diff < 86400) return Math.floor(diff/3600) + "h ago";
+                                return new Date(pubDate).toLocaleTimeString("en-US",{hour:"2-digit",minute:"2-digit"});
+                              })() : "";
+                              const isBull = n.sentiment==="bullish";
+                              const isBear = n.sentiment==="bearish";
+                              const tickers = n.currencies||[];
+                              return (
+                                <div key={i}
+                                  style={{padding:".85rem 1.2rem",borderBottom:"1px solid rgba(255,255,255,.04)",cursor:"pointer",transition:"background .15s",display:"flex",flexDirection:"column",gap:".4rem"}}
+                                  onClick={()=>openNewsArticle(n)}
+                                  onMouseEnter={e=>e.currentTarget.style.background="rgba(255,255,255,.025)"}
+                                  onMouseLeave={e=>e.currentTarget.style.background="transparent"}>
+                                  {/* Top row: time + sentiment + tickers */}
+                                  <div style={{display:"flex",alignItems:"center",gap:".5rem",flexWrap:"wrap"}}>
+                                    {timeAgo&&<span style={{fontSize:".52rem",color:"rgba(180,200,255,.35)",fontFamily:"'IBM Plex Mono',monospace"}}>{timeAgo}</span>}
+                                    {(isBull||isBear)&&(
+                                      <span style={{fontSize:".42rem",display:"flex",alignItems:"center",gap:".2rem",padding:".1rem .4rem",borderRadius:"4px",fontWeight:700,letterSpacing:".06em",
+                                        background:isBull?"rgba(34,197,94,.1)":"rgba(255,107,107,.1)",
+                                        color:isBull?"#22c55e":"#ff6b6b",
+                                        border:`1px solid ${isBull?"rgba(34,197,94,.25)":"rgba(255,107,107,.25)"}`}}>
+                                        <span style={{width:"4px",height:"4px",borderRadius:"50%",background:isBull?"#22c55e":"#ff6b6b",display:"inline-block"}}/>
+                                        {isBull?"Positive":"Negative"}
+                                      </span>
+                                    )}
+                                    {tickers.slice(0,2).map(t=>(
+                                      <span key={t} style={{fontSize:".42rem",color:"rgba(77,133,255,.8)",background:"rgba(26,79,255,.1)",border:"1px solid rgba(77,133,255,.2)",borderRadius:"4px",padding:".1rem .35rem",fontWeight:600,fontFamily:"'IBM Plex Mono',monospace"}}>{t}</span>
                                     ))}
+                                    {i===0&&<span style={{fontSize:".42rem",background:"rgba(255,107,107,.12)",color:"#ff6b6b",border:"1px solid rgba(255,107,107,.2)",borderRadius:"4px",padding:".1rem .35rem",fontWeight:700,letterSpacing:".08em",marginLeft:"auto"}}>🔥 HOT</span>}
                                   </div>
-                                </div>
-                                <div style={{display:"flex",flexDirection:"column",alignItems:"flex-end",gap:".4rem",flexShrink:0}}>
-                                  <span style={{fontSize:".5rem",padding:".14rem .45rem",borderRadius:"20px",fontWeight:700,letterSpacing:".06em",whiteSpace:"nowrap",
-                                    background:n.sentiment==="bullish"?"rgba(34,211,165,.12)":n.sentiment==="bearish"?"rgba(255,107,107,.12)":"rgba(255,255,255,.06)",
-                                    color:n.sentiment==="bullish"?"var(--green)":n.sentiment==="bearish"?"#ff6b6b":"var(--text3)",
-                                    border:`1px solid ${n.sentiment==="bullish"?"rgba(34,211,165,.25)":n.sentiment==="bearish"?"rgba(255,107,107,.25)":"var(--border)"}`}}>
-                                    {n.sentiment==="bullish"?"↑ BULL":n.sentiment==="bearish"?"↓ BEAR":"– NEU"}
-                                  </span>
-                                  {(n.votes?.positive>0||n.votes?.negative>0)&&(
-                                    <div style={{display:"flex",gap:".4rem"}}>
-                                      <span style={{fontSize:".48rem",color:"var(--green)"}}>▲{n.votes?.positive||0}</span>
-                                      <span style={{fontSize:".48rem",color:"#ff6b6b"}}>▼{n.votes?.negative||0}</span>
+                                  {/* Title */}
+                                  <div style={{fontSize:".78rem",color:"rgba(220,230,255,.9)",fontWeight:500,lineHeight:1.45,letterSpacing:"-.01em"}}>{n.title}</div>
+                                  {/* Summary if available */}
+                                  {n.summary&&(
+                                    <div style={{fontSize:".65rem",color:"rgba(140,170,210,.45)",lineHeight:1.5,fontWeight:300,overflow:"hidden",display:"-webkit-box",WebkitLineClamp:2,WebkitBoxOrient:"vertical"}}>
+                                      {n.summary.replace(/<[^>]+>/g,"").slice(0,120)}…
                                     </div>
                                   )}
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-
-                        {/* RISING section */}
-                        {risingNews&&risingNews.length>0&&(
-                          <div style={{borderTop:"1px solid var(--border)"}}>
-                            <div style={{padding:".5rem 1.2rem",background:"rgba(255,255,255,.008)",borderBottom:"1px solid var(--border)",display:"flex",alignItems:"center",gap:".5rem"}}>
-                              <span style={{fontSize:".62rem",lineHeight:1}}>📈</span>
-                              <span style={{fontSize:".48rem",color:"var(--text3)",letterSpacing:".12em",fontWeight:700}}>RISING</span>
-                            </div>
-                            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:0}}>
-                              {risingNews.slice(0,4).map((n,i)=>(
-                                <div key={i} onClick={()=>openNewsArticle(n)}
-                                  style={{display:"block",padding:".7rem 1.2rem",borderBottom:"1px solid rgba(255,255,255,.04)",borderRight:i%2===0?"1px solid rgba(255,255,255,.04)":"none",textDecoration:"none",transition:"background .15s",cursor:"pointer"}}
-                                  onMouseEnter={e=>e.currentTarget.style.background="rgba(255,255,255,.02)"}
-                                  onMouseLeave={e=>e.currentTarget.style.background="transparent"}
-                                >
-                                  <div style={{fontSize:".68rem",color:"var(--text)",fontWeight:400,lineHeight:1.45,marginBottom:".3rem",display:"-webkit-box",WebkitLineClamp:2,WebkitBoxOrient:"vertical",overflow:"hidden"}}>{n.title}</div>
-                                  <div style={{display:"flex",alignItems:"center",justifyContent:"space-between"}}>
-                                    <span style={{fontSize:".5rem",color:"var(--text3)"}}>{n.source}</span>
-                                    <span style={{fontSize:".48rem",padding:".1rem .3rem",borderRadius:"3px",fontWeight:600,
-                                      background:n.sentiment==="bullish"?"rgba(34,211,165,.1)":n.sentiment==="bearish"?"rgba(255,107,107,.1)":"rgba(255,255,255,.05)",
-                                      color:n.sentiment==="bullish"?"var(--green)":n.sentiment==="bearish"?"#ff6b6b":"var(--text3)"}}>
-                                      {n.sentiment==="bullish"?"↑":"↓"} {n.sentiment?.toUpperCase()||"NEU"}
+                                  {/* Bottom row */}
+                                  <div style={{display:"flex",alignItems:"center",gap:".5rem",marginTop:".1rem"}}>
+                                    <span style={{fontSize:".5rem",color:"rgba(140,170,210,.4)",fontWeight:500,textTransform:"uppercase",letterSpacing:".08em"}}>{n.source||"News"}</span>
+                                    <span style={{marginLeft:"auto",fontSize:".55rem",color:"rgba(77,133,255,.6)",fontWeight:500,display:"flex",alignItems:"center",gap:".25rem"}}>
+                                      Read <span style={{fontSize:".45rem"}}>→</span>
                                     </span>
                                   </div>
                                 </div>
-                              ))}
-                            </div>
+                              );
+                            })}
                           </div>
                         )}
-
                         {cryptoNews.length===0&&!newsLoading&&(
-                          <div style={{padding:"2rem 1.2rem",display:"flex",flexDirection:"column",alignItems:"center",gap:".6rem",opacity:.7}}>
-                            <span style={{fontSize:"1.5rem"}}>📭</span>
-                            <span style={{fontSize:".72rem",color:"var(--text3)"}}>No news loaded yet</span>
-                            <span style={{fontSize:".6rem",color:"var(--text3)",opacity:.6}}>Make sure CRYPTOPANIC_API_KEY is set in Convex</span>
+                          <div style={{padding:"2rem 1.2rem",display:"flex",flexDirection:"column",alignItems:"center",gap:".5rem",opacity:.6}}>
+                            <span style={{fontSize:"1.8rem"}}>📰</span>
+                            <span style={{fontSize:".7rem",color:"var(--text3)"}}>Loading news…</span>
                           </div>
                         )}
                       </div>
-
                   </div>
-
-                  {/* ── PREMIUM SECTIONS ─────────────────────────────── */}
-                  {walletTier==="premium" ? (
+                  {/* ── PLAYGROUND CTA ─────────────────────────────── */}
+                  <div style={{background:"linear-gradient(135deg,rgba(26,79,255,.08),rgba(168,85,247,.06))",border:"1px solid rgba(77,133,255,.2)",borderRadius:"14px",padding:"2rem 2.2rem",display:"flex",alignItems:"center",justifyContent:"space-between",gap:"1.5rem",flexWrap:"wrap"}}>
                     <div>
-                                            <div style={{display:"flex",alignItems:"center",gap:".8rem",marginBottom:"1.5rem"}}>
-                        <span style={{fontSize:".58rem",color:"var(--green)",letterSpacing:".18em",textTransform:"uppercase",fontWeight:500}}>✦ Premium Access Unlocked</span>
-                        <span style={{fontSize:".52rem",color:"var(--text3)",letterSpacing:".06em"}}>{walletAddress?.slice(0,6)}…{walletAddress?.slice(-4)}</span>
-                      </div>
-
-                      {/* GMGN Sniper — PREMIUM */}
-                      {/* (moved to premium) */}
-                      {walletTier==="premium" && (
-                        <div style={{marginBottom:"1rem"}}>
-                          <div style={{background:"var(--surface)",border:"1px solid rgba(168,85,247,.3)",borderRadius:"12px",overflow:"hidden"}}>
-                            <div style={{padding:".9rem 1.2rem",borderBottom:"1px solid var(--border)",display:"flex",justifyContent:"space-between",alignItems:"center",background:"rgba(168,85,247,.04)"}}>
-                              <div style={{display:"flex",alignItems:"center",gap:".6rem"}}>
-                                <span style={{fontSize:"1rem",lineHeight:1}}>🎯</span>
-                                <span style={{fontSize:".72rem",color:"var(--white)",fontWeight:500,letterSpacing:".04em"}}>GMGN Sniper</span>
-                                <span style={{fontSize:".44rem",background:"rgba(168,85,247,.15)",color:"#c084fc",border:"1px solid rgba(168,85,247,.3)",borderRadius:"20px",padding:".1rem .45rem",fontWeight:600,letterSpacing:".08em"}}>NEW TOKENS · BASE</span>
-                                <span style={{display:"flex",alignItems:"center",gap:".3rem",fontSize:".52rem",color:"var(--green)",letterSpacing:".06em",background:"rgba(34,211,165,.08)",border:"1px solid rgba(34,211,165,.2)",borderRadius:"20px",padding:".1rem .45rem"}}>
-                                  <span style={{width:"5px",height:"5px",borderRadius:"50%",background:"var(--green)",display:"inline-block",animation:"pulse 2s ease-in-out infinite",flexShrink:0}}/>
-                                  LIVE
-                                </span>
-                              </div>
-                              <button onClick={fetchSniperTokens} disabled={sniperLoading}
-                                style={{background:"none",border:"1px solid var(--border)",borderRadius:"5px",padding:".22rem .6rem",color:"var(--text3)",fontSize:".58rem",cursor:sniperLoading?"not-allowed":"pointer",fontFamily:"inherit",letterSpacing:".06em",display:"flex",alignItems:"center",gap:".3rem",transition:"all .18s",opacity:sniperLoading?.5:1}}
-                                onMouseEnter={e=>{if(!sniperLoading){e.currentTarget.style.borderColor="var(--border2)";e.currentTarget.style.color="var(--text)";}}}
-                                onMouseLeave={e=>{e.currentTarget.style.borderColor="var(--border)";e.currentTarget.style.color="var(--text3)";}}>
-                                {sniperLoading?"…":"↻"} {sniperLoading?"Sniping…":"Refresh"}
-                              </button>
-                            </div>
-                            {sniperLoading&&(
-                              <div style={{padding:"1.5rem 1.2rem",display:"flex",alignItems:"center",gap:".6rem"}}>
-                                <span style={{width:"6px",height:"6px",borderRadius:"50%",background:"#c084fc",display:"inline-block",animation:"pulse 1.5s infinite",flexShrink:0}}/>
-                                <span style={{fontSize:".72rem",color:"var(--text3)"}}>Sniping new tokens on Base via GMGN…</span>
-                              </div>
-                            )}
-                            {!sniperLoading&&sniperTokens.length>0&&sniperTokens.map((t,i)=>{
-                              const pct=parseFloat(t.priceChange||0),isUp=pct>=0,mcap=parseFloat(t.marketCap||0),liq=parseFloat(t.liquidity||0),price=parseFloat(t.price||0),swaps=parseInt(t.swaps||0),risk=t.risk||"",riskColor=risk==="low"?"var(--green)":risk==="medium"?"#f59e0b":"#ff6b6b";
-                              const fmtBig=(n)=>n>=1e9?(n/1e9).toFixed(1)+"B":n>=1e6?(n/1e6).toFixed(1)+"M":n>=1e3?(n/1e3).toFixed(0)+"K":n.toFixed(0);
-                              const fmtPrice=(p)=>{if(!p||p===0)return"—";if(p>=1)return"$"+p.toFixed(4);const s=p.toFixed(12);const m=s.match(/^0\.(0+)([1-9]\d*)/);if(m&&m[1].length>=2)return"0.0["+m[1].length+"]"+m[2].slice(0,4);return"$"+p.toFixed(6);};
-                              return(
-                                <div key={i} style={{display:"grid",gridTemplateColumns:"1fr 80px 90px 90px 80px 80px 32px",gap:0,padding:".52rem 1.2rem",borderBottom:i<sniperTokens.length-1?"1px solid rgba(255,255,255,.035)":"none",background:"transparent",transition:"background .15s",alignItems:"center"}}
-                                  onMouseEnter={e=>e.currentTarget.style.background="rgba(168,85,247,.04)"}
-                                  onMouseLeave={e=>e.currentTarget.style.background="transparent"}>
-                                  <div style={{display:"flex",alignItems:"center",gap:".5rem",minWidth:0}}>
-                                    {t.image&&<img src={t.image} alt={t.symbol} style={{width:"20px",height:"20px",borderRadius:"50%",flexShrink:0,objectFit:"cover"}} onError={e=>e.currentTarget.style.display="none"}/>}
-                                    <div style={{minWidth:0}}>
-                                      <div style={{display:"flex",alignItems:"center",gap:".3rem"}}>
-                                        <span style={{fontSize:".65rem",color:"var(--white)",fontWeight:600,fontFamily:"monospace"}}>{t.symbol||"—"}</span>
-                                        {risk&&<span style={{fontSize:".38rem",color:riskColor,background:riskColor+"18",border:`1px solid ${riskColor}33`,borderRadius:"3px",padding:".03rem .22rem",fontWeight:700,textTransform:"uppercase"}}>{risk}</span>}
-                                      </div>
-                                      <span style={{fontSize:".5rem",color:"var(--text3)",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap",display:"block",maxWidth:"120px"}}>{t.name||""}</span>
-                                    </div>
-                                  </div>
-                                  <span style={{fontSize:".6rem",color:"var(--text2)",fontFamily:"monospace"}}>{fmtPrice(price)}</span>
-                                  <span style={{fontSize:".62rem",color:"var(--text2)",fontFamily:"monospace"}}>{mcap>0?"$"+fmtBig(mcap):"—"}</span>
-                                  <span style={{fontSize:".62rem",color:"var(--text2)",fontFamily:"monospace"}}>{liq>0?"$"+fmtBig(liq):"—"}</span>
-                                  <span style={{fontSize:".65rem",fontWeight:600,color:isUp?"var(--green)":"#ff6b6b"}}>{isUp?"+":""}{pct.toFixed(1)}%</span>
-                                  <span style={{fontSize:".62rem",color:"var(--text3)",fontFamily:"monospace"}}>{swaps>0?swaps.toLocaleString():"—"}</span>
-                                  <a href={t.url||`https://gmgn.ai/base/token/${t.address}`} target="_blank" rel="noopener noreferrer"
-                                    style={{display:"inline-flex",alignItems:"center",justifyContent:"center",width:"18px",height:"18px",borderRadius:"4px",background:"rgba(255,255,255,.06)",border:"1px solid var(--border)",color:"var(--text3)",fontSize:".6rem",textDecoration:"none",transition:"all .15s"}}
-                                    onMouseEnter={e=>{e.currentTarget.style.background="rgba(168,85,247,.2)";e.currentTarget.style.borderColor="rgba(168,85,247,.4)";e.currentTarget.style.color="#c084fc";}}
-                                    onMouseLeave={e=>{e.currentTarget.style.background="rgba(255,255,255,.06)";e.currentTarget.style.borderColor="var(--border)";e.currentTarget.style.color="var(--text3)";}}>↗</a>
-                                </div>
-                              );
-                            })}
-                            {!sniperLoading&&sniperTokens.length===0&&(
-                              <div style={{padding:"2rem 1.2rem",display:"flex",flexDirection:"column",alignItems:"center",gap:".6rem",opacity:.7}}>
-                                <span style={{fontSize:"1.5rem"}}>🎯</span>
-                                <span style={{fontSize:".72rem",color:"var(--text3)"}}>No sniper data yet</span>
-                                <button onClick={fetchSniperTokens} style={{fontSize:".6rem",color:"#c084fc",background:"none",border:"1px solid rgba(168,85,247,.3)",borderRadius:"5px",padding:".3rem .8rem",cursor:"pointer",fontFamily:"inherit"}}>Snipe now</button>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      )}
-
-                      {/* Row 2.5: AI Alpha Agent — PREMIUM */}
-                      <div style={{background:"var(--surface)",border:"1px solid var(--border)",borderRadius:"12px",overflow:"hidden",marginBottom:"1rem"}}>
-                        {/* Header */}
-                        <div style={{padding:".9rem 1.2rem",borderBottom:"1px solid var(--border)",display:"flex",justifyContent:"space-between",alignItems:"center",background:"linear-gradient(90deg,rgba(168,85,247,.06),rgba(26,79,255,.04))"}}>
-                          <div style={{display:"flex",alignItems:"center",gap:".6rem"}}>
-                            <span style={{fontSize:"1.1rem",lineHeight:1}}>⚡</span>
-                            <span style={{fontSize:".72rem",color:"var(--white)",fontWeight:600,letterSpacing:".04em"}}>AI Alpha Agent</span>
-                            <span style={{fontSize:".44rem",background:"rgba(168,85,247,.15)",color:"#c084fc",border:"1px solid rgba(168,85,247,.3)",borderRadius:"20px",padding:".1rem .45rem",fontWeight:700,letterSpacing:".08em"}}>BASE · POWERED BY CLAUDE</span>
-                          </div>
-                          <div style={{display:"flex",alignItems:"center",gap:".8rem"}}>
-                            {agentLastRun&&<span style={{fontSize:".5rem",color:"var(--text3)"}}>Last run: {new Date(agentLastRun).toLocaleTimeString()}</span>}
-                            <button onClick={fetchAgentSignals} disabled={agentLoading}
-                              style={{background:agentLoading?"rgba(168,85,247,.1)":"linear-gradient(135deg,rgba(168,85,247,.25),rgba(26,79,255,.2))",border:"1px solid rgba(168,85,247,.4)",borderRadius:"6px",padding:".35rem .9rem",color:agentLoading?"#c084fc":"var(--white)",fontSize:".62rem",cursor:agentLoading?"not-allowed":"pointer",fontFamily:"inherit",fontWeight:600,letterSpacing:".04em",display:"flex",alignItems:"center",gap:".4rem",transition:"all .2s"}}
-                              onMouseEnter={e=>{if(!agentLoading){e.currentTarget.style.background="linear-gradient(135deg,rgba(168,85,247,.4),rgba(26,79,255,.35))";e.currentTarget.style.boxShadow="0 0 16px rgba(168,85,247,.3)";}}}
-                              onMouseLeave={e=>{e.currentTarget.style.background="linear-gradient(135deg,rgba(168,85,247,.25),rgba(26,79,255,.2))";e.currentTarget.style.boxShadow="none";}}>
-                              {agentLoading?(
-                                <><span style={{width:"8px",height:"8px",borderRadius:"50%",background:"#c084fc",animation:"pulse 1s infinite",display:"inline-block"}}/>Analyzing…</>
-                              ):(
-                                <>⚡ Run Agent</>
-                              )}
-                            </button>
-                          </div>
-                        </div>
-
-                        {/* Loading state */}
-                        {agentLoading&&(
-                          <div style={{padding:"2.5rem 1.2rem",display:"flex",flexDirection:"column",alignItems:"center",gap:"1rem"}}>
-                            <div style={{display:"flex",gap:".4rem"}}>
-                              {["Fetching GMGN data","Enriching with DexScreener","Claude analyzing","Generating signals"].map((step,i)=>(
-                                <div key={i} style={{display:"flex",alignItems:"center",gap:".3rem",fontSize:".52rem",color:"var(--text3)",background:"var(--surface2)",border:"1px solid var(--border)",borderRadius:"20px",padding:".2rem .5rem"}}>
-                                  <span style={{width:"4px",height:"4px",borderRadius:"50%",background:"#c084fc",animation:`pulse ${1+i*0.3}s infinite`,display:"inline-block"}}/>
-                                  {step}
-                                </div>
-                              ))}
-                            </div>
-                            <span style={{fontSize:".62rem",color:"var(--text3)"}}>Agent is scanning Base ecosystem tokens… (~30-60s)</span>
-                          </div>
-                        )}
-
-                        {/* Empty state */}
-                        {!agentLoading&&agentSignals.length===0&&(
-                          <div style={{padding:"2.5rem 1.2rem",display:"flex",flexDirection:"column",alignItems:"center",gap:".8rem",textAlign:"center"}}>
-                            <span style={{fontSize:"2rem"}}>⚡</span>
-                            <div>
-                              <div style={{fontSize:".75rem",color:"var(--white)",fontWeight:500,marginBottom:".3rem"}}>AI Alpha Agent Ready</div>
-                              <div style={{fontSize:".62rem",color:"var(--text3)",maxWidth:"320px"}}>Scans Base ecosystem tokens, analyzes on-chain data, and generates conviction-based signals with entry/exit targets.</div>
-                            </div>
-                            <button onClick={fetchAgentSignals}
-                              style={{background:"linear-gradient(135deg,rgba(168,85,247,.25),rgba(26,79,255,.2))",border:"1px solid rgba(168,85,247,.4)",borderRadius:"8px",padding:".5rem 1.2rem",color:"var(--white)",fontSize:".65rem",cursor:"pointer",fontFamily:"inherit",fontWeight:600,letterSpacing:".04em"}}>
-                              ⚡ Run Agent Now
-                            </button>
-                          </div>
-                        )}
-
-                        {/* Signal cards */}
-                        {!agentLoading&&agentSignals.length>0&&(
-                          <div style={{padding:"1rem 1.2rem",display:"flex",flexDirection:"column",gap:".75rem"}}>
-                            {agentSignals.map((s,i)=>{
-                              const signalColor = s.signal==="BUY"?"var(--green)":s.signal==="WATCH"?"#f59e0b":"#ff6b6b";
-                              const signalBg    = s.signal==="BUY"?"rgba(34,211,165,.08)":s.signal==="WATCH"?"rgba(245,158,11,.08)":"rgba(255,107,107,.08)";
-                              const riskColor   = s.riskLevel==="safe"?"var(--green)":s.riskLevel==="mid"?"#f59e0b":"#f87171";
-                              const convBar     = Math.round((s.conviction/10)*100);
-                              const pctChange   = parseFloat(s.priceChange24h||0);
-                              return (
-                                <div key={i} style={{background:"var(--bg)",border:`1px solid ${signalColor}22`,borderRadius:"10px",overflow:"hidden"}}>
-                                  {/* Card header */}
-                                  <div style={{padding:".7rem 1rem",display:"flex",justifyContent:"space-between",alignItems:"center",borderBottom:"1px solid rgba(255,255,255,.05)",background:signalBg}}>
-                                    <div style={{display:"flex",alignItems:"center",gap:".6rem"}}>
-                                      <div style={{width:"32px",height:"32px",borderRadius:"8px",background:`${signalColor}22`,border:`1px solid ${signalColor}44`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
-                                        <span style={{fontSize:".85rem",fontWeight:700,color:signalColor}}>{i+1}</span>
-                                      </div>
-                                      <div>
-                                        <div style={{display:"flex",alignItems:"center",gap:".4rem"}}>
-                                          <span style={{fontSize:".78rem",color:"var(--white)",fontWeight:700,fontFamily:"monospace"}}>${s.symbol}</span>
-                                          <span style={{fontSize:".48rem",color:signalColor,background:signalColor+"18",border:`1px solid ${signalColor}33`,borderRadius:"4px",padding:".1rem .35rem",fontWeight:700,letterSpacing:".08em"}}>{s.signal}</span>
-                                          <span style={{fontSize:".44rem",color:riskColor,background:riskColor+"18",border:`1px solid ${riskColor}33`,borderRadius:"4px",padding:".1rem .3rem",fontWeight:600,textTransform:"uppercase"}}>{s.riskLevel}</span>
-                                        </div>
-                                        <span style={{fontSize:".52rem",color:pctChange>=0?"var(--green)":"#ff6b6b",fontWeight:500}}>{pctChange>=0?"+":""}{pctChange.toFixed(1)}% 24h</span>
-                                      </div>
-                                    </div>
-                                    {/* Conviction meter */}
-                                    <div style={{textAlign:"right"}}>
-                                      <div style={{fontSize:".45rem",color:"var(--text3)",marginBottom:".25rem",letterSpacing:".08em"}}>CONVICTION</div>
-                                      <div style={{display:"flex",alignItems:"center",gap:".4rem"}}>
-                                        <div style={{width:"60px",height:"5px",background:"rgba(255,255,255,.08)",borderRadius:"3px",overflow:"hidden"}}>
-                                          <div style={{width:`${convBar}%`,height:"100%",background:`linear-gradient(90deg,${signalColor},${signalColor}cc)`,borderRadius:"3px",transition:"width .5s"}}/>
-                                        </div>
-                                        <span style={{fontSize:".65rem",color:signalColor,fontWeight:700,fontFamily:"monospace"}}>{s.conviction}/10</span>
-                                      </div>
-                                    </div>
-                                  </div>
-
-                                  {/* Entry / Exit / Evidence */}
-                                  <div style={{padding:".7rem 1rem",display:"grid",gridTemplateColumns:"1fr 1fr",gap:".6rem"}}>
-                                    {/* Entry */}
-                                    <div style={{background:"rgba(34,211,165,.04)",border:"1px solid rgba(34,211,165,.12)",borderRadius:"6px",padding:".5rem .7rem"}}>
-                                      <div style={{fontSize:".42rem",color:"var(--text3)",letterSpacing:".1em",marginBottom:".2rem"}}>ENTRY</div>
-                                      <div style={{fontSize:".68rem",color:"var(--green)",fontWeight:600,fontFamily:"monospace"}}>${typeof s.entryPrice==="number"?s.entryPrice.toFixed(s.entryPrice>1?4:8):s.entryPrice}</div>
-                                      <div style={{fontSize:".5rem",color:"var(--text3)",marginTop:".15rem"}}>{s.entryNote}</div>
-                                    </div>
-                                    {/* Exit */}
-                                    <div style={{background:"rgba(248,113,113,.04)",border:"1px solid rgba(248,113,113,.12)",borderRadius:"6px",padding:".5rem .7rem"}}>
-                                      <div style={{fontSize:".42rem",color:"var(--text3)",letterSpacing:".1em",marginBottom:".2rem"}}>EXIT TARGET</div>
-                                      <div style={{fontSize:".68rem",color:"#f87171",fontWeight:600,fontFamily:"monospace"}}>${typeof s.exitTarget==="number"?s.exitTarget.toFixed(s.exitTarget>1?4:8):s.exitTarget}</div>
-                                      <div style={{fontSize:".5rem",color:"var(--text3)",marginTop:".15rem"}}>{s.exitNote}</div>
-                                    </div>
-                                  </div>
-
-                                  {/* On-chain evidence */}
-                                  <div style={{padding:"0 1rem .5rem"}}>
-                                    <div style={{background:"rgba(26,79,255,.05)",border:"1px solid rgba(77,133,255,.15)",borderRadius:"6px",padding:".5rem .7rem"}}>
-                                      <div style={{fontSize:".42rem",color:"var(--blue-hi)",letterSpacing:".1em",marginBottom:".25rem"}}>🔍 ON-CHAIN EVIDENCE</div>
-                                      <div style={{fontSize:".58rem",color:"var(--text2)",lineHeight:1.5}}>{s.onChainEvidence}</div>
-                                    </div>
-                                  </div>
-
-                                  {/* Reasoning + Link */}
-                                  <div style={{padding:"0 1rem .7rem",display:"flex",justifyContent:"space-between",alignItems:"flex-end",gap:".8rem"}}>
-                                    <div style={{fontSize:".55rem",color:"var(--text3)",lineHeight:1.55,flex:1,fontStyle:"italic"}}>"{s.reasoning}"</div>
-                                    <a href={s.dexUrl||`https://dexscreener.com/base/${s.address}`} target="_blank" rel="noopener noreferrer"
-                                      style={{flexShrink:0,fontSize:".55rem",color:"var(--blue-hi)",background:"rgba(26,79,255,.1)",border:"1px solid rgba(77,133,255,.25)",borderRadius:"5px",padding:".25rem .6rem",textDecoration:"none",fontWeight:500,whiteSpace:"nowrap"}}
-                                      onMouseEnter={e=>e.currentTarget.style.background="rgba(26,79,255,.2)"}
-                                      onMouseLeave={e=>e.currentTarget.style.background="rgba(26,79,255,.1)"}>
-                                      Chart ↗
-                                    </a>
-                                  </div>
-                                </div>
-                              );
-                            })}
-                            <div style={{fontSize:".5rem",color:"var(--text3)",textAlign:"center",padding:".3rem",borderTop:"1px solid var(--border)"}}>⚠️ Not financial advice. DYOR. Degen at your own risk.</div>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Row 4: AI Market Brief — PREMIUM */}
-                      <div style={{background:"var(--surface)",border:"1px solid var(--border)",borderRadius:"12px",padding:"1.2rem",marginBottom:".5rem"}}>
-                        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:".8rem"}}>
-                          <span style={{fontSize:".52rem",color:"var(--blue-hi)",letterSpacing:".14em",fontWeight:700,textTransform:"uppercase"}}>🧠 AI Market Brief</span>
-                          <div style={{display:"flex",alignItems:"center",gap:".5rem"}}>
-                            <span style={{fontSize:".46rem",color:"var(--text3)"}}>{new Date().toLocaleDateString("en-US",{weekday:"short",month:"short",day:"numeric"})}</span>
-                            <button onClick={generateMarketBrief} disabled={briefLoading}
-                              style={{background:"rgba(26,79,255,.15)",border:"1px solid rgba(77,133,255,.3)",borderRadius:"5px",padding:".2rem .65rem",color:"var(--blue-hi)",fontSize:".6rem",fontFamily:"inherit",cursor:briefLoading?"not-allowed":"pointer",opacity:briefLoading?0.5:1,fontWeight:500}}>
-                              {briefLoading?"Writing…":briefGenerated?"↻ Refresh":"▶ Generate"}
-                            </button>
-                          </div>
-                        </div>
-                        {!briefGenerated&&!briefLoading&&<div style={{fontSize:".72rem",color:"var(--text3)",lineHeight:1.65,fontStyle:"italic"}}>AI-generated daily market brief using live trades, news & on-chain data. Hit Generate.</div>}
-                        {briefLoading&&<div style={{display:"flex",alignItems:"center",gap:".6rem",padding:".4rem 0"}}>
-                          <div style={{width:"5px",height:"5px",borderRadius:"50%",background:"var(--blue-hi)",animation:"pulse 1.2s infinite",flexShrink:0}}/>
-                          <span style={{fontSize:".72rem",color:"var(--text3)"}}>NoelClaw AI is generating your brief…</span>
-                        </div>}
-                        {briefGenerated&&marketBrief&&<div style={{fontSize:".76rem",color:"var(--text2)",lineHeight:1.8,whiteSpace:"pre-wrap"}}>
-                          {typeof marketBrief==="string"?marketBrief:marketBrief?.content?.[0]?.text||JSON.stringify(marketBrief)}
-                        </div>}
-                      </div>
+                      <div style={{fontSize:".52rem",color:"var(--blue-hi)",letterSpacing:".2em",textTransform:"uppercase",marginBottom:".6rem",fontWeight:500}}>⚡ Agent Playground · Powered by Bankr</div>
+                      <div style={{fontSize:"1.1rem",fontWeight:300,color:"var(--white)",marginBottom:".5rem",lineHeight:1.2}}>Run live agents, inspect outputs,<br/>and experiment with any token on Base.</div>
+                      <div style={{fontSize:".75rem",color:"var(--text2)",fontWeight:200}}>Alpha signals · Token price · Trade feed · GMGN Sniper · Smart Money · Chat Agent</div>
                     </div>
-                    </div>
-                  ) : (
-                  <>
-                  <div style={{display:"flex",alignItems:"center",gap:".8rem",marginBottom:"1rem"}}>
-                    <div style={{fontSize:".6rem",fontWeight:300,color:"var(--text2)",letterSpacing:".28em",textTransform:"uppercase",display:"flex",alignItems:"center",gap:".6rem"}}>
-                      <span style={{width:"22px",height:"1px",background:"rgba(255,255,255,.2)",display:"inline-block"}}/>
-                      Holder-only access
-                    </div>
-                    <div style={{fontSize:".55rem",fontWeight:700,padding:".15rem .55rem",borderRadius:"20px",background:"linear-gradient(90deg,rgba(26,79,255,.3),rgba(77,133,255,.2))",border:"1px solid rgba(77,133,255,.3)",color:"var(--blue-hi)",letterSpacing:".1em",textTransform:"uppercase"}}>
-                      🦕 20M $NOELCLAW Required
-                    </div>
-                  </div>
-                  <div style={{fontFamily:"'Inter',sans-serif",fontSize:"clamp(1.4rem,2.5vw,2rem)",fontWeight:100,color:"var(--white)",letterSpacing:"-.01em",lineHeight:1.1,marginBottom:".7rem"}}>
-                    Premium features.<br/><span style={{color:"var(--blue-hi)"}}>Token-gated access.</span>
-                  </div>
-                  <div style={{fontSize:".85rem",color:"var(--text2)",fontWeight:200,maxWidth:"520px",lineHeight:1.7,marginBottom:"2.5rem"}}>
-                    Hold 20,000,000 $NOELCLAW on Base to unlock exclusive AI infrastructure tools. Connect your wallet to verify.
-                  </div>
-
-                  {/* Premium feature cards */}
-                  <div className="prem-cards" style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",gap:"1px",background:"var(--border)",border:"1px solid var(--border)",borderRadius:"14px",overflow:"hidden",marginBottom:"2rem"}}>
-                    {[
-                      {icon:"⚡",tag:"Agent Terminal",title:"Live Agent Runner",desc:"Spin up and execute real AI agents directly in the browser. Connect to your APIs, run workflows, monitor execution in real-time.",perks:["Real-time agent execution","Custom tool integration","Live logs & tracing"],hot:true,page:"dashboard",cta:"Open Agent Runner →"},
-                      {icon:"📡",tag:"Alpha Feed",title:"AI Signals & Insights",desc:"Exclusive AI-curated alpha feed. On-chain signals, agent discoveries, early infrastructure plays — before they hit CT.",perks:["Daily AI-generated signals","On-chain agent activity","Early access research"],hot:true,page:"dashboard",cta:"View Alpha Feed →"},
-                      {icon:"🔬",tag:"Token Analytics Pro",title:"Deep Token Intelligence",desc:"Advanced $NOELCLAW analytics. Holder distribution, wallet clustering, smart money tracking, and ecosystem health metrics.",perks:["Smart money tracking","Holder clustering","Ecosystem health score"],hot:false,page:"analytics",cta:"View Analytics →"},
-                      {icon:"🧠",tag:"Research Agent",title:"Deep Research on Autopilot",desc:"Give the agent a topic. It searches, reads, cross-references sources, and returns a structured brief with confidence scores.",perks:["Multi-source synthesis","Structured briefs","Confidence scoring"],hot:false,page:"dashboard",cta:"Run Research →"},
-                    ].map((f,i)=>(
-                      <div key={i} style={{padding:"1.8rem 2rem",background:"var(--bg)",position:"relative",transition:"background .22s",cursor:walletTier==="premium"?"pointer":"default"}}
-                        onClick={()=>{ if(walletTier==="premium") navTo(f.page); }}
-                        onMouseEnter={e=>e.currentTarget.style.background="rgba(26,79,255,0.04)"}
-                        onMouseLeave={e=>e.currentTarget.style.background="var(--bg)"}
-                      >
-                        {f.hot && (
-                          <div style={{position:"absolute",top:"1rem",right:"1rem",fontSize:".5rem",fontWeight:700,padding:".12rem .45rem",borderRadius:"3px",background:"rgba(34,211,165,.1)",border:"1px solid rgba(34,211,165,.2)",color:"var(--green)",letterSpacing:".1em",textTransform:"uppercase"}}>
-                            HOT
-                          </div>
-                        )}
-                        {/* Lock overlay - hidden if premium */}
-                        {walletTier !== "premium" && (
-                          <div style={{position:"absolute",inset:0,background:"rgba(5,7,14,0.6)",backdropFilter:"blur(3px)",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:".6rem",borderRadius:"inherit",zIndex:2,transition:"opacity .25s",cursor:"pointer"}}
-                            onClick={!authenticated ? login : undefined}
-                          >
-                            <div style={{fontSize:"1.4rem"}}>{authenticated ? "⚡" : "🔒"}</div>
-                            <div style={{fontSize:".68rem",color:"var(--text2)",fontWeight:300,letterSpacing:".06em",textAlign:"center",maxWidth:"160px",lineHeight:1.5}}>
-                              {authenticated ? "Need 20M $NOELCLAW to unlock" : "Connect wallet to unlock"}
-                            </div>
-                            {!authenticated && (
-                              <div style={{fontSize:".62rem",color:"var(--blue-hi)",background:"rgba(26,79,255,.12)",border:"1px solid rgba(77,133,255,.25)",borderRadius:"5px",padding:".2rem .6rem",letterSpacing:".08em",textTransform:"uppercase"}}>
-                                Connect →
-                              </div>
-                            )}
-                          </div>
-                        )}
-
-                        <div style={{fontSize:"1.5rem",marginBottom:".8rem"}}>{f.icon}</div>
-                        <div style={{fontSize:".55rem",fontWeight:700,color:"var(--blue-hi)",letterSpacing:".14em",textTransform:"uppercase",marginBottom:".5rem"}}>{f.tag}</div>
-                        <div style={{fontSize:".9rem",fontWeight:400,color:"var(--white)",marginBottom:".5rem",lineHeight:1.3}}>{f.title}</div>
-                        <div style={{fontSize:".75rem",color:"var(--text2)",lineHeight:1.7,fontWeight:200,marginBottom:"1.2rem"}}>{f.desc}</div>
-                        <div style={{display:"flex",flexDirection:"column",gap:".35rem",marginBottom:"1.2rem"}}>
-                          {f.perks.map((p,j)=>(
-                            <div key={j} style={{display:"flex",alignItems:"center",gap:".5rem"}}>
-                              <div style={{width:"4px",height:"4px",borderRadius:"50%",background:"var(--green)",flexShrink:0}}/>
-                              <span style={{fontSize:".68rem",color:"var(--text2)",fontWeight:300}}>{p}</span>
-                            </div>
-                          ))}
-                        </div>
-                        {walletTier === "premium" && (
-                          <div style={{fontSize:".7rem",color:"var(--blue-hi)",fontWeight:500,letterSpacing:".04em",display:"flex",alignItems:"center",gap:".3rem",marginTop:"auto"}}>
-                            {f.cta}
-                          </div>
-                        )}
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* CTA row */}
-                  <div style={{display:"flex",alignItems:"center",gap:"1rem",flexWrap:"wrap"}}>
-                    {!authenticated ? (
-                      <button onClick={login} style={{display:"inline-flex",alignItems:"center",gap:".55rem",background:"var(--white)",color:"var(--bg)",padding:".75rem 1.8rem",borderRadius:"7px",fontSize:".8rem",fontWeight:500,letterSpacing:".06em",border:"none",cursor:"pointer",fontFamily:"'Inter',sans-serif",transition:"all .2s"}}
-                        onMouseEnter={e=>e.currentTarget.style.background="rgba(255,255,255,.88)"}
-                        onMouseLeave={e=>e.currentTarget.style.background="var(--white)"}
-                      >
-                        🔗 Connect Wallet
-                      </button>
-                    ) : walletTier === "premium" ? (
-                      <div style={{display:"inline-flex",alignItems:"center",gap:".6rem",background:"rgba(34,211,165,.1)",border:"1px solid rgba(34,211,165,.25)",borderRadius:"8px",padding:".65rem 1.2rem"}}>
-                        <span style={{fontSize:"1rem"}}>✦</span>
-                        <div>
-                          <div style={{fontSize:".72rem",color:"var(--green)",fontWeight:600,letterSpacing:".06em"}}>Premium Unlocked</div>
-                          <div style={{fontSize:".6rem",color:"var(--text3)",marginTop:".1rem"}}>{walletAddress?.slice(0,6)}…{walletAddress?.slice(-4)}</div>
-                        </div>
-                      </div>
-                    ) : (
-                      <div style={{display:"inline-flex",alignItems:"center",gap:".6rem",background:"rgba(255,255,255,.04)",border:"1px solid var(--border)",borderRadius:"8px",padding:".65rem 1.2rem"}}>
-                        <span style={{fontSize:".75rem",color:"var(--text2)"}}>🔗 {walletAddress?.slice(0,6)}…{walletAddress?.slice(-4)}</span>
-                        <span style={{fontSize:".62rem",color:"var(--orange)",background:"rgba(249,115,22,.08)",border:"1px solid rgba(249,115,22,.2)",borderRadius:"4px",padding:".12rem .45rem",letterSpacing:".08em"}}>Need 20M $NOELCLAW</span>
-                      </div>
-                    )}
-                    <a href="https://flaunch.gg/base/coin/0xa57d8ce207c7daaeeed4e3a491bdf51d89233af3" target="_blank" rel="noopener noreferrer"
-                      style={{display:"inline-flex",alignItems:"center",gap:".5rem",background:"transparent",color:"var(--white)",padding:".75rem 1.6rem",borderRadius:"7px",fontSize:".78rem",fontWeight:300,letterSpacing:".08em",border:"1px solid rgba(255,255,255,.2)",textDecoration:"none",transition:"all .2s"}}
-                      onMouseEnter={e=>{e.currentTarget.style.background="rgba(255,255,255,.06)";e.currentTarget.style.borderColor="rgba(255,255,255,.45)";}}
-                      onMouseLeave={e=>{e.currentTarget.style.background="transparent";e.currentTarget.style.borderColor="rgba(255,255,255,.2)";}}
+                    <button
+                      onClick={()=>navTo("articles")}
+                      style={{display:"inline-flex",alignItems:"center",gap:".55rem",background:"var(--white)",color:"var(--bg)",padding:".75rem 1.8rem",borderRadius:"8px",fontSize:".78rem",fontWeight:500,letterSpacing:".06em",border:"none",cursor:"pointer",fontFamily:"'Inter',sans-serif",transition:"all .2s",flexShrink:0,whiteSpace:"nowrap"}}
+                      onMouseEnter={e=>e.currentTarget.style.background="rgba(255,255,255,.88)"}
+                      onMouseLeave={e=>e.currentTarget.style.background="var(--white)"}
                     >
-                      <img src="/logo.png" style={{width:"14px",height:"14px",borderRadius:"50%",objectFit:"cover"}} alt=""/>
-                      Buy $NOELCLAW
-                    </a>
-                    <div style={{fontSize:".72rem",color:"var(--text3)",fontWeight:200}}>
-                      Currently: <span style={{color:"var(--text2)"}}>82 holders</span> · <span style={{color:"var(--blue-hi)"}}>Base Chain</span>
-                    </div>
+                      Open Playground →
+                    </button>
                   </div>
-                  </>
-                  )}
                 </div>
               </div>
 
-              {/* ARTICLES */}
-              <div className="section">
-                <div className="sec-hd">
-                  <div className="sec-tag"><span className="sec-ln"/>Latest Writing</div>
-                  <button className="sec-more" onClick={()=>navTo("articles")}>All articles →</button>
-                </div>
-                <div className="arts">
-                  {ARTICLES.slice(0,4).map((a,i)=><ARow key={i} a={a} onClick={()=>{setArt(a);setMoltStatus("");window.scrollTo({top:0,behavior:'instant'});}}/>)}
-                </div>
-              </div>
             </div>
           )}
 
-          {/* ARTICLES PAGE */}
+          {/* AGENT PLAYGROUND PAGE */}
           {!art&&!newsArt&&page==="articles"&&(
-            <div className="page">
-              <div className="section">
-                <div className="sec-hd"><div className="sec-tag"><span className="sec-ln"/>All Articles</div></div>
-                {articlesLoading
-                  ? <div style={{color:"var(--text2)",fontSize:".85rem",padding:"2rem 0",letterSpacing:".08em"}}>Loading articles…</div>
-                  : ARTICLES.length===0
-                    ? <div style={{color:"var(--text2)",fontSize:".85rem",padding:"2rem 0",letterSpacing:".08em"}}>No articles published yet.</div>
-                    : <div className="arts">{ARTICLES.map((a,i)=><ARow key={i} a={a} onClick={()=>{setArt(a);setMoltStatus("");window.scrollTo({top:0,behavior:'instant'});}}/>)}</div>
-                }
+            <div className="page page-gradient-blue" style={{overflowAnchor:"none",minHeight:"100vh"}}>
+              <style>{`
+                @keyframes log-in{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+                @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+                .log-line{animation:log-in .18s ease both;}
+                .pg-cursor{display:inline-block;width:7px;height:13px;background:rgba(255,255,255,.5);animation:blink 1s step-end infinite;vertical-align:middle;margin-left:2px;}
+              `}</style>
+
+              {/* ── HERO HEADER ── */}
+              <div style={{padding:"4rem 6vw 3rem",position:"relative",overflow:"hidden",borderBottom:"1px solid rgba(255,255,255,.06)"}} id="pg-top">
+                <div style={{position:"absolute",top:"-40%",right:"-5%",width:"40vw",height:"40vw",borderRadius:"50%",background:"radial-gradient(circle,rgba(26,79,255,.08) 0%,transparent 70%)",pointerEvents:"none"}}/>
+                <div style={{position:"relative",zIndex:1}}>
+                  <div style={{display:"flex",alignItems:"center",gap:".6rem",marginBottom:"1.2rem"}}>
+                    <span style={{display:"inline-flex",alignItems:"center",gap:".4rem",fontSize:".55rem",color:"#4d85ff",background:"rgba(26,79,255,.1)",border:"1px solid rgba(77,133,255,.2)",borderRadius:"20px",padding:".3rem .8rem",letterSpacing:".12em",textTransform:"uppercase",fontFamily:"'IBM Plex Mono',monospace"}}>
+                      <span style={{width:"5px",height:"5px",borderRadius:"50%",background:"#4d85ff",boxShadow:"0 0 6px #4d85ff",animation:"pulse 2s infinite",display:"inline-block"}}/>
+                      Live · Base Chain
+                    </span>
+                    <span style={{fontSize:".55rem",color:"rgba(180,200,255,.35)",fontFamily:"'IBM Plex Mono',monospace",letterSpacing:".08em"}}>powered by bankr.bot</span>
+                  </div>
+                  <h1 style={{fontSize:"clamp(2.2rem,5vw,4rem)",fontWeight:800,color:"#fff",letterSpacing:"-.04em",lineHeight:.92,marginBottom:".8rem"}}>
+                    Noel Agent
+                  </h1>
+                  <p style={{fontSize:"1rem",color:"rgba(180,200,255,.5)",fontWeight:300,maxWidth:"480px",lineHeight:1.75}}>
+                    Execute real on-chain actions via natural language. Every swap, deploy, and limit order runs on Base chain through Bankr API.
+                  </p>
+                </div>
               </div>
+
+              {/* ── AGENT CARDS ── */}
+              <AgentPlayground
+                sendMessage={sendMessage}
+                bankrAsk={bankrAsk}
+                getTokenPrice={getTokenPrice}
+                getRecentTrades={getRecentTrades}
+                getTrendingBase={getTrendingBase}
+                getAlphaBankr={getAlphaBankr}
+                getPortfolio={getPortfolio}
+                swapTokens={swapTokens}
+                getBalance={getBalance}
+                setLimitOrder={setLimitOrder}
+                claimFees={claimFees}
+                getSmartMoney={getSmartMoney}
+                setupDCA={setupDCA}
+                deployToken={deployToken}
+                runAlphaAgent={runAlphaAgent}
+                walletAddress={walletAddress}
+                authenticated={authenticated}
+                login={login}
+                tokenData={tokenData}
+                recentTrades={recentTrades}
+              />
             </div>
           )}
 
-          {/* DASHBOARD */}
-          {!art&&!newsArt&&page==="dashboard"&&(
-            <div className="dash">
-              <div className="pg-hd">
-                <div>
-                  <div className="pg-title">Dashboard</div>
-                  <div className="pg-sub">Overview · last 7 days</div>
+          {/* HOW IT WORKS */}
+          {!art&&!newsArt&&page==="howto"&&(
+            <div className="page" style={{background:"#000"}}>
+              {/* Hero header — left aligned like screenshot */}
+              <div style={{padding:"5rem 6vw 3rem",maxWidth:"1200px",margin:"0 auto"}}>
+                <div style={{display:"flex",alignItems:"center",gap:".8rem",marginBottom:"1.5rem"}}>
+                  <span style={{display:"block",width:"2rem",height:"1px",background:"rgba(255,255,255,.3)"}}/>
+                  <span style={{fontSize:".55rem",color:"rgba(120,160,255,.55)",letterSpacing:".25em",textTransform:"uppercase",fontFamily:"'IBM Plex Mono',monospace"}}>How it works</span>
                 </div>
+                <h1 style={{fontSize:"clamp(2rem,4.5vw,4rem)",fontWeight:700,color:"#fff",letterSpacing:"-.04em",lineHeight:.95,marginBottom:"1rem"}}>
+                  From natural language<br/>
+                  <span style={{color:"#4d85ff"}}>to on-chain action.</span>
+                </h1>
+                <p style={{fontSize:"1rem",color:"rgba(180,200,255,.5)",fontWeight:300,maxWidth:"460px",lineHeight:1.75}}>
+                  NoelClaw translates what you say into real Base chain transactions — powered by Bankr API.
+                </p>
               </div>
-              <div className="kpi-grid">
-                <div className="kpi kblue"><div className="kpi-lbl">Total Visitors<span className="kpi-ico">👁</span></div><div className="kpi-val">4.2K</div><div className="kpi-chg up">↑ +38% <span>vs last week</span></div></div>
-                <div className="kpi kgreen"><div className="kpi-lbl">Article Reads<span className="kpi-ico">📖</span></div><div className="kpi-val">2.8K</div><div className="kpi-chg up">↑ +22% <span>vs last week</span></div></div>
-                <div className="kpi korange"><div className="kpi-lbl">Chat Sessions<span className="kpi-ico">💬</span></div><div className="kpi-val">184</div><div className="kpi-chg up">↑ +29% <span>vs last week</span></div></div>
-                <div className="kpi kpurple"><div className="kpi-lbl">X Followers<span className="kpi-ico">✦</span></div><div className="kpi-val">50</div><div className="kpi-chg up">↑ +63 <span>this week</span></div></div>
-                <div className="kpi ktoken"><div className="kpi-lbl">$NOELCLAW Holders<span className="kpi-ico">🦕</span></div><div className="kpi-val">82</div><div className="kpi-chg up">↑ Base Chain</div></div>
-              </div>
-              <div className="dash-body">
-                <div className="dash-left">
-                  <div className="two-col">
-                    <div className="chart-card" style={{margin:0}}>
-                      <div className="chart-hd"><div className="chart-title">Visitors · 9 Days</div><span className="cbadge cbadge-b">Live</span></div>
-                      <ResponsiveContainer width="100%" height={160}>
-                        <AreaChart data={visitData} margin={{top:4,right:4,bottom:0,left:-20}}>
-                          <defs>
-                            <linearGradient id="gb" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#1a4fff" stopOpacity={0.18}/><stop offset="95%" stopColor="#1a4fff" stopOpacity={0}/></linearGradient>
-                            <linearGradient id="gg" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#22d3a5" stopOpacity={0.12}/><stop offset="95%" stopColor="#22d3a5" stopOpacity={0}/></linearGradient>
-                          </defs>
-                          <XAxis dataKey="d" tick={{fontSize:8,fill:"#2d3558"}} axisLine={false} tickLine={false}/>
-                          <YAxis tick={{fontSize:8,fill:"#2d3558"}} axisLine={false} tickLine={false}/>
-                          <Tooltip content={<TT/>}/>
-                          <Area type="monotone" dataKey="v" name="Visits" stroke="#4d85ff" strokeWidth={1.5} fill="url(#gb)" dot={false}/>
-                          <Area type="monotone" dataKey="u" name="Unique" stroke="#22d3a5" strokeWidth={1.2} fill="url(#gg)" dot={false}/>
-                        </AreaChart>
-                      </ResponsiveContainer>
-                    </div>
-                    <div className="chart-card" style={{margin:0}}>
-                      <div className="chart-hd"><div className="chart-title">Top Articles</div><span className="cbadge cbadge-g">Month</span></div>
-                      <ResponsiveContainer width="100%" height={160}>
-                        <BarChart data={articleViews} layout="vertical" margin={{top:0,right:4,bottom:0,left:0}}>
-                          <XAxis type="number" tick={{fontSize:8,fill:"#2d3558"}} axisLine={false} tickLine={false}/>
-                          <YAxis type="category" dataKey="name" tick={{fontSize:8,fill:"#6b78a8"}} axisLine={false} tickLine={false} width={80}/>
-                          <Tooltip content={<TT/>}/>
-                          <Bar dataKey="views" name="Views" fill="#1a4fff" radius={[0,3,3,0]} opacity={0.7}/>
-                        </BarChart>
-                      </ResponsiveContainer>
-                    </div>
-                  </div>
-                  <div className="panel">
-                    <div className="panel-hd">
-                      <div style={{display:"flex",alignItems:"center",gap:".6rem"}}>
-                        <img src="/logo.png" alt="NOELCLAW" style={{width:"18px",height:"18px",borderRadius:"50%",objectFit:"cover"}}/>
-                        <span className="panel-title">$NOELCLAW</span>
-                      </div>
-                      <a href="https://dexscreener.com/base/0x9eebf6143b61a651ae4b1c9c57257510d0feb4743550fefbb9470898e5e26ac7" target="_blank" rel="noopener noreferrer" style={{fontSize:".6rem",color:"var(--blue-hi)",textDecoration:"none",letterSpacing:".08em",display:"flex",alignItems:"center",gap:".3rem"}}>
-                        <img src="https://dexscreener.com/favicon.ico" style={{width:"11px",height:"11px",borderRadius:"2px",objectFit:"cover"}} alt=""/>
-                        DexScreener ↗
-                      </a>
-                    </div>
-                    <div className="token-hero">
-                      {tokenData && !tokenLoading && typeof tokenData === "object" && tokenData.price ? (
-                        <>
-                          <div style={{display:"flex",alignItems:"baseline",gap:".5rem",marginBottom:".2rem"}}>
-                            <span className="token-price-val">${parseFloat(tokenData.price||0).toFixed(8)}</span>
-                            <span className="token-price-chg" style={{color:parseFloat(tokenData.priceChange24h||0)>=0?"var(--blue-hi)":"#ff4d4d"}}>
-                              {parseFloat(tokenData.priceChange24h||0)>=0?"▲":"▼"} {Math.abs(parseFloat(tokenData.priceChange24h||0)).toFixed(2)}% 24h
-                            </span>
-                          </div>
-                        </>
-                      ) : tokenLoading ? (
-                        <div style={{fontSize:".72rem",color:"var(--text3)",padding:".5rem 0"}}>Fetching live data…</div>
-                      ) : (
-                        <div style={{fontSize:".7rem",color:"var(--text3)",padding:".5rem 0"}}>Click refresh to load price</div>
-                      )}
-                    </div>
-                    {tokenData && !tokenLoading && typeof tokenData === "object" && tokenData.price && (
-                      <div className="token-stats">
-                        {[
-                          {label:"VOL 24H", val:"$"+parseFloat(tokenData.volume24h||0).toLocaleString()},
-                          {label:"LIQUIDITY", val:"$"+parseFloat(tokenData.liquidity||0).toLocaleString()},
-                          {label:"MKT CAP", val:"$"+parseFloat(tokenData.marketCap||0).toLocaleString()},
-                          {label:"FDV", val:"$"+parseFloat(tokenData.marketCap||0).toLocaleString()},
-                        ].map(({label,val})=>(
-                          <div className="token-stat" key={label}>
-                            <div className="token-stat-l">{label}</div>
-                            <div className="token-stat-v">{val}</div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                    <div style={{padding:".75rem 1.3rem",display:"flex",alignItems:"center",justifyContent:"space-between",borderTop:"1px solid var(--border)"}}>
-                      <span style={{fontSize:".6rem",color:"var(--text3)",letterSpacing:".1em"}}>BASE CHAIN</span>
-                      <button onClick={fetchTokenPrice} disabled={tokenLoading} style={{background:"none",border:"1px solid var(--border)",borderRadius:"5px",padding:".28rem .7rem",cursor:"pointer",display:"flex",alignItems:"center",gap:".35rem",opacity:tokenLoading?.5:1,transition:"all .2s",color:"var(--text3)"}}>
-                        <img src="/refresh.png" alt="" style={{width:"11px",height:"11px",filter:"invert(1)",opacity:.6,animation:tokenLoading?"spin 1s linear infinite":"none"}}/>
-                        <span style={{fontSize:".6rem",fontFamily:"inherit",letterSpacing:".1em"}}>{tokenLoading?"LOADING…":"REFRESH"}</span>
-                      </button>
-                    </div>
-                  </div>
-                  <div className="panel">
-                    <div className="panel-hd">
-                      <span className="panel-title">Price Chart</span>
-                      <span className="panel-tag green">Live</span>
-                    </div>
-                    <iframe src="https://dexscreener.com/base/0x9eebf6143b61a651ae4b1c9c57257510d0feb4743550fefbb9470898e5e26ac7?embed=1&theme=dark&trades=0&info=0" style={{width:"100%",height:"380px",border:"none",display:"block"}} title="NOELCLAW Chart"/>
-                  </div>
-                </div>
-                <div className="dash-right">
-                  <div className="panel">
-                    <div className="panel-hd">
-                      <span className="panel-title">Live Activity</span>
-                      <span style={{display:"flex",alignItems:"center",gap:".35rem",fontSize:".55rem",color:"var(--blue-hi)",letterSpacing:".1em"}}>
-                        <span style={{width:6,height:6,borderRadius:"50%",background:"var(--blue-hi)",display:"inline-block",boxShadow:"0 0 6px var(--blue-hi)",animation:"pulse 2s ease-in-out infinite"}}/>
-                        LIVE
-                      </span>
-                    </div>
-                    <div className="act-list">
-                      {activityFeed.map((a,i)=>{
-                        const SEEDS = ["pixel","shapes","lorelei","notionists","rings"];
-                        const colors = ["0d1117","0f1722","101828","0a0e1a","080d17"];
-                        return (
-                          <div className="act-item" key={i} style={{opacity: i===0?1: 1-(i*0.07), animation: i===0?"fadeSlideIn .4s ease both":"none"}}>
-                            <div className="act-badge">
-                              <img src={`https://api.dicebear.com/7.x/thumbs/svg?seed=${a.name}&backgroundColor=${colors[i%colors.length]}`} alt={a.name}/>
-                            </div>
-                            <div style={{flex:1,minWidth:0}}>
-                              <div className="act-ev">{a.event}</div>
-                              <div className="act-time">{a.time}</div>
-                            </div>
-                            <div style={{fontSize:".65rem",opacity:.4}}>{ACT_ICONS[a.type]||"·"}</div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                  <div className="panel">
-                    <div className="panel-hd"><span className="panel-title">Quick Links</span></div>
-                    <div style={{display:"flex",flexDirection:"column"}}>
-                      {[
-                        {label:"X / Twitter",sub:"@noelclawfun",logoType:"x",href:"https://x.com/noelclawfun",tag:"Follow"},
-                        {label:"$NOELCLAW",sub:"Base Chain · Flaunch",logoType:"noelclaw",href:"https://flaunch.gg/base/coin/0xa57d8ce207c7daaeeed4e3a491bdf51d89233af3",tag:"Buy"},
-                        {label:"DexScreener",sub:"Live chart",logoType:"dex",href:"https://dexscreener.com/base/0x9eebf6143b61a651ae4b1c9c57257510d0feb4743550fefbb9470898e5e26ac7",tag:"Chart"},
-                      ].map((l,i)=>(
-                        <a key={i} href={l.href} target="_blank" rel="noopener noreferrer" style={{display:"flex",alignItems:"center",gap:".75rem",padding:".75rem 1.3rem",borderBottom:i<2?"1px solid var(--border)":"none",textDecoration:"none",transition:"background .18s",cursor:"pointer"}}
-                          onMouseEnter={e=>e.currentTarget.style.background="rgba(255,255,255,.025)"}
-                          onMouseLeave={e=>e.currentTarget.style.background="transparent"}
-                        >
-                          <span style={{width:20,display:"flex",alignItems:"center",justifyContent:"center",color:"var(--text2)",flexShrink:0}}>
-                            {l.logoType==="x" && <svg width="13" height="13" viewBox="0 0 1200 1227" fill="currentColor"><path d="M714.163 519.284L1160.89 0H1055.03L667.137 450.887L357.328 0H0L468.492 681.821L0 1226.37H105.866L515.491 750.218L842.672 1226.37H1200L714.163 519.284ZM569.165 687.828L521.697 619.934L144.011 79.6944H306.615L611.412 515.685L658.88 583.579L1055.08 1150.3H892.476L569.165 687.854V687.828Z"/></svg>}
-                            {l.logoType==="noelclaw" && <img src="/logo.png" style={{width:14,height:14,borderRadius:"50%",objectFit:"cover"}} alt=""/>}
-                            {l.logoType==="dex" && <img src="https://dexscreener.com/favicon.ico" style={{width:14,height:14,borderRadius:2,objectFit:"cover"}} alt=""/>}
-                          </span>
-                          <div style={{flex:1,minWidth:0}}>
-                            <div style={{fontSize:".72rem",color:"var(--text)",fontWeight:400,marginBottom:".1rem"}}>{l.label}</div>
-                            <div style={{fontSize:".6rem",color:"var(--text3)"}}>{l.sub}</div>
-                          </div>
-                          <span style={{fontSize:".55rem",padding:".15rem .45rem",borderRadius:3,background:"rgba(77,133,255,.1)",color:"var(--blue-hi)",letterSpacing:".1em"}}>{l.tag}</span>
-                        </a>
-                      ))}
-                    </div>
-                  </div>
-                  <div className="panel">
-                    <div className="panel-hd"><span className="panel-title">Top Article</span><span className="panel-tag blue">Trending</span></div>
-                    <div style={{padding:"1rem 1.3rem"}}>
-                      <div style={{fontSize:".6rem",color:"var(--text3)",letterSpacing:".14em",textTransform:"uppercase",marginBottom:".6rem"}}>Most read this week</div>
-                      <div style={{fontSize:".9rem",fontWeight:300,color:"var(--white)",lineHeight:1.4,marginBottom:".6rem"}}>NoelClaw: AI OS</div>
-                      <div style={{fontSize:".7rem",color:"var(--text2)",fontWeight:200,lineHeight:1.6,marginBottom:".9rem"}}>Documenting the build of a personal AI operating system — composable agents, architecture decisions, shipped in public.</div>
-                      <div style={{display:"flex",alignItems:"center",gap:".5rem"}}>
-                        <span style={{fontSize:".6rem",color:"var(--text3)"}}>3,240 reads</span>
-                        <span style={{opacity:.3}}>·</span>
-                        <span style={{fontSize:".6rem",color:"var(--blue-hi)"}}>↑ +18% this week</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
 
-          {/* ANALYTICS */}
-          {!art&&!newsArt&&page==="analytics"&&(
-            <div className="analytics">
-              <div className="an-hd">
-                <div>
-                  <div className="pg-title">Analytics</div>
-                  <div className="pg-sub">Traffic, content performance & audience</div>
-                </div>
-                <div className="range-btns">{["7d","30d","90d"].map(r=><button key={r} className={`rbtn${range===r?" on":""}`} onClick={()=>setRange(r)}>{r}</button>)}</div>
-              </div>
-              <div className="an-kpis">
+              {/* 4-col cards — match screenshot */}
+              <div className="howto-grid" style={{padding:"0 6vw 5rem",maxWidth:"1200px",margin:"0 auto",display:"grid",gridTemplateColumns:"repeat(4,1fr)",gap:"1rem"}}>
                 {[
-                  {l:"Page Views",v:"4.2K",d:"↑ +38%"},
-                  {l:"Unique Users",v:"2.6K",d:"↑ +31%"},
-                  {l:"Avg. Session",v:"3m 48s",d:"↑ +12%"},
-                  {l:"Bounce Rate",v:"44%",d:"↓ -3%"},
-                ].map((k,i)=>(
-                  <div className="an-kpi" key={i}>
-                    <div className="an-kpi-l">{k.l}</div>
-                    <div className="an-kpi-v">{k.v}</div>
-                    <div className="an-kpi-d up">{k.d} vs prev.</div>
+                  {n:"01",icon:"💬",color:"#3b6fff",title:"You type a command",desc:"Write anything in plain English — swap 0.01 ETH to USDC, analyze BRETT, deploy a token. No syntax required.",code:"swap 0.01 ETH to USDC"},
+                  {n:"02",icon:"⚡",color:"#3b6fff",title:"Bankr interprets intent",desc:"NoelClaw sends your prompt to Bankr LLM Gateway. Bankr selects the right model and prepares the transaction data.",code:"POST /agent/prompt → jobId"},
+                  {n:"03",icon:"🔗",color:"#3b6fff",title:"Base chain executes",desc:"For execute actions, the transaction hits Base chain directly through your connected wallet via Privy.",code:"tx confirmed on Base ✓"},
+                  {n:"04",icon:"🤖",color:"#3b6fff",title:"Auto-agent loops",desc:"Set a condition and walk away. The auto-agent monitors every 30 seconds and executes when triggered.",code:"watching ETH → price drop 5%"},
+                ].map((s,i)=>(
+                  <div key={i} style={{
+                    background:"rgba(255,255,255,.03)",
+                    border:"1px solid rgba(255,255,255,.07)",
+                    borderRadius:"14px",padding:"1.8rem",
+                    transition:"border-color .25s,transform .35s cubic-bezier(.23,1,.32,1),box-shadow .35s",
+                    position:"relative",overflow:"hidden",
+                    display:"flex",flexDirection:"column",gap:".8rem",
+                  }}
+                    onMouseEnter={e=>{e.currentTarget.style.borderColor="rgba(59,111,255,.4)";e.currentTarget.style.transform="translateY(-6px)";e.currentTarget.style.boxShadow="0 20px 60px rgba(59,111,255,.15)";}}
+                    onMouseLeave={e=>{e.currentTarget.style.borderColor="rgba(255,255,255,.07)";e.currentTarget.style.transform="none";e.currentTarget.style.boxShadow="none";}}>
+                    {/* Top row */}
+                    <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
+                      <span style={{fontSize:"1.4rem",lineHeight:1}}>{s.icon}</span>
+                      <span style={{fontFamily:"'IBM Plex Mono',monospace",fontSize:".68rem",color:"rgba(255,255,255,.07)",fontWeight:700,letterSpacing:".05em"}}>{s.n}</span>
+                    </div>
+                    {/* Title */}
+                    <div style={{fontSize:".95rem",fontWeight:600,color:"#fff",lineHeight:1.3,letterSpacing:"-.01em"}}>{s.title}</div>
+                    {/* Desc */}
+                    <div style={{fontSize:".73rem",color:"rgba(160,190,255,.5)",lineHeight:1.7,fontWeight:300,flex:1}}>{s.desc}</div>
+                    {/* Code pill */}
+                    <div style={{fontFamily:"'IBM Plex Mono',monospace",fontSize:".63rem",color:"#4d85ff",background:"rgba(59,111,255,.1)",border:"1px solid rgba(59,111,255,.2)",borderRadius:"6px",padding:".28rem .65rem",display:"inline-flex",alignItems:"center",gap:".4rem",marginTop:".3rem"}}>
+                      <span style={{opacity:.5}}>{">"}</span> {s.code}
+                    </div>
+                    {/* Bottom accent */}
+                    <div style={{position:"absolute",bottom:0,left:0,right:0,height:"1px",background:"linear-gradient(90deg,rgba(59,111,255,.4),transparent)"}}/>
                   </div>
                 ))}
               </div>
-              <div className="an-body">
-                <div className="big-chart">
-                  <div className="bc-hd">
-                    <div className="bc-title">Traffic Over Time</div>
-                    <div className="bc-leg">
-                      <div className="leg-item"><div className="leg-dot" style={{background:"#4d85ff"}}/> Views</div>
-                      <div className="leg-item"><div className="leg-dot" style={{background:"#22d3a5"}}/> Users</div>
-                    </div>
-                  </div>
-                  <ResponsiveContainer width="100%" height={200}>
-                    <AreaChart data={visitData} margin={{top:4,right:4,bottom:0,left:-20}}>
-                      <defs>
-                        <linearGradient id="g1" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#1a4fff" stopOpacity={0.18}/><stop offset="95%" stopColor="#1a4fff" stopOpacity={0}/></linearGradient>
-                        <linearGradient id="g2" x1="0" y1="0" x2="0" y2="1"><stop offset="5%" stopColor="#22d3a5" stopOpacity={0.12}/><stop offset="95%" stopColor="#22d3a5" stopOpacity={0}/></linearGradient>
-                      </defs>
-                      <XAxis dataKey="d" tick={{fontSize:8,fill:"#2d3558"}} axisLine={false} tickLine={false}/>
-                      <YAxis tick={{fontSize:8,fill:"#2d3558"}} axisLine={false} tickLine={false}/>
-                      <Tooltip content={<TT/>}/>
-                      <Area type="monotone" dataKey="v" name="Views" stroke="#4d85ff" strokeWidth={1.8} fill="url(#g1)" dot={false}/>
-                      <Area type="monotone" dataKey="u" name="Users" stroke="#22d3a5" strokeWidth={1.4} fill="url(#g2)" dot={false}/>
-                    </AreaChart>
-                  </ResponsiveContainer>
+
+              {/* Stack row */}
+              <div style={{padding:"2.5rem 6vw",borderTop:"1px solid rgba(255,255,255,.05)",maxWidth:"1200px",margin:"0 auto",display:"flex",alignItems:"center",gap:"1.5rem",flexWrap:"wrap"}}>
+                <span style={{fontSize:".55rem",color:"rgba(120,160,255,.45)",letterSpacing:".22em",textTransform:"uppercase",flexShrink:0}}>Stack</span>
+                <div style={{display:"flex",flexWrap:"wrap",gap:".5rem"}}>
+                  {["React + Vite","Convex","Privy","Bankr API","Base Chain","Claude AI","TypeScript"].map(t=>(
+                    <span key={t} style={{fontFamily:"'IBM Plex Mono',monospace",fontSize:".65rem",color:"rgba(100,150,255,.65)",background:"rgba(26,79,255,.07)",border:"1px solid rgba(77,133,255,.12)",borderRadius:"5px",padding:".22rem .65rem"}}>{t}</span>
+                  ))}
                 </div>
-                <div className="an-grid">
-                  <div className="panel">
-                    <div className="panel-hd"><span className="panel-title">Traffic Sources</span></div>
-                    <div style={{padding:"1rem 1.3rem"}}>
-                      <ResponsiveContainer width="100%" height={90}>
-                        <PieChart>
-                          <Pie data={trafficSources} cx="50%" cy="50%" innerRadius={26} outerRadius={42} paddingAngle={3} dataKey="value">
-                            {trafficSources.map((s,i)=><Cell key={i} fill={s.color}/>)}
-                          </Pie>
-                          <Tooltip content={<TT/>}/>
-                        </PieChart>
-                      </ResponsiveContainer>
-                      <div className="src-list">
-                        {trafficSources.map((s,i)=>(
-                          <div className="src-item" key={i}>
-                            <span className="src-nm">{s.name}</span>
-                            <div className="src-bw"><div className="src-b" style={{width:s.value+"%",background:s.color}}/></div>
-                            <span className="src-p">{s.value}%</span>
-                          </div>
-                        ))}
-                      </div>
+              </div>
+
+              {/* Mobile: stack to 2col then 1col */}
+              <style>{`@media(max-width:900px){.howto-grid{grid-template-columns:repeat(2,1fr)!important;}}@media(max-width:500px){.howto-grid{grid-template-columns:1fr!important;}}`}</style>
+            </div>
+          )}
+
+          {/* DOCS PAGE */}
+          {!art&&!newsArt&&page==="docs"&&(
+            <div className="page page-gradient-purple" style={{minHeight:"100vh"}}>
+              {/* Hero */}
+              <div style={{padding:"5rem 6vw 4rem",borderBottom:"1px solid rgba(255,255,255,.06)",maxWidth:"1200px",margin:"0 auto"}}>
+                <div style={{display:"flex",alignItems:"center",gap:".8rem",marginBottom:"1.5rem"}}>
+                  <span style={{display:"block",width:"2rem",height:"1px",background:"rgba(255,255,255,.3)"}}/>
+                  <span style={{fontSize:".58rem",color:"rgba(120,160,255,.6)",letterSpacing:".28em",textTransform:"uppercase"}}>Documentation</span>
+                </div>
+                <h1 style={{fontSize:"clamp(2.5rem,6vw,5rem)",fontWeight:800,color:"#fff",letterSpacing:"-.04em",lineHeight:.92,marginBottom:"1rem"}}>
+                  Build with<br/><span style={{color:"#3b6fff"}}>NoelClaw.</span>
+                </h1>
+                <p style={{fontSize:"1rem",color:"rgba(180,200,255,.5)",fontWeight:300,maxWidth:"500px",lineHeight:1.75}}>
+                  Everything you need to integrate Bankr-powered AI agents into your apps on Base chain.
+                </p>
+              </div>
+
+              <div className="docs-grid" style={{maxWidth:"1200px",margin:"0 auto",padding:"3rem 5vw 6rem",display:"grid",gridTemplateColumns:"200px 1fr",gap:"2.5rem",alignItems:"start"}}>
+                {/* Sidebar */}
+                <div className="docs-sidebar" style={{position:"sticky",top:"80px"}}>
+                  {[
+                    {label:"Overview",items:["Quick Start","Architecture","Stack"]},
+                    {label:"API Reference",items:["bankrAsk()","swapTokens()","deployToken()","setLimitOrder()","getSmartMoney()","getTokenPrice()"]},
+                    {label:"Guides",items:["Auto-Agent Setup","Wallet Integration","Natural Language"]},
+                    {label:"Examples",items:["Code Snippets","Use Cases"]},
+                  ].map((section,i)=>(
+                    <div key={i} style={{marginBottom:"1.8rem"}}>
+                      <div style={{fontSize:".55rem",color:"rgba(120,160,255,.45)",letterSpacing:".2em",textTransform:"uppercase",marginBottom:".7rem",fontFamily:"'IBM Plex Mono',monospace"}}>{section.label}</div>
+                      {section.items.map(item=>(
+                        <div key={item} style={{fontSize:".78rem",color:"rgba(180,200,255,.55)",padding:".3rem .5rem",borderRadius:"6px",cursor:"pointer",transition:"all .15s",marginBottom:".1rem",fontWeight:300}}
+                          onMouseEnter={e=>{e.currentTarget.style.color="#fff";e.currentTarget.style.background="rgba(255,255,255,.04)";}}
+                          onMouseLeave={e=>{e.currentTarget.style.color="rgba(180,200,255,.55)";e.currentTarget.style.background="none";}}>
+                          {item}
+                        </div>
+                      ))}
                     </div>
-                  </div>
-                  <div className="panel">
-                    <div className="panel-hd"><span className="panel-title">Top Articles</span></div>
-                    <div style={{padding:".4rem 0"}}>
-                      <div className="top-art-list">
-                        {articleViews.map((a,i)=>(
-                          <div className="top-art-item" key={i}>
-                            <span className="tar-rank">0{i+1}</span>
-                            <span className="tar-nm">{a.name}</span>
-                            <span className="tar-v">{a.views.toLocaleString()}</span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="panel">
-                    <div className="panel-hd"><span className="panel-title">Engagement</span></div>
-                    <div style={{padding:"1rem 1.3rem",display:"flex",flexDirection:"column",gap:".9rem"}}>
+                  ))}
+                </div>
+
+                {/* Main content */}
+                <div className="docs-content" style={{display:"flex",flexDirection:"column",gap:"3rem",minWidth:0,overflow:"hidden"}}>
+
+                  {/* Quick Start */}
+                  <section>
+                    <h2 style={{fontSize:"1.5rem",fontWeight:700,color:"#fff",letterSpacing:"-.02em",marginBottom:".5rem"}}>Quick Start</h2>
+                    <p style={{fontSize:".85rem",color:"rgba(180,200,255,.55)",lineHeight:1.75,marginBottom:"1.2rem",fontWeight:300}}>
+                      Get running in 3 steps. Connect your wallet, type a command, watch it execute on-chain.
+                    </p>
+                    <div style={{display:"flex",flexDirection:"column",gap:".75rem"}}>
                       {[
-                        {l:"Avg. Read Time",v:"3m 48s",p:72,c:"#4d85ff"},
-                        {l:"Articles Completed",v:"68%",p:68,c:"#22d3a5"},
-                        {l:"Chat Engagement",v:"41%",p:41,c:"#a78bfa"},
-                        {l:"Return Visitors",v:"54%",p:54,c:"#f97316"},
-                      ].map((e,i)=>(
-                        <div key={i}>
-                          <div style={{display:"flex",justifyContent:"space-between",marginBottom:".3rem"}}>
-                            <span style={{fontSize:".64rem",color:"var(--text3)",letterSpacing:".1em",textTransform:"uppercase"}}>{e.l}</span>
-                            <span style={{fontSize:".64rem",color:"var(--white)",fontWeight:400,fontFamily:"'DM Mono',monospace"}}>{e.v}</span>
-                          </div>
-                          <div style={{background:"rgba(255,255,255,.04)",borderRadius:2,height:2,overflow:"hidden"}}>
-                            <div style={{width:e.p+"%",height:2,background:e.c,borderRadius:2}}/>
+                        {step:"1",title:"Connect Wallet","code":"Click Connect → Privy handles auth → wallet ready"},
+                        {step:"2",title:"Open Noel Agent","code":"Navigate to Noel Agent → select an action card"},
+                        {step:"3",title:"Execute","code":'Type: "swap 0.01 ETH to USDC" → Bankr executes on Base'},
+                      ].map(s=>(
+                        <div key={s.step} style={{display:"flex",gap:"1rem",alignItems:"flex-start",background:"rgba(255,255,255,.02)",border:"1px solid rgba(255,255,255,.06)",borderRadius:"10px",padding:"1rem 1.2rem"}}>
+                          <div style={{width:"24px",height:"24px",borderRadius:"50%",background:"rgba(59,111,255,.2)",border:"1px solid rgba(59,111,255,.3)",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,fontSize:".65rem",fontWeight:700,color:"#4d85ff",fontFamily:"'IBM Plex Mono',monospace"}}>{s.step}</div>
+                          <div>
+                            <div style={{fontSize:".82rem",fontWeight:600,color:"#fff",marginBottom:".3rem"}}>{s.title}</div>
+                            <div style={{fontFamily:"'IBM Plex Mono',monospace",fontSize:".68rem",color:"rgba(100,160,255,.7)"}}>{s.code}</div>
                           </div>
                         </div>
                       ))}
                     </div>
-                  </div>
+                  </section>
+
+                  {/* Architecture */}
+                  <section>
+                    <h2 style={{fontSize:"1.5rem",fontWeight:700,color:"#fff",letterSpacing:"-.02em",marginBottom:".5rem"}}>Architecture</h2>
+                    <p style={{fontSize:".85rem",color:"rgba(180,200,255,.55)",lineHeight:1.75,marginBottom:"1.5rem",fontWeight:300}}>
+                      NoelClaw acts as the interface layer between users and the Bankr API, which handles all on-chain execution.
+                    </p>
+                    <div style={{display:"flex",alignItems:"center",gap:".5rem",flexWrap:"wrap",background:"rgba(255,255,255,.02)",border:"1px solid rgba(255,255,255,.06)",borderRadius:"12px",padding:"1.5rem"}}>
+                      {[
+                        {label:"User",sub:"Natural language",icon:"👤",color:"rgba(200,220,255,.8)"},
+                        "→",
+                        {label:"NoelClaw",sub:"React + Convex",icon:"⚡",color:"#4d85ff"},
+                        "→",
+                        {label:"Bankr API",sub:"LLM Gateway",icon:"🤖",color:"#a78bfa"},
+                        "→",
+                        {label:"Base Chain",sub:"On-chain execution",icon:"🔗",color:"#4d85ff"},
+                      ].map((n,i)=>typeof n==="string" ? (
+                        <span key={i} style={{color:"rgba(255,255,255,.2)",fontSize:"1.2rem",padding:"0 .3rem"}}>→</span>
+                      ) : (
+                        <div key={i} style={{flex:1,minWidth:"100px",textAlign:"center",padding:".8rem",background:"rgba(255,255,255,.02)",borderRadius:"8px",border:"1px solid rgba(255,255,255,.05)"}}>
+                          <div style={{fontSize:"1.2rem",marginBottom:".3rem"}}>{n.icon}</div>
+                          <div style={{fontSize:".72rem",fontWeight:600,color:n.color,marginBottom:".15rem"}}>{n.label}</div>
+                          <div style={{fontSize:".58rem",color:"rgba(180,200,255,.35)",fontWeight:300}}>{n.sub}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </section>
+
+                  {/* API Reference */}
+                  <section>
+                    <h2 style={{fontSize:"1.5rem",fontWeight:700,color:"#fff",letterSpacing:"-.02em",marginBottom:".5rem"}}>API Reference</h2>
+                    <p style={{fontSize:".85rem",color:"rgba(180,200,255,.55)",lineHeight:1.75,marginBottom:"1.2rem",fontWeight:300}}>
+                      All Bankr actions available through NoelClaw. Each function maps to a natural language command.
+                    </p>
+                    <div style={{display:"flex",flexDirection:"column",gap:".6rem"}}>
+                      {[
+                        {fn:"bankrAsk()",params:"prompt, threadId?",ret:"response, threadId",desc:"Send any natural language prompt to Bankr LLM Gateway. Maintains conversation context via threadId.",ex:'"analyze BRETT — should I buy?"'},
+                        {fn:"swapTokens()",params:"fromToken, toToken, amount, walletAddress",ret:"response, transactions",desc:"Execute a token swap on Base chain via Bankr. Requires connected wallet.",ex:'"swap 0.01 ETH to USDC"'},
+                        {fn:"deployToken()",params:"name, symbol, supply",ret:"response, contractAddress",desc:"Deploy a new ERC-20 token on Base chain in seconds.",ex:'"deploy MOON token with 1B supply"'},
+                        {fn:"setLimitOrder()",params:"token, action, amount, targetPrice",ret:"response, orderId",desc:"Set a limit order that executes automatically when price target is hit.",ex:'"buy 0.1 ETH when price drops to $2800"'},
+                        {fn:"getSmartMoney()",params:"token?",ret:"wallets, trades, pnl",desc:"Track whale wallet activity and smart money flows on Base.",ex:'"show me smart money for BRETT"'},
+                        {fn:"getTokenPrice()",params:"token",ret:"price, change24h, volume, mcap",desc:"Get live token price data from Bankr.",ex:'"what is the price of ETH?"'},
+                      ].map((api,i)=>(
+                        <div key={i} style={{background:"rgba(255,255,255,.02)",border:"1px solid rgba(255,255,255,.06)",borderRadius:"10px",overflow:"hidden"}}>
+                          <div style={{display:"flex",alignItems:"center",gap:"1rem",padding:".9rem 1.2rem",borderBottom:"1px solid rgba(255,255,255,.05)",flexWrap:"wrap",gap:".6rem"}}>
+                            <span style={{fontFamily:"'IBM Plex Mono',monospace",fontSize:".78rem",color:"#4d85ff",fontWeight:500}}>{api.fn}</span>
+                            <span style={{fontFamily:"'IBM Plex Mono',monospace",fontSize:".62rem",color:"rgba(180,200,255,.35)"}}>({api.params})</span>
+                            <span style={{marginLeft:"auto",fontFamily:"'IBM Plex Mono',monospace",fontSize:".6rem",color:"rgba(100,200,100,.5)",background:"rgba(100,200,100,.06)",border:"1px solid rgba(100,200,100,.12)",borderRadius:"4px",padding:".1rem .4rem"}}>→ {api.ret}</span>
+                          </div>
+                          <div style={{padding:".9rem 1.2rem"}}>
+                            <p style={{fontSize:".75rem",color:"rgba(160,190,255,.5)",lineHeight:1.65,marginBottom:".6rem",fontWeight:300}}>{api.desc}</p>
+                            <div style={{fontFamily:"'IBM Plex Mono',monospace",fontSize:".65rem",color:"rgba(77,133,255,.6)",background:"rgba(26,79,255,.06)",borderRadius:"5px",padding:".3rem .65rem",display:"inline-block"}}>Example: {api.ex}</div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </section>
+
+                  {/* Code Examples */}
+                  <section>
+                    <h2 style={{fontSize:"1.5rem",fontWeight:700,color:"#fff",letterSpacing:"-.02em",marginBottom:".5rem"}}>Code Examples</h2>
+                    <p style={{fontSize:".85rem",color:"rgba(180,200,255,.55)",lineHeight:1.75,marginBottom:"1.2rem",fontWeight:300}}>Copy-paste these natural language commands into Noel Agent.</p>
+                    <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(260px,1fr))",gap:".75rem"}}>
+                      {[
+                        {label:"Swap",cmd:"swap 0.01 ETH to USDC",color:"#4d85ff"},
+                        {label:"Analyze",cmd:"analyze BRETT — buy or sell? conviction 1-10",color:"#a78bfa"},
+                        {label:"Deploy",cmd:"deploy token MOON symbol MOON supply 1000000000",color:"#c084fc"},
+                        {label:"Trending",cmd:"show top 8 trending tokens on Base right now",color:"#f97316"},
+                        {label:"Smart Money",cmd:"who are the top whale wallets for DEGEN?",color:"#fbbf24"},
+                        {label:"Auto-Agent",cmd:"watch ETH — if price drops 5% in 1h, swap 0.05 ETH to USDC",color:"#22d3a5"},
+                      ].map((ex,i)=>(
+                        <div key={i} style={{background:"rgba(255,255,255,.02)",border:"1px solid rgba(255,255,255,.06)",borderRadius:"9px",padding:".9rem 1rem",cursor:"pointer",transition:"all .2s"}}
+                          onClick={()=>navigator.clipboard?.writeText(ex.cmd)}
+                          onMouseEnter={e=>{e.currentTarget.style.borderColor=ex.color+"33";e.currentTarget.style.background="rgba(255,255,255,.04)";}}
+                          onMouseLeave={e=>{e.currentTarget.style.borderColor="rgba(255,255,255,.06)";e.currentTarget.style.background="rgba(255,255,255,.02)";}}>
+                          <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:".5rem"}}>
+                            <span style={{fontSize:".55rem",fontWeight:700,color:ex.color,background:ex.color+"15",border:`1px solid ${ex.color}25`,borderRadius:"4px",padding:".08rem .4rem",letterSpacing:".08em",textTransform:"uppercase"}}>{ex.label}</span>
+                            <span style={{fontSize:".58rem",color:"rgba(255,255,255,.25)"}}>copy</span>
+                          </div>
+                          <div style={{fontFamily:"'IBM Plex Mono',monospace",fontSize:".68rem",color:"rgba(180,210,255,.7)",lineHeight:1.5}}>{ex.cmd}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </section>
+
+                  {/* What's next */}
+                  <section style={{background:"linear-gradient(135deg,rgba(26,79,255,.06),rgba(100,50,255,.04))",border:"1px solid rgba(77,133,255,.15)",borderRadius:"14px",padding:"2rem"}}>
+                    <h2 style={{fontSize:"1.3rem",fontWeight:700,color:"#fff",marginBottom:".5rem"}}>What's Next 🚀</h2>
+                    <p style={{fontSize:".82rem",color:"rgba(180,200,255,.5)",lineHeight:1.75,marginBottom:"1.2rem",fontWeight:300}}>NoelClaw is actively being built. Upcoming features:</p>
+                    <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(200px,1fr))",gap:".6rem"}}>
+                      {["Multi-chain support (Solana + Base)","Portfolio tracking dashboard","Telegram bot integration","On-chain analytics feed","DCA automation","NFT agent actions","Mobile app","SDK for developers"].map(item=>(
+                        <div key={item} style={{display:"flex",alignItems:"center",gap:".6rem",fontSize:".75rem",color:"rgba(160,190,255,.6)",fontWeight:300}}>
+                          <span style={{color:"#4d85ff",flexShrink:0}}>→</span>{item}
+                        </div>
+                      ))}
+                    </div>
+                  </section>
+
                 </div>
               </div>
             </div>
@@ -3130,57 +4827,68 @@ Live data:
 
           {/* ABOUT */}
           {!art&&!newsArt&&page==="about"&&(
-            <div className="page">
-              <div style={{padding:"4rem 3.5rem 3rem",borderBottom:"1px solid var(--border)"}}>
-                <div style={{display:"flex",alignItems:"center",gap:"1.5rem",marginBottom:"2rem"}}>
-                  <div className="abt-wrap">
-                    <img src={LOGO} className="abt-logo" alt="NoelClaw"/>
-                    <div className="abt-ring"/>
+            <div className="page" style={{background:"#000",minHeight:"100vh"}}>
+
+              {/* ── HERO ── */}
+              <div style={{padding:"6rem 6vw 4rem",borderBottom:"1px solid rgba(255,255,255,.06)",position:"relative",overflow:"hidden",textAlign:"center"}}>
+                <div style={{position:"absolute",top:"50%",left:"50%",transform:"translate(-50%,-50%)",width:"60vw",height:"40vh",background:"radial-gradient(ellipse,rgba(26,79,255,.07) 0%,transparent 70%)",pointerEvents:"none"}}/>
+                <div style={{position:"relative",zIndex:1}}>
+                  <div style={{width:"88px",height:"88px",borderRadius:"24px",overflow:"hidden",marginBottom:"1.5rem",border:"2px solid rgba(77,133,255,.35)",boxShadow:"0 0 50px rgba(26,79,255,.3)",margin:"0 auto 1.5rem",display:"block"}}>
+                    <img src="/logo.png" alt="NoelClaw" style={{width:"100%",height:"100%",objectFit:"cover"}}/>
                   </div>
-                  <div>
-                    <div className="abt-name"><em>Noel</em>Claw</div>
-                    <div className="abt-handle">@noelclawfun · Personal AI OS</div>
+                  <h1 style={{fontSize:"clamp(2.5rem,6vw,5rem)",fontWeight:800,color:"#fff",letterSpacing:"-.04em",lineHeight:.92,marginBottom:".8rem"}}>About NoelClaw</h1>
+                  <p style={{fontSize:"1.05rem",color:"rgba(180,200,255,.55)",fontWeight:300,maxWidth:"540px",margin:"0 auto 2rem",lineHeight:1.75}}>
+                    An AI agent platform on Base chain — execute trades, deploy tokens, and analyze markets via natural language. Powered by Bankr API.
+                  </p>
+                  <div style={{display:"flex",gap:".75rem",justifyContent:"center",flexWrap:"wrap"}}>
+                    <a href="https://x.com/noelclawfun" target="_blank" rel="noopener noreferrer"
+                      style={{display:"inline-flex",alignItems:"center",gap:".5rem",background:"rgba(255,255,255,.07)",border:"1px solid rgba(255,255,255,.12)",borderRadius:"50px",padding:".6rem 1.4rem",color:"rgba(220,235,255,.9)",fontSize:".78rem",fontWeight:500,textDecoration:"none",transition:"all .2s"}}
+                      onMouseEnter={e=>{e.currentTarget.style.background="rgba(255,255,255,.12)";}}
+                      onMouseLeave={e=>{e.currentTarget.style.background="rgba(255,255,255,.07)";}}>
+                      𝕏 @noelclawfun
+                    </a>
+                    <a href="https://flaunch.gg/base/coin/0xa57d8ce207c7daaeeed4e3a491bdf51d89233af3" target="_blank" rel="noopener noreferrer"
+                      style={{display:"inline-flex",alignItems:"center",gap:".5rem",background:"rgba(26,79,255,.15)",border:"1px solid rgba(77,133,255,.3)",borderRadius:"50px",padding:".6rem 1.4rem",color:"#4d85ff",fontSize:".78rem",fontWeight:500,textDecoration:"none",transition:"all .2s"}}
+                      onMouseEnter={e=>{e.currentTarget.style.background="rgba(26,79,255,.25)";}}
+                      onMouseLeave={e=>{e.currentTarget.style.background="rgba(26,79,255,.15)";}}>
+                      Buy $NOELCLAW
+                    </a>
                   </div>
                 </div>
-                <p style={{fontSize:"1.25rem",fontWeight:200,color:"var(--text)",lineHeight:1.6,maxWidth:"560px",letterSpacing:"-.01em"}}>
-                  A personal AI operating system — built in public, one decision at a time.
-                </p>
               </div>
-              <div className="abt-inline-grid" style={{display:"grid",gridTemplateColumns:"1fr 1fr",borderBottom:"1px solid var(--border)"}}>
+
+              {/* ── 4 CARDS ── */}
+              <div style={{display:"grid",gridTemplateColumns:"repeat(2,1fr)",borderBottom:"1px solid rgba(255,255,255,.06)"}}>
                 {[
-                  {
-                    label:"01 — What is NoelClaw?",
-                    content:<>NoelClaw is a composable AI system that reads, writes, researches, and acts on your behalf. Not a chatbot. Not a SaaS. Think of it as an OS layer for thinking — built on modern AI infrastructure and documented fully in public.</>
-                  },
-                  {
-                    label:"02 — Why build this?",
-                    content:<>Most AI tools are isolated. Every session starts from zero — no memory, no action, no context. NoelClaw started from one frustration: <strong>why don't your tools talk to each other?</strong> This is the answer.</>
-                  },
-                  {
-                    label:"03 — Vision & Mission",
-                    content:<><strong>Vision —</strong> Everyone has a personal AI that understands their context and grows with them.<br/><br/><strong>Mission —</strong> Build it in the open. Document every decision. Make the reasoning trail more valuable than the product.</>
-                  },
-                  {
-                    label:"04 — Thank you 🦕",
-                    content:<>Thanks for reading this far. Whether you found this through X, a friend, or a search — you're part of the story now. Follow <a href="https://x.com/noelclawfun" target="_blank" rel="noopener noreferrer" style={{color:"var(--blue-hi)",textDecoration:"none"}}>@noelclawfun</a> or grab <a href="https://flaunch.gg/base/coin/0xa57d8ce207c7daaeeed4e3a491bdf51d89233af3" target="_blank" rel="noopener noreferrer" style={{color:"var(--blue-hi)",textDecoration:"none"}}>$NOELCLAW</a>. See you on the other side.</>
-                  },
+                  {n:"01",icon:"⚡",label:"What is NoelClaw?",text:"NoelClaw is a Bankr-powered AI agent platform running on Base chain. Execute real on-chain actions — swaps, limit orders, token deployments — all via natural language. No code. No manual txs. Just ask."},
+                  {n:"02",icon:"🤖",label:"What is Bankr?",text:"Bankr is an AI crypto agent API that executes on-chain actions. NoelClaw integrates Bankr so you can type swap 0.1 ETH to USDC and it happens — for real, on Base chain. Every action is logged and traceable on-chain."},
+                  {n:"03",icon:"🔧",label:"What can it do?",text:"Read: token prices, trending tokens, smart money wallets, trade activity. Execute: swap tokens, set limit orders, deploy new tokens, claim fees. Auto-agent: monitors market every 30s and executes autonomously."},
+                  {n:"04",icon:null,label:"Get involved",text:"Built for the Bankr x Synthesis hackathon with a long-term vision — agents that analyze, decide, and operate autonomously across DeFi. Follow @noelclawfun and grab $NOELCLAW on Base."},
                 ].map((s,i)=>(
                   <div key={i} style={{
                     padding:"2.5rem 3rem",
-                    borderRight: i%2===0 ? "1px solid var(--border)" : "none",
-                    borderTop: i>=2 ? "1px solid var(--border)" : "none",
-                  }}>
-                    <div style={{fontSize:".58rem",fontWeight:600,color:"var(--text3)",letterSpacing:".2em",textTransform:"uppercase",marginBottom:"1.2rem"}}>{s.label}</div>
-                    <p style={{fontSize:".88rem",color:"var(--text2)",lineHeight:1.9,fontWeight:200}}>{s.content}</p>
+                    borderRight:i%2===0?"1px solid rgba(255,255,255,.06)":"none",
+                    borderTop:i>=2?"1px solid rgba(255,255,255,.06)":"none",
+                    transition:"background .2s",
+                  }}
+                    onMouseEnter={e=>{e.currentTarget.style.background="rgba(255,255,255,.02)";}}
+                    onMouseLeave={e=>{e.currentTarget.style.background="none";}}>
+                    <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:"1rem"}}>
+                      <span style={{fontSize:"1.4rem"}}>{s.icon}</span>
+                      <span style={{fontFamily:"'IBM Plex Mono',monospace",fontSize:".65rem",color:"rgba(255,255,255,.07)",fontWeight:700}}>{s.n}</span>
+                    </div>
+                    <div style={{fontSize:".7rem",fontWeight:700,color:"rgba(140,180,255,.7)",letterSpacing:".12em",textTransform:"uppercase",marginBottom:".7rem",fontFamily:"'IBM Plex Mono',monospace"}}>{s.label}</div>
+                    <p style={{fontSize:".85rem",color:"rgba(180,200,255,.55)",lineHeight:1.85,fontWeight:300}}>{s.text}</p>
                   </div>
                 ))}
               </div>
+              <Reveal delay={0}>
               {/* ── ARCHITECTURE ── */}
               <div className="arch-section">
                 <div className="arch-header">
                   <div className="arch-tag"><span className="arch-tag-ln"/>How it works</div>
                   <div className="arch-title">The NoelClaw Architecture</div>
-                  <div className="arch-subtitle">A composable agent system where every component is replaceable, every decision is documented, and every action is traceable.</div>
+                  <div className="arch-subtitle">A Bankr-powered AI agent platform running on Base chain — execute swaps, deploy tokens, and analyze markets via natural language.</div>
                 </div>
                 <ArchDiagram/>
                 <div className="arch-equation">
@@ -3199,6 +4907,7 @@ Live data:
               </div>
 
               {/* ── AGENT CAPABILITIES ── */}
+              <Reveal delay={0}>
               <div className="caps-section">
                 <div className="caps-header">
                   <div>
@@ -3212,25 +4921,27 @@ Live data:
                 </div>
                 <AgentCaps/>
               </div>
+              </Reveal>
 
               {/* ── PERSONAL AI NODE ── */}
+              <Reveal delay={0}>
               <div className="node-section">
                 <div className="node-inner">
                   <div className="node-left">
-                    <div className="node-eyebrow">Personal AI Node</div>
-                    <div className="node-title">Run your own<br/>AI node.</div>
-                    <div className="node-desc">Instead of relying on centralized AI platforms that reset every session, NoelClaw lets you run agents on your own infrastructure — with persistent context, full control, and growing intelligence.</div>
+                    <div className="node-eyebrow">Noel Agent</div>
+                    <div className="node-title">Run Bankr<br/>agents.</div>
+                    <div className="node-desc">NoelClaw connects to Bankr API so you can execute real on-chain actions — swaps, token deployments, limit orders — all via natural language. No code. No manual transactions.</div>
                     <div className="node-pills">
-                      {["Your AI grows with your systems","No vendor lock-in","Every decision documented publicly","Built on Base — open & permissionless"].map((t,i)=>(
+                      {["Swap any token on Base via chat","Deploy tokens in one sentence","Set limit orders with natural language","Every action traceable on-chain"].map((t,i)=>(
                         <div className="node-pill" key={i}><div className="node-pill-dot"/><div className="node-pill-text">{t}</div></div>
                       ))}
                     </div>
                   </div>
                   <div className="node-right">
                     {[
-                      {tag:"Infrastructure",title:"Agent Discovery (AAIO)",desc:"Agentic AI Optimization — making NoelClaw discoverable and interoperable with other AI systems on the emerging agent internet."},
-                      {tag:"Token",title:"$NOELCLAW Utility",desc:"Access agent infrastructure, run automation workflows, and participate in the ecosystem. Token-gated features for holders on Base."},
-                      {tag:"Philosophy",title:"Build in Public",desc:"Every architecture decision, every failure, every breakthrough — documented as it happens. The reasoning trail is more valuable than the product."},
+                      {tag:"Bankr API",title:"Natural Language Trading",desc:"Type 'swap 0.1 ETH to USDC' and it executes. Bankr translates your intent into on-chain transactions on Base."},
+                      {tag:"On-Chain",title:"Real Execution Engine",desc:"Not a simulator. Every swap, deploy, and limit order is a real transaction on Base chain — confirmed and traceable."},
+                      {tag:"Philosophy",title:"Build in Public",desc:"Every agent action is logged, every trade is traceable, every decision is transparent. Built on Base chain with Bankr API."},
                     ].map((nc,i)=>(
                       <div className="node-card" key={i}>
                         <div className="node-card-tag">{nc.tag}</div>
@@ -3241,7 +4952,10 @@ Live data:
                   </div>
                 </div>
               </div>
+              </Reveal>
 
+              </Reveal>
+              <Reveal delay={0}>
               {/* ── USE CASES ── */}
               <div style={{padding:"4rem 3.5rem",borderBottom:"1px solid var(--border)"}}>
                 <div style={{marginBottom:"2.5rem"}}>
@@ -3249,12 +4963,92 @@ Live data:
                     <span style={{width:"22px",height:"1px",background:"rgba(255,255,255,.2)",display:"inline-block"}}/>
                     Real use cases
                   </div>
-                  <div style={{fontFamily:"'Inter',sans-serif",fontSize:"clamp(1.4rem,2.5vw,2rem)",fontWeight:100,color:"var(--white)",letterSpacing:"-.01em",lineHeight:1.1,marginBottom:".7rem"}}>What you can actually build.</div>
-                  <div style={{fontSize:".85rem",color:"var(--text2)",fontWeight:200,maxWidth:"480px",lineHeight:1.7}}>Real agents solving real problems. Not demos — production workflows running on NoelClaw infrastructure.</div>
+                  <div style={{fontFamily:"'Inter',sans-serif",fontSize:"clamp(1.4rem,2.5vw,2rem)",fontWeight:100,color:"var(--white)",letterSpacing:"-.01em",lineHeight:1.1,marginBottom:".7rem"}}>What Bankr agent can do.</div>
+                  <div style={{fontSize:".85rem",color:"var(--text2)",fontWeight:200,maxWidth:"480px",lineHeight:1.7}}>Real on-chain actions via natural language. Swap, deploy, analyze, set orders — powered by Bankr on Base.</div>
                 </div>
-                <UseCaseShowcase walletTier={walletTier}/>
+                <UseCaseShowcase/>
               </div>
 
+              <Reveal delay={0}>
+              {/* ── CLI INSTALL SECTION — ala True Markets ── */}
+              <div style={{padding:"5rem 3.5rem",borderBottom:"1px solid var(--border)",position:"relative",overflow:"hidden",textAlign:"center"}}>
+                {/* BG glow */}
+                <div style={{position:"absolute",top:"50%",left:"50%",transform:"translate(-50%,-50%)",width:"600px",height:"300px",background:"radial-gradient(ellipse,rgba(26,79,255,.06) 0%,transparent 70%)",pointerEvents:"none"}}/>
+
+                <div style={{position:"relative",zIndex:1,maxWidth:"680px",margin:"0 auto"}}>
+                  {/* Eyebrow */}
+                  <div style={{display:"inline-flex",alignItems:"center",gap:".5rem",background:"rgba(26,79,255,.1)",border:"1px solid rgba(77,133,255,.2)",borderRadius:"20px",padding:".3rem .9rem",fontSize:".58rem",color:"rgba(140,180,255,.8)",letterSpacing:".2em",textTransform:"uppercase",marginBottom:"1.8rem",fontFamily:"'IBM Plex Mono',monospace"}}>
+                    <span style={{width:"5px",height:"5px",borderRadius:"50%",background:"#4d85ff",animation:"pulse 2s infinite",display:"inline-block"}}/>
+                    Now in Beta
+                  </div>
+
+                  {/* Headline */}
+                  <h2 style={{fontFamily:"'Inter',sans-serif",fontSize:"clamp(2rem,5vw,3.8rem)",fontWeight:100,color:"#fff",lineHeight:1.05,letterSpacing:"-.03em",marginBottom:".8rem"}}>
+                    Let your Agent <em style={{fontStyle:"normal",color:"rgba(100,160,255,.9)"}}>trade crypto</em><br/>
+                    right from the chat.
+                  </h2>
+                  <p style={{fontSize:"1rem",color:"rgba(180,200,255,.5)",fontWeight:300,lineHeight:1.7,marginBottom:"2.5rem"}}>
+                    Natural language to on-chain execution. Any token on Base — no code, no manual txs, no bridge fees.
+                  </p>
+
+                  {/* Install tabs */}
+                  <div style={{background:"rgba(255,255,255,.03)",border:"1px solid rgba(255,255,255,.08)",borderRadius:"14px",overflow:"hidden",marginBottom:"1.5rem",textAlign:"left"}}>
+                    <div style={{display:"flex",borderBottom:"1px solid rgba(255,255,255,.07)"}}>
+                      {[["Chat Agent","⚡"],["CLI Terminal","$_"],["Auto Agent","🤖"]].map(([label,icon],i)=>(
+                        <div key={i} style={{padding:".55rem 1.2rem",fontSize:".68rem",color:i===0?"#4d85ff":"rgba(180,200,255,.4)",fontFamily:"'IBM Plex Mono',monospace",borderBottom:i===0?"2px solid #4d85ff":"2px solid transparent",cursor:"default",userSelect:"none",display:"flex",alignItems:"center",gap:".4rem"}}>
+                          <span>{icon}</span>{label}
+                        </div>
+                      ))}
+                    </div>
+                    <div style={{padding:"1.2rem 1.4rem"}}>
+                      <div style={{fontSize:".58rem",color:"rgba(180,200,255,.35)",letterSpacing:".15em",textTransform:"uppercase",marginBottom:".6rem",fontFamily:"'IBM Plex Mono',monospace"}}>Try it in Noel Agent</div>
+                      <div style={{display:"flex",alignItems:"center",gap:".8rem",background:"#020508",border:"1px solid rgba(77,133,255,.15)",borderRadius:"8px",padding:".6rem 1rem"}}>
+                        <span style={{color:"rgba(77,133,255,.5)",fontFamily:"'IBM Plex Mono',monospace",fontSize:".75rem",flexShrink:0}}>{">"}</span>
+                        <span style={{fontFamily:"'IBM Plex Mono',monospace",fontSize:".78rem",color:"rgba(200,220,255,.85)",flex:1}}>
+                          <span style={{color:"#4d85ff"}}>analyze</span> BRETT <span style={{color:"rgba(180,200,255,.4)"}}>— should I buy?</span>
+                        </span>
+                        <button onClick={()=>{navigator.clipboard?.writeText('analyze BRETT — should I buy?')}}
+                          style={{background:"none",border:"1px solid rgba(77,133,255,.2)",borderRadius:"5px",padding:".2rem .5rem",color:"rgba(77,133,255,.5)",fontSize:".6rem",cursor:"pointer",fontFamily:"'IBM Plex Mono',monospace",transition:"all .2s",flexShrink:0}}
+                          onMouseEnter={e=>{e.currentTarget.style.borderColor="rgba(77,133,255,.5)";e.currentTarget.style.color="#4d85ff";}}
+                          onMouseLeave={e=>{e.currentTarget.style.borderColor="rgba(77,133,255,.2)";e.currentTarget.style.color="rgba(77,133,255,.5)";}}>
+                          copy
+                        </button>
+                      </div>
+                      <div style={{marginTop:".6rem",display:"flex",gap:".5rem",flexWrap:"wrap"}}>
+                        {["swap 0.01 ETH USDC","price DEGEN","trending","balance","deploy MyToken MYT"].map(cmd=>(
+                          <span key={cmd} style={{fontFamily:"'IBM Plex Mono',monospace",fontSize:".62rem",color:"rgba(140,180,255,.45)",background:"rgba(26,79,255,.06)",border:"1px solid rgba(77,133,255,.1)",borderRadius:"5px",padding:".15rem .5rem",cursor:"pointer",transition:"all .15s"}}
+                            onMouseEnter={e=>{e.currentTarget.style.color="rgba(140,180,255,.8)";e.currentTarget.style.borderColor="rgba(77,133,255,.25)";}}
+                            onMouseLeave={e=>{e.currentTarget.style.color="rgba(140,180,255,.45)";e.currentTarget.style.borderColor="rgba(77,133,255,.1)";}}>
+                            {cmd}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* CTA buttons */}
+                  <div style={{display:"flex",gap:".75rem",justifyContent:"center",flexWrap:"wrap"}}>
+                    <button style={{background:"rgba(255,255,255,.07)",border:"1px solid rgba(255,255,255,.15)",borderRadius:"50px",padding:".7rem 1.8rem",color:"#fff",fontSize:".78rem",cursor:"pointer",fontFamily:"'DM Sans',sans-serif",fontWeight:500,display:"flex",alignItems:"center",gap:".5rem",transition:"all .2s"}}
+                      onMouseEnter={e=>{e.currentTarget.style.background="rgba(255,255,255,.12)";}}
+                      onMouseLeave={e=>{e.currentTarget.style.background="rgba(255,255,255,.07)";}}>
+                      <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg>
+                      View on GitHub
+                    </button>
+                    <a href="https://x.com/noelclawfun" target="_blank" rel="noopener noreferrer"
+                      style={{background:"rgba(77,133,255,.15)",border:"1px solid rgba(77,133,255,.35)",borderRadius:"50px",padding:".7rem 1.8rem",color:"#4d85ff",fontSize:".78rem",cursor:"pointer",fontFamily:"'DM Sans',sans-serif",fontWeight:500,display:"flex",alignItems:"center",gap:".5rem",textDecoration:"none",transition:"all .2s"}}
+                      onMouseEnter={e=>{e.currentTarget.style.background="rgba(77,133,255,.22)";}}
+                      onMouseLeave={e=>{e.currentTarget.style.background="rgba(77,133,255,.15)";}}>
+                      𝕏 Follow Updates
+                    </a>
+                  </div>
+                  <p style={{marginTop:"1.2rem",fontSize:".65rem",color:"rgba(180,200,255,.3)",fontFamily:"'IBM Plex Mono',monospace"}}>
+                    Works with any wallet · Built on Base · Powered by Bankr API
+                  </p>
+                </div>
+              </div>
+              </Reveal>
+
+              <Reveal delay={0}>
               <div style={{padding:"3rem 3.5rem"}}>
                 <div style={{fontSize:".58rem",fontWeight:600,color:"var(--text3)",letterSpacing:".2em",textTransform:"uppercase",marginBottom:"2rem"}}>Built with</div>
                 <div style={{display:"flex",flexWrap:"wrap",gap:"1rem"}}>
@@ -3266,6 +5060,7 @@ Live data:
                     {name:"Claude",   logo:"https://registry.npmmirror.com/@lobehub/icons-static-png/latest/files/dark/claude-color.png"},
                     {name:"Vercel",   logo:"https://www.svgrepo.com/show/327408/logo-vercel.svg"},
                     {name:"Base",     logo:"https://avatars.githubusercontent.com/u/108554348"},
+                    {name:"Bankr",    logo:"https://bankr.bot/favicon.ico"},
                   ].map(t=>(
                     <div key={t.name} style={{display:"flex",alignItems:"center",gap:".55rem",padding:".55rem 1rem",borderRadius:"8px",background:"var(--surface)",border:"1px solid var(--border)",transition:"border-color .2s"}}
                       onMouseEnter={e=>e.currentTarget.style.borderColor="var(--border2)"}
@@ -3279,6 +5074,8 @@ Live data:
                   ))}
                 </div>
               </div>
+              </Reveal>
+              </Reveal>
             </div>
           )}
 
@@ -3293,7 +5090,7 @@ Live data:
                 <img src={LOGO} className="footer-logo-icon" alt=""/>
                 <span><span style={{color:"var(--blue-hi)"}}>Noel</span>Claw</span>
               </div>
-              <p className="footer-desc">Personal AI operating system — blog, architecture decisions, and the journey from zero to a composable agent system.</p>
+              <p className="footer-desc">AI agent platform on Base chain — run agents, execute trades, deploy tokens via natural language. Powered by Bankr API.</p>
               <div className="footer-socials">
                 <a className="footer-social-btn" href="https://x.com/noelclawfun" target="_blank" rel="noopener noreferrer" title="X / Twitter">
                   <img src="/x-logo.jpg" alt="X" style={{width:"14px",height:"14px",objectFit:"contain",filter:"invert(1)",opacity:.8}}/>
@@ -3306,15 +5103,15 @@ Live data:
             <div>
               <div className="footer-col-title">Product</div>
               <div className="footer-links">
-                {["Dashboard","Analytics","Articles","About"].map(l=>(
-                  <button key={l} className="footer-link btn-style" onClick={()=>navTo(l.toLowerCase())}>{l}</button>
+                {["Noel Agent","How It Works","About","Docs"].map(l=>(
+                  <button key={l} className="footer-link btn-style" onClick={()=>navTo(l==="Noel Agent"?"articles":l.toLowerCase())}>{l}</button>
                 ))}
               </div>
             </div>
             <div>
               <div className="footer-col-title">Resources</div>
               <div className="footer-links">
-                {["Getting Started","AI Agent Guide","Architecture Docs","Build in Public"].map(l=>(
+                {["Getting Started","Bankr API Docs","Agent Examples","Base Chain Guide"].map(l=>(
                   <span key={l} className="footer-link" style={{cursor:"default",opacity:.4}}>{l}</span>
                 ))}
               </div>
